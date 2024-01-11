@@ -1,0 +1,38 @@
+name: Monorepo commit
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout monorepo
+        uses: actions/checkout@v4
+        with:
+          repository: PhitNest/phitnest
+          path: phitnest
+          ref: master
+          submodules: recursive
+          token: ${{ secrets.PAT }}
+      
+      - name: Update submodules
+        run: |
+          cd phitnest
+          git submodule foreach git checkout origin/master
+
+      - name: Commit to monorepo
+        uses: EndBug/add-and-commit@v9
+        with:
+          cwd: ./phitnest
+          author_name: GoldNest
+          author_email: machine@phitnest.com
+          commit: --signoff
+          committer_name: GoldNest
+          committer_email: machine@phitnest.com
+          message: Updated submodules
+          new_branch: master
