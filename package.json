@@ -5,8 +5,7 @@
   "scripts": {
     "install": "flutter pub get",
     "dev": "flutter run",
-    "build": "bundle install --gemfile=$BUNDLE_GEMFILE",
-    "deploy": "cd ios && bundle exec fastlane ios beta $BUILD_NAME",
-    "upgrade": "flutter pub upgrade"
+    "prebuild": "bundle install --gemfile=$BUNDLE_GEMFILE",
+    "build": "cd ios && bundle exec fastlane ios beta $BUILD_NAME"
   }
 }
