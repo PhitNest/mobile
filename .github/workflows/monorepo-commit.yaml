@@ -26,10 +26,8 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           cwd: ./phitnest
-          author_name: GoldNest
-          author_email: machine@phitnest.com
+          author_name: ${{ github.event.pusher.username }}
+          author_email: ${{ github.event.pusher.email }}
           commit: --signoff
-          committer_name: GoldNest
-          committer_email: machine@phitnest.com
-          message: Updated submodules
+          message: ${{ github.event.head_commit.message }}
           new_branch: ${{ github.ref_name }} 
