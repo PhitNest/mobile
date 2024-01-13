@@ -13,14 +13,14 @@ jobs:
         with:
           repository: PhitNest/phitnest
           path: phitnest
-          ref: ${GITHUB_REF#refs/heads/}
+          ref: ${{ github.ref_name }} 
           submodules: recursive
           token: ${{ secrets.PAT }}
       
       - name: Update submodules
         run: |
           cd phitnest
-          git submodule foreach git checkout origin/${GITHUB_REF#refs/heads/}
+          git submodule foreach git checkout origin/${{ github.ref_name }} 
 
       - name: Commit to monorepo
         uses: EndBug/add-and-commit@v9
@@ -32,4 +32,4 @@ jobs:
           committer_name: GoldNest
           committer_email: machine@phitnest.com
           message: Updated submodules
-          new_branch: ${GITHUB_REF#refs/heads/}
+          new_branch: ${{ github.ref_name }} 
