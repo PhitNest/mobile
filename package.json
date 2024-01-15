@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "install": "flutter pub get",
     "dev": "flutter run",
     "prebuild": "bundle install --gemfile=$BUNDLE_GEMFILE",
     "build": "cd ios && bundle exec fastlane ios beta $BUILD_NAME"
