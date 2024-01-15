@@ -6,26 +6,20 @@ jobs:
   commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
       - name: Checkout monorepo
         uses: actions/checkout@v4
         with:
           repository: PhitNest/phitnest
-          path: phitnest
           ref: ${{ github.ref_name }} 
           submodules: recursive
           token: ${{ secrets.PAT }}
       
       - name: Update submodules
-        run: |
-          cd phitnest
-          git submodule foreach git checkout origin/${{ github.ref_name }} 
+        run: git submodule foreach git checkout origin/${{ github.ref_name }} 
 
       - name: Commit to monorepo
         uses: EndBug/add-and-commit@v9
         with:
-          cwd: ./phitnest
           author_name: ${{ github.event.pusher.username }}
           author_email: ${{ github.event.pusher.email }}
           commit: --signoff
