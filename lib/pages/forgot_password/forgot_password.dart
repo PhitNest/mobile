@@ -1,9 +1,10 @@
-import 'package:core/core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ui/ui.dart';
 
+import '../../theme.dart';
+import '../../util/aws/aws.dart';
+import '../../util/bloc/bloc.dart';
+import '../../util/validators/validators.dart';
 import '../../widgets/widgets.dart';
 import '../verification/verification.dart';
 
@@ -15,7 +16,7 @@ final class ForgotPasswordScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40.w),
+          padding: const EdgeInsets.symmetric(horizontal: 40),
           child: _forgotPasswordForm(
             (context, controllers, submit) => LoaderConsumer(
               listener: (context, loaderState) =>
@@ -28,17 +29,14 @@ final class ForgotPasswordScreen extends StatelessWidget {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        64.verticalSpace,
                         Text(
                           'Forgot Password?',
                           style: theme.textTheme.bodyLarge,
                         ),
-                        32.verticalSpace,
                         Text(
                           'Enter your email address',
                           style: theme.textTheme.bodyMedium,
                         ),
-                        16.verticalSpace,
                         StyledUnderlinedTextField(
                           hint: 'Email',
                           controller: controllers.emailController,
@@ -54,7 +52,6 @@ final class ForgotPasswordScreen extends StatelessWidget {
                                   : {},
                           validator: EmailValidator.validateEmail,
                         ),
-                        23.verticalSpace,
                         StyledOutlineButton(
                           onPress: () => controllers.pageController.nextPage(
                             duration: const Duration(milliseconds: 300),
@@ -67,24 +64,20 @@ final class ForgotPasswordScreen extends StatelessWidget {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        64.verticalSpace,
                         Text(
                           'Forgot Password?',
                           style: theme.textTheme.bodyLarge,
                         ),
-                        32.verticalSpace,
                         Text(
                           'Enter your new password',
                           style: theme.textTheme.bodyMedium,
                         ),
-                        16.verticalSpace,
                         StyledPasswordField(
                           hint: 'New Password',
                           controller: controllers.newPasswordController,
                           textInputAction: TextInputAction.next,
                           validator: validatePassword,
                         ),
-                        16.verticalSpace,
                         StyledPasswordField(
                           hint: 'Confirm Password',
                           controller: controllers.confirmPasswordController,
@@ -97,7 +90,6 @@ final class ForgotPasswordScreen extends StatelessWidget {
                           onFieldSubmitted: (_) => submit(
                               controllers.emailController.text, loaderState),
                         ),
-                        23.verticalSpace,
                         Center(
                           child: switch (loaderState) {
                             LoaderLoadingState() =>

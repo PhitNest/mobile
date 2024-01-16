@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../navbar.dart';
 
@@ -8,7 +7,7 @@ const kLogoWidth = 36.62;
 
 Image _logoImage(double animation, NavBarState state) => Image.asset(
       state.logoAssetPath!,
-      width: kLogoWidth.w + animation * kLogoAnimationWidth.w,
+      width: kLogoWidth + animation * kLogoAnimationWidth,
     );
 
 final class NavBarAnimation extends StatefulWidget {
@@ -51,9 +50,9 @@ final class NavBarLogo extends StatelessWidget {
   final NavBarState state;
 
   const NavBarLogo({
-    Key? key,
+    super.key,
     required this.state,
-  }) : super(key: key);
+  }) : super();
 
   @override
   Widget build(BuildContext context) {

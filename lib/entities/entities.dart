@@ -1,3 +1,3 @@
-export 'friendship.dart';
+export 'friend_request.dart';
 export 'responses/responses.dart';
 export 'user.dart';

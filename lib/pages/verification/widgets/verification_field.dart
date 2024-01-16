@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:ui/ui.dart';
+
+import '../../../theme.dart';
 
 final class VerificationField extends StatelessWidget {
   final TextEditingController controller;
@@ -10,16 +10,16 @@ final class VerificationField extends StatelessWidget {
   final ValueChanged<String> onCompleted;
 
   const VerificationField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.focusNode,
     required this.onChanged,
     required this.onCompleted,
-  }) : super(key: key);
+  }) : super();
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        width: 280.w,
+        width: 280,
         child: PinCodeTextField(
           appContext: context,
           length: 6,
@@ -35,7 +35,7 @@ final class VerificationField extends StatelessWidget {
             activeColor: Colors.grey.shade600,
             selectedColor: Colors.grey.shade600,
             inactiveColor: Colors.grey.shade400,
-            fieldWidth: 40.w,
+            fieldWidth: 40,
           ),
         ),
       );

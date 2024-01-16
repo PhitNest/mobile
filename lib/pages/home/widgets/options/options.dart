@@ -1,16 +1,15 @@
-import 'package:core/core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ui/ui.dart';
 
 import '../../../../entities/entities.dart';
+import '../../../../theme.dart';
+import '../../../../util/bloc/bloc.dart';
 import '../../../../widgets/widgets.dart';
 import '../../../about_us/about_us.dart';
 import '../../home.dart';
 
 class OptionsPage extends StatelessWidget {
-  final User user;
+  final UserWithEmail user;
   final Image profilePicture;
 
   const OptionsPage({
@@ -21,7 +20,7 @@ class OptionsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: EdgeInsets.symmetric(horizontal: 40.w),
+        padding: const EdgeInsets.symmetric(horizontal: 40),
         child: Center(
           child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -29,24 +28,19 @@ class OptionsPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: [
-                64.verticalSpace,
                 Text(
                   'Your Account',
                   style: theme.textTheme.bodyLarge,
                 ),
-                32.verticalSpace,
                 Text(
                   user.fullName,
                   style: theme.textTheme.bodyMedium,
                 ),
-                16.verticalSpace,
                 Text(
                   user.email,
                   style: theme.textTheme.bodyMedium,
                 ),
-                16.verticalSpace,
                 profilePicture,
-                32.verticalSpace,
                 TextButton(
                   onPressed: () => Navigator.push(
                     context,
@@ -65,18 +59,18 @@ class OptionsPage extends StatelessWidget {
                   ),
                 ),
                 StyledOutlineButton(
-                  onPress: () => context.deleteUserBloc.add(
-                      LoaderLoadEvent(AuthReq(null, context.sessionLoader))),
+                  onPress: () =>
+                      context.deleteUserBloc.add(const LoaderLoadEvent(null)),
                   text: 'Delete Account',
-                  hPadding: 16.w,
-                  vPadding: 8.h,
+                  hPadding: 16,
+                  vPadding: 8,
                 ),
                 StyledOutlineButton(
-                  onPress: () => context.logoutBloc.add(
-                      LoaderLoadEvent(AuthReq(null, context.sessionLoader))),
+                  onPress: () =>
+                      context.logoutBloc.add(const LoaderLoadEvent(null)),
                   text: 'Sign Out',
-                  hPadding: 16.w,
-                  vPadding: 8.h,
+                  hPadding: 16,
+                  vPadding: 8,
                 ),
               ],
             ),

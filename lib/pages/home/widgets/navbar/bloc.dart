@@ -367,15 +367,9 @@ void _handleNavBarStateChanged(
       switch (response) {
         case AuthRes(data: final response):
           switch (response) {
-            case HttpResponseSuccess(
-                data: final response,
-                headers: final headers,
-              ):
+            case HttpResponseSuccess(data: final response):
               switch (response) {
-                case GetUserSuccess(
-                    exploreUsers: final exploreUsers,
-                    receivedFriendRequests: final receivedRequests,
-                  ):
+                case GetUserSuccess(exploreUsers: final exploreUsers):
                   switch (state) {
                     case NavBarInactiveState(page: final page):
                       if (page == NavBarPage.explore) {
@@ -388,28 +382,7 @@ void _handleNavBarStateChanged(
                           pageController.page!.round() % exploreUsers.length;
                       final user = exploreUsers[currentPage];
                       context.sendFriendRequestBloc
-                          .add(ParallelPushEvent(AuthReq(
-                        user,
-                        context.sessionLoader,
-                      )));
-                      final updatedReceivedRequests = receivedRequests
-                        ..removeWhere(
-                          (request) => request.sender.id == user.user.id,
-                        );
-                      context.userBloc.add(
-                        LoaderSetEvent(
-                          AuthRes(
-                            HttpResponseOk(
-                              response.copyWith(
-                                exploreUsers: exploreUsers
-                                  ..removeAt(currentPage),
-                                receivedFriendRequests: updatedReceivedRequests,
-                              ),
-                              headers,
-                            ),
-                          ),
-                        ),
-                      );
+                          .add(ParallelPushEvent(user));
                     default:
                   }
                 default:

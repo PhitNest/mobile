@@ -1,10 +1,11 @@
-import 'package:core/core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ui/ui.dart';
 
+import '../../theme.dart';
+import '../../util/aws/aws.dart';
+import '../../util/bloc/bloc.dart';
+import '../../widgets/widgets.dart';
 import '../home/home.dart';
 import 'widgets/widgets.dart';
 
@@ -37,7 +38,7 @@ final class VerificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32.w),
+          padding: const EdgeInsets.symmetric(horizontal: 32),
           child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: BlocProvider(
@@ -45,12 +46,10 @@ final class VerificationPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  120.verticalSpace,
                   Text(
                     'Verify your email',
                     style: theme.textTheme.bodyLarge,
                   ),
-                  52.verticalSpace,
                   Center(
                     child: verificationForm(
                       _confirmAndLogin,
@@ -78,7 +77,6 @@ final class VerificationPage extends StatelessWidget {
                                     }
                                 },
                               ),
-                              16.verticalSpace,
                               ...switch (loaderState) {
                                 LoaderLoadingState() => [const Loader()],
                                 _ => switch (resendState) {
@@ -94,7 +92,6 @@ final class VerificationPage extends StatelessWidget {
                                             style: theme.textTheme.bodySmall,
                                           ),
                                         ),
-                                        16.verticalSpace,
                                         ElevatedButton(
                                           onPressed: () => context
                                               .resendEmailLoaderBloc

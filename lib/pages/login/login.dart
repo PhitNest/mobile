@@ -1,10 +1,12 @@
-import 'package:core/core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ui/ui.dart';
 
+import '../../theme.dart';
+import '../../util/aws/aws.dart';
+import '../../util/bloc/bloc.dart';
+import '../../util/validators/validators.dart';
+import '../../widgets/widgets.dart';
 import '../pages.dart';
 
 part 'bloc.dart';
@@ -17,19 +19,17 @@ final class LoginPage extends StatelessWidget {
         body: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 40.w),
+            padding: const EdgeInsets.symmetric(horizontal: 40),
             child: _loginForm(
               (context, controllers, submit) => LoaderConsumer(
                 listener: (context, loaderState) =>
                     _handleStateChanged(context, controllers, loaderState),
                 builder: (context, loaderState) => Column(
                   children: [
-                    120.verticalSpace,
                     Text(
                       'Login',
                       style: theme.textTheme.bodyLarge,
                     ),
-                    70.verticalSpace,
                     StyledUnderlinedTextField(
                       hint: 'Email',
                       controller: controllers.emailController,
@@ -37,7 +37,6 @@ final class LoginPage extends StatelessWidget {
                       textInputAction: TextInputAction.next,
                       validator: EmailValidator.validateEmail,
                     ),
-                    24.verticalSpace,
                     StyledPasswordField(
                       hint: 'Password',
                       controller: controllers.passwordController,
@@ -67,7 +66,6 @@ final class LoginPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    8.verticalSpace,
                     switch (loaderState) {
                       LoaderLoadingState() => const CircularProgressIndicator(),
                       LoaderInitialState() ||
@@ -81,7 +79,6 @@ final class LoginPage extends StatelessWidget {
                           ),
                         ),
                     },
-                    32.verticalSpace,
                     RichText(
                       text: TextSpan(
                         text: "Don't have an account?",

@@ -1,21 +1,11 @@
-import 'package:core/core.dart';
-
 import '../entities/entities.dart';
+import '../util/aws/session.dart';
+import '../util/http/http.dart';
 
-Future<HttpResponse<List<UserExplore>>> getExploreUsers(Session session) =>
-    request(
-      route: 'explore',
-      method: HttpMethod.get,
-      session: session,
-      parse: (list) => (list as List<dynamic>)
-          .map((json) => UserExplore.parse(json as Map<String, dynamic>))
-          .toList(),
-    );
-
-Future<HttpResponse<GetUserResponseJson>> getUser(Session session) => request(
+Future<HttpResponse<GetUserResponse>> getUser(Session session) => request(
       route: 'user',
       method: HttpMethod.get,
-      parse: (json) => GetUserResponseJson.parse(json as Map<String, dynamic>),
+      parse: (json) => GetUserResponse.parse(json as Map<String, dynamic>),
       session: session,
     );
 

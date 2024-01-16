@@ -6,7 +6,7 @@ import 'widgets/widgets.dart';
 
 class ExplorePage extends StatelessWidget {
   final PageController pageController;
-  final List<UserExploreWithPicture> users;
+  final List<ExploreUser> users;
   final NavBarState navBarState;
   static const PageStorageKey<String> pageStorageKey =
       PageStorageKey('explore');

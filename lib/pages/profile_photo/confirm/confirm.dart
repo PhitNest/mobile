@@ -1,15 +1,15 @@
 import 'dart:io';
 
-import 'package:core/core.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:ui/ui.dart';
 
+import '../../../theme.dart';
+import '../../../util/aws/aws.dart';
+import '../../../util/bloc/bloc.dart';
 import '../../../widgets/widgets.dart';
 import '../../login/login.dart';
 
@@ -46,7 +46,8 @@ final class ConfirmPhotoPage extends StatelessWidget {
           child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: BlocProvider(
-              create: (_) => ConfirmPhotoBloc(
+              create: (context) => ConfirmPhotoBloc(
+                sessionLoader: context.sessionLoader,
                 load: (_, session) => _submit(session),
               ),
               child: ConfirmPhotoConsumer(
@@ -55,7 +56,6 @@ final class ConfirmPhotoPage extends StatelessWidget {
                 builder: (context, confirmState) => Column(
                   children: [
                     pfp,
-                    56.verticalSpace,
                     ...switch (confirmState) {
                       LoaderLoadingState() => const [Loader()],
                       _ => [
@@ -64,11 +64,9 @@ final class ConfirmPhotoPage extends StatelessWidget {
                               'CONFIRM',
                               style: theme.textTheme.bodySmall,
                             ),
-                            onPressed: () => context.confirmPhotoBloc.add(
-                                LoaderLoadEvent(
-                                    AuthReq(null, context.sessionLoader))),
+                            onPressed: () => context.confirmPhotoBloc
+                                .add(const LoaderLoadEvent(null)),
                           ),
-                          12.verticalSpace,
                           StyledOutlineButton(
                               text: 'BACK',
                               onPress: () => Navigator.of(context).pop()),

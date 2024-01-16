@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ui/ui.dart';
+
+import '../../../theme.dart';
 
 final class StyledIndicator extends StatelessWidget {
   final int count;
@@ -8,11 +8,11 @@ final class StyledIndicator extends StatelessWidget {
   final Size offset;
 
   const StyledIndicator({
-    Key? key,
+    super.key,
     required this.child,
     required this.count,
     required this.offset,
-  }) : super(key: key);
+  }) : super();
 
   @override
   Widget build(BuildContext context) => Stack(
@@ -24,14 +24,14 @@ final class StyledIndicator extends StatelessWidget {
               right: offset.width,
               top: offset.height,
               child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 9.w,
-                  vertical: 2.5.h,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 9,
+                  vertical: 2.5,
                 ),
                 decoration: BoxDecoration(
                   shape: BoxShape.rectangle,
                   color: Colors.red,
-                  borderRadius: BorderRadius.circular(32.r),
+                  borderRadius: BorderRadius.circular(32),
                 ),
                 alignment: Alignment.center,
                 child: Text(

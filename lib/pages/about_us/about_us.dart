@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ui/ui.dart';
+
+import '../../theme.dart';
 
 final class AboutUsScreen extends StatelessWidget {
   const AboutUsScreen({super.key}) : super();
@@ -14,9 +14,9 @@ final class AboutUsScreen extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).pop();
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back_ios,
-              size: 32.sp,
+              size: 32,
             ),
           ),
           title: Text(
@@ -25,11 +25,10 @@ final class AboutUsScreen extends StatelessWidget {
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40.w),
+          padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              32.verticalSpace,
               TextButton(
                 onPressed: () => {},
                 style: TextButton.styleFrom(),
@@ -41,7 +40,6 @@ final class AboutUsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              8.verticalSpace,
               TextButton(
                 onPressed: () => {},
                 style: TextButton.styleFrom(),
@@ -53,7 +51,6 @@ final class AboutUsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              8.verticalSpace,
               TextButton(
                 onPressed: () => {},
                 style: TextButton.styleFrom(),

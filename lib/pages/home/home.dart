@@ -1,13 +1,13 @@
-import 'package:core/core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ui/ui.dart';
 
 import '../../entities/entities.dart';
 import '../../repositories/repositories.dart';
 import '../../use_cases/use_cases.dart';
+import '../../util/aws/aws.dart';
+import '../../util/bloc/bloc.dart';
+import '../../util/http/http.dart';
 import '../../widgets/widgets.dart';
 import '../pages.dart';
 import 'widgets/widgets.dart';
@@ -25,20 +25,20 @@ Widget _buildHome(
   BuildContext context, {
   required LoaderState<AuthResOrLost<HttpResponse<bool>>> deleteUserState,
   required LoaderState<AuthResOrLost<void>> logoutState,
-  required LoaderState<AuthResOrLost<HttpResponse<GetUserResponse>>> userState,
+  required LoaderState<
+          AuthResOrLost<HttpResponse<GetUserResponseWithExplorePictures>>>
+      userState,
   required Widget Function(GetUserSuccess userResponse) builder,
 }) {
   final loader = Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       const Loader(),
-      16.verticalSpace,
       StyledOutlineButton(
-        onPress: () => context.logoutBloc
-            .add(LoaderLoadEvent(AuthReq(null, context.sessionLoader))),
+        onPress: () => context.logoutBloc.add(const LoaderLoadEvent(null)),
         text: 'Sign Out',
-        hPadding: 16.w,
-        vPadding: 8.h,
+        hPadding: 16,
+        vPadding: 8,
       ),
     ],
   );
@@ -85,20 +85,25 @@ class _HomePageState extends State<HomePage> {
           providers: [
             BlocProvider(
               create: (context) => UserBloc(
+                  sessionLoader: context.sessionLoader,
                   load: (_, session) => user(session),
-                  loadOnStart: AuthReq(null, context.sessionLoader)),
+                  loadOnStart: const LoadOnStart(null)),
             ),
             BlocProvider(
-              create: (_) => SendFriendRequestBloc(
+              create: (context) => SendFriendRequestBloc(
+                  sessionLoader: context.sessionLoader,
                   load: (user, session) =>
                       sendFriendRequest(user.user.id, session)),
             ),
             const BlocProvider(create: logoutBloc),
             BlocProvider(
-              create: (_) => DeleteUserBloc(load: (_, session) {
-                context.sessionLoader.add(const LoaderSetEvent(SessionEnded()));
-                return deleteUserAccount(session);
-              }),
+              create: (context) => DeleteUserBloc(
+                  sessionLoader: context.sessionLoader,
+                  load: (_, session) {
+                    context.sessionLoader
+                        .add(const LoaderSetEvent(SessionEnded()));
+                    return deleteUserAccount(session);
+                  }),
             ),
             BlocProvider(create: (_) => NavBarBloc()),
           ],
@@ -137,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                             NavBarPage.chat => FriendsPage(
                                 initialExploreUsers:
                                     getUserResponse.exploreUsers,
-                                initialFriends: getUserResponse.friendships,
+                                initialFriends: getUserResponse.friends,
                                 initialReceivedRequests:
                                     getUserResponse.receivedFriendRequests,
                                 userId: getUserResponse.user.id,

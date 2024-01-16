@@ -1,6 +1,6 @@
-import 'package:core/core.dart';
-
 import '../repositories/repositories.dart';
+import '../util/aws/aws.dart';
+import '../util/http/http.dart';
 
 Future<HttpResponse<bool>> deleteUserAccount(Session session) =>
     deleteUser(session).then(

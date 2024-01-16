@@ -1,15 +1,17 @@
 part of 'home.dart';
 
-typedef SendFriendRequestBloc = AuthParallelLoaderBloc<UserExploreWithPicture,
-    HttpResponse<FriendshipResponse>>;
-typedef SendFriendRequestConsumer = AuthParallelLoaderConsumer<
-    UserExploreWithPicture, HttpResponse<FriendshipResponse>>;
+typedef SendFriendRequestBloc
+    = AuthParallelLoaderBloc<ExploreUser, HttpResponse<FriendRequest>>;
+typedef SendFriendRequestConsumer
+    = AuthParallelLoaderConsumer<ExploreUser, HttpResponse<FriendRequest>>;
 
 typedef DeleteUserBloc = AuthLoaderBloc<void, HttpResponse<bool>>;
 typedef DeleteUserConsumer = AuthLoaderConsumer<void, HttpResponse<bool>>;
 
-typedef UserBloc = AuthLoaderBloc<void, HttpResponse<GetUserResponse>>;
-typedef UserConsumer = AuthLoaderConsumer<void, HttpResponse<GetUserResponse>>;
+typedef UserBloc
+    = AuthLoaderBloc<void, HttpResponse<GetUserResponseWithExplorePictures>>;
+typedef UserConsumer = AuthLoaderConsumer<void,
+    HttpResponse<GetUserResponseWithExplorePictures>>;
 
 extension HomeBlocGetters on BuildContext {
   UserBloc get userBloc => authLoader();
@@ -43,7 +45,8 @@ void _handleLogoutStateChanged(
 
 Future<void> _handleGetUserStateChanged(
   BuildContext context,
-  LoaderState<AuthResOrLost<HttpResponse<GetUserResponse>>> loaderState,
+  LoaderState<AuthResOrLost<HttpResponse<GetUserResponseWithExplorePictures>>>
+      loaderState,
   NavBarState navBarState,
 ) async {
   switch (loaderState) {
@@ -58,8 +61,7 @@ Future<void> _handleGetUserStateChanged(
                 message: failure.message,
                 error: true,
               );
-              context.userBloc
-                  .add(LoaderLoadEvent(AuthReq(null, context.sessionLoader)));
+              context.userBloc.add(const LoaderLoadEvent(null));
             case HttpResponseSuccess(data: final response):
               switch (response) {
                 case GetUserSuccess(
@@ -90,8 +92,16 @@ Future<void> _handleGetUserStateChanged(
                       ),
                     );
                   }
-                  userBloc.add(LoaderSetEvent(
-                      AuthRes(HttpResponseOk(response.copyWith(image), null))));
+                  userBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
+                      GetUserSuccess(
+                        user: response.user,
+                        exploreUsers: response.exploreUsers,
+                        sentFriendRequests: response.sentFriendRequests,
+                        receivedFriendRequests: response.receivedFriendRequests,
+                        friends: response.friends,
+                        profilePicture: image,
+                      ),
+                      null))));
                 default:
               }
           }
@@ -133,8 +143,7 @@ void _handleDeleteUserStateChanged(
 
 void _handleSendFriendRequestStateChanged(
   BuildContext context,
-  ParallelLoaderState<AuthReq<UserExploreWithPicture>,
-          AuthResOrLost<HttpResponse<FriendshipResponse>>>
+  ParallelLoaderState<ExploreUser, AuthResOrLost<HttpResponse<FriendRequest>>>
       loaderState,
   GetUserSuccess getUserSuccess,
 ) {
@@ -144,68 +153,74 @@ void _handleSendFriendRequestStateChanged(
         case AuthRes(data: final data):
           switch (data) {
             case HttpResponseSuccess(data: final data):
-              switch (data) {
-                case FriendRequest(
-                    id: final id,
-                    sender: final sender,
-                    receiver: final receiver,
-                    createdAt: final createdAt,
-                  ):
-                  StyledBanner.show(
-                    message: 'Friend request sent',
-                    error: false,
-                  );
-                  context.userBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
-                      getUserSuccess.copyWith(
-                        sentFriendRequests: getUserSuccess.sentFriendRequests
-                          ..add(FriendRequestWithProfilePicture(
-                            id: id,
-                            sender: sender,
-                            receiver: receiver,
-                            createdAt: createdAt,
-                            profilePicture: req.data.profilePicture,
-                          )),
-                      ),
-                      null))));
-                  context.navBarBloc.add(const NavBarSetLoadingEvent(false));
-                case FriendWithoutMessage(
-                    id: final id,
-                    sender: final sender,
-                    receiver: final receiver,
-                    createdAt: final createdAt,
-                    acceptedAt: final acceptedAt,
-                  ):
-                  StyledBanner.show(
-                    message: 'Friend request accepted',
-                    error: false,
-                  );
-                  context.userBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
-                      getUserSuccess.copyWith(
-                        receivedFriendRequests: getUserSuccess
-                            .receivedFriendRequests
-                          ..removeWhere((request) => request.sender.id == id),
-                        friendships: getUserSuccess.friendships
-                          ..add(FriendWithoutMessageWithProfilePicture(
-                            id: id,
-                            sender: sender,
-                            receiver: receiver,
-                            createdAt: createdAt,
-                            acceptedAt: acceptedAt,
-                            profilePicture: req.data.profilePicture,
-                          )),
-                      ),
-                      null))));
-                  context.navBarBloc.add(const NavBarReverseEvent());
+              if (data.accepted) {
+                StyledBanner.show(
+                  message: 'Friend request accepted',
+                  error: false,
+                );
+                context.userBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
+                    GetUserSuccess(
+                      user: getUserSuccess.user,
+                      profilePicture: getUserSuccess.profilePicture,
+                      exploreUsers: getUserSuccess.exploreUsers,
+                      sentFriendRequests: getUserSuccess.sentFriendRequests,
+                      receivedFriendRequests:
+                          getUserSuccess.receivedFriendRequests
+                            ..removeWhere(
+                              (element) =>
+                                  element.friendRequest
+                                      .other(getUserSuccess.user.id)
+                                      .id ==
+                                  data.other(getUserSuccess.user.id).id,
+                            ),
+                      friends: getUserSuccess.friends
+                        ..add(FriendRequestWithProfilePicture(
+                            friendRequest: data,
+                            profilePicture: req.profilePicture)),
+                    ),
+                    null))));
+                context.navBarBloc.add(const NavBarReverseEvent());
+              } else {
+                StyledBanner.show(
+                  message: 'Friend request sent',
+                  error: false,
+                );
+                context.userBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
+                    GetUserSuccess(
+                      exploreUsers: getUserSuccess.exploreUsers
+                        ..removeWhere(
+                          (element) =>
+                              element.user.id ==
+                              data.other(getUserSuccess.user.id).id,
+                        ),
+                      sentFriendRequests: getUserSuccess.sentFriendRequests
+                        ..add(
+                          FriendRequestWithProfilePicture(
+                            friendRequest: data,
+                            profilePicture: req.profilePicture,
+                          ),
+                        ),
+                      receivedFriendRequests:
+                          getUserSuccess.receivedFriendRequests
+                            ..removeWhere(
+                              (element) =>
+                                  element.friendRequest
+                                      .other(getUserSuccess.user.id)
+                                      .id ==
+                                  data.other(getUserSuccess.user.id).id,
+                            ),
+                      friends: getUserSuccess.friends,
+                      user: getUserSuccess.user,
+                      profilePicture: req.profilePicture,
+                    ),
+                    null))));
+                context.navBarBloc.add(const NavBarSetLoadingEvent(false));
               }
             case HttpResponseFailure(failure: final failure):
               StyledBanner.show(
                 message: failure.message,
                 error: true,
               );
-              context.userBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
-                  getUserSuccess.copyWith(
-                      exploreUsers: getUserSuccess.exploreUsers..add(req.data)),
-                  null))));
               context.navBarBloc.add(const NavBarSetLoadingEvent(false));
             default:
           }
@@ -216,3 +231,18 @@ void _handleSendFriendRequestStateChanged(
     default:
   }
 }
+
+typedef LogoutBloc = AuthLoaderBloc<void, void>;
+typedef LogoutConsumer = AuthLoaderConsumer<void, void>;
+
+extension LogoutBlocGetter on BuildContext {
+  LogoutBloc get logoutBloc => authLoader();
+}
+
+LogoutBloc logoutBloc(BuildContext context) => LogoutBloc(
+      sessionLoader: context.sessionLoader,
+      load: (_, session) async {
+        context.sessionLoader.add(const LoaderSetEvent(SessionEnded()));
+        await logout(session);
+      },
+    );

@@ -1,8 +1,7 @@
-import 'package:core/core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ui/ui.dart';
 
+import '../../../util/validators/validators.dart';
+import '../../../widgets/widgets.dart';
 import '../register.dart';
 
 final class RegisterNamePage extends StatelessWidget {
@@ -17,25 +16,22 @@ final class RegisterNamePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: EdgeInsets.symmetric(horizontal: 40.w),
+        padding: const EdgeInsets.symmetric(horizontal: 40),
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              120.verticalSpace,
               Text(
                 'Let\'s get started!\nWhat is your name?',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              42.verticalSpace,
               StyledUnderlinedTextField(
                 hint: 'First name',
                 controller: controllers.firstNameController,
                 validator: validateNonEmpty,
                 textInputAction: TextInputAction.next,
               ),
-              24.verticalSpace,
               StyledUnderlinedTextField(
                 hint: 'Last name',
                 controller: controllers.lastNameController,
@@ -43,7 +39,6 @@ final class RegisterNamePage extends StatelessWidget {
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: (_) => onSubmit(),
               ),
-              147.verticalSpace,
               ElevatedButton(
                 onPressed: onSubmit,
                 child: Text(

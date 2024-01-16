@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 final class NavBarPageButton extends StatelessWidget {
   final String text;
@@ -8,18 +7,18 @@ final class NavBarPageButton extends StatelessWidget {
   final void Function() onPressed;
 
   const NavBarPageButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.selected,
     required this.reversed,
     required this.onPressed,
-  }) : super(key: key);
+  }) : super();
 
   @override
   Widget build(BuildContext context) => TextButton(
         style: ButtonStyle(
-          maximumSize: MaterialStateProperty.all(Size.fromWidth(78.w)),
-          minimumSize: MaterialStateProperty.all(Size.fromWidth(78.w)),
+          maximumSize: MaterialStateProperty.all(const Size.fromWidth(78)),
+          minimumSize: MaterialStateProperty.all(const Size.fromWidth(78)),
           overlayColor: MaterialStateProperty.all(Colors.transparent),
         ),
         onPressed: !selected ? onPressed : null,

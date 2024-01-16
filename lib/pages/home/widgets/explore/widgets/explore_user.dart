@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../entities/entities.dart';
 
 final class ExploreUserPage extends StatelessWidget {
-  final UserExploreWithPicture user;
+  final ExploreUser user;
   final int? countdown;
   final PageController pageController;
 
@@ -23,13 +22,13 @@ final class ExploreUserPage extends StatelessWidget {
           Stack(
             children: [
               SizedBox(
-                height: 444.h,
-                width: 375.w,
+                height: 444,
+                width: 375,
                 child: user.profilePicture,
               ),
               Positioned(
-                bottom: 16.h,
-                left: 16.w,
+                bottom: 16,
+                left: 16,
                 child: GestureDetector(
                   onTap: () {
                     pageController.previousPage(
@@ -37,23 +36,23 @@ final class ExploreUserPage extends StatelessWidget {
                         curve: Curves.easeInOut);
                   },
                   child: Container(
-                    height: 48.h,
-                    width: 48.w,
+                    height: 48,
+                    width: 48,
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.35),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.arrow_back_ios_new,
                       color: Colors.black,
-                      size: 32.sp,
+                      size: 32,
                     ),
                   ),
                 ),
               ),
               Positioned(
-                bottom: 16.h,
-                right: 16.w,
+                bottom: 16,
+                right: 16,
                 child: GestureDetector(
                   onTap: () {
                     pageController.nextPage(
@@ -61,25 +60,24 @@ final class ExploreUserPage extends StatelessWidget {
                         curve: Curves.easeInOut);
                   },
                   child: Container(
-                    height: 48.h,
-                    width: 48.w,
+                    height: 48,
+                    width: 48,
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.35),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.arrow_forward_ios,
                       color: Colors.black,
-                      size: 32.sp,
+                      size: 32,
                     ),
                   ),
                 ),
               ),
             ],
           ),
-          84.verticalSpace,
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 40.w),
+            padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

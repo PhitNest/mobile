@@ -1,1 +1,1 @@
-include: package:dart_analysis/flutter.yaml
+include: package:dart_analysis/base.yaml

@@ -1,13 +1,13 @@
 import 'package:async/async.dart';
-import 'package:core/core.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ui/ui.dart';
 
 import '../../../../constants/constants.dart';
 import '../../../../entities/entities.dart';
+import '../../../../util/bloc/bloc.dart';
+import '../../../../util/http/http.dart';
+import '../../../../util/logger.dart';
 import '../../home.dart';
 import '../styled_indicator.dart';
 import 'widgets/widgets.dart';
@@ -15,7 +15,8 @@ import 'widgets/widgets.dart';
 part 'bloc.dart';
 
 class NavBarConsumer extends StatelessWidget {
-  static double get kHeight => 66.h;
+  static const double kHeight = 66;
+
   final Widget Function(BuildContext context, NavBarState state) builder;
   final PageController pageController;
 
@@ -53,12 +54,12 @@ class NavBarConsumer extends StatelessWidget {
                   ],
                 ),
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: 18.h),
+                  padding: const EdgeInsets.only(bottom: 18),
                   child: Stack(
                     children: [
                       Center(
                         child: Padding(
-                          padding: EdgeInsets.only(left: 12.w),
+                          padding: const EdgeInsets.only(left: 12),
                           child: NavBarLogo(state: state),
                         ),
                       ),
@@ -83,7 +84,6 @@ class NavBarConsumer extends StatelessWidget {
                             onPressed: () => context.navBarBloc.add(
                                 const NavBarPressPageEvent(NavBarPage.explore)),
                           ),
-                          60.horizontalSpace,
                           StyledIndicator(
                             offset: const Size(8, 8),
                             count: state.numAlerts,

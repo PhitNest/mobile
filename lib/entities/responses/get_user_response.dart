@@ -4,117 +4,83 @@ import 'package:json_types/json.dart';
 
 import '../entities.dart';
 
-final class GetUserResponseJson extends Json {
-  final userJson = Json.object('user', User.parser);
-  final friendshipsJson =
-      Json.polymorphicList('friendships', FriendshipResponse.polymorphicParse);
-  final exploreJson = Json.objectList('exploreUsers', UserExplore.parser);
+final class GetUserResponse extends Json {
+  final userJson = Json.object('user', UserWithEmail.parser);
+  final friendRequestsJson =
+      Json.objectList('friendRequests', FriendRequest.parser);
+  final exploreJson = Json.objectList('exploreUsers', User.parser);
 
-  User get user => userJson.value;
-  List<FriendshipResponse> get friendships => friendshipsJson.value;
-  List<UserExplore> get explore => exploreJson.value;
+  UserWithEmail get user => userJson.value;
+  List<FriendRequest> get friendRequests => friendRequestsJson.value;
+  List<User> get explore => exploreJson.value;
 
-  GetUserResponseJson.parse(super.json) : super.parse();
+  GetUserResponse.parse(super.json) : super.parse();
 
-  GetUserResponseJson.parser() : super();
+  GetUserResponse.parser() : super();
 
-  GetUserResponseJson.populated({
-    required User user,
-    required List<FriendshipResponse> friendships,
-    required List<UserExplore> explore,
+  GetUserResponse.populated({
+    required UserWithEmail user,
+    required List<FriendRequest> friendRequests,
+    required List<User> explore,
   }) : super() {
     userJson.populate(user);
-    friendshipsJson.populate(friendships);
+    friendRequestsJson.populate(friendRequests);
     exploreJson.populate(explore);
   }
 
   @override
   List<JsonKey<dynamic, dynamic>> get keys =>
-      [userJson, friendshipsJson, exploreJson];
+      [userJson, friendRequestsJson, exploreJson];
 }
 
-sealed class GetUserResponse extends Equatable {
-  final GetUserResponseJson _json;
-  final List<UserExploreWithPicture> exploreUsers;
+sealed class GetUserResponseWithExplorePictures extends Equatable {
+  final UserWithEmail user;
+  final List<ExploreUser> exploreUsers;
   final List<FriendRequestWithProfilePicture> sentFriendRequests;
   final List<FriendRequestWithProfilePicture> receivedFriendRequests;
-  final List<FriendWithoutMessageWithProfilePicture> friendships;
+  final List<FriendRequestWithProfilePicture> friends;
 
-  User get user => _json.user;
-
-  const GetUserResponse(
-    this._json, {
+  const GetUserResponseWithExplorePictures({
+    required this.user,
     required this.sentFriendRequests,
     required this.receivedFriendRequests,
-    required this.friendships,
+    required this.friends,
     required this.exploreUsers,
   }) : super();
 
   @override
   List<Object?> get props => [
-        _json,
+        user,
         sentFriendRequests,
         receivedFriendRequests,
-        friendships,
+        friends,
         exploreUsers,
       ];
 }
 
-final class GetUserSuccess extends GetUserResponse {
+final class GetUserSuccess extends GetUserResponseWithExplorePictures {
   final Image profilePicture;
 
-  const GetUserSuccess(
-    super._json, {
+  const GetUserSuccess({
     required this.profilePicture,
+    required super.user,
     required super.sentFriendRequests,
     required super.receivedFriendRequests,
-    required super.friendships,
+    required super.friends,
     required super.exploreUsers,
   }) : super();
-
-  GetUserSuccess copyWith({
-    List<FriendRequestWithProfilePicture>? sentFriendRequests,
-    List<FriendRequestWithProfilePicture>? receivedFriendRequests,
-    List<FriendWithoutMessageWithProfilePicture>? friendships,
-    Image? profilePicture,
-    List<UserExploreWithPicture>? exploreUsers,
-  }) =>
-      GetUserSuccess(
-        super._json,
-        sentFriendRequests: sentFriendRequests ?? this.sentFriendRequests,
-        receivedFriendRequests:
-            receivedFriendRequests ?? this.receivedFriendRequests,
-        friendships: friendships ?? this.friendships,
-        profilePicture: profilePicture ?? this.profilePicture,
-        exploreUsers: exploreUsers ?? this.exploreUsers,
-      );
 
   @override
-  List<Object?> get props => [
-        ...super.props,
-        sentFriendRequests,
-        receivedFriendRequests,
-        friendships,
-        profilePicture,
-        exploreUsers,
-      ];
+  List<Object?> get props => [...super.props, profilePicture];
 }
 
-final class FailedToLoadProfilePicture extends GetUserResponse {
-  const FailedToLoadProfilePicture(
-    super._json, {
+final class FailedToLoadProfilePicture
+    extends GetUserResponseWithExplorePictures {
+  const FailedToLoadProfilePicture({
+    required super.user,
     required super.sentFriendRequests,
     required super.receivedFriendRequests,
-    required super.friendships,
+    required super.friends,
     required super.exploreUsers,
   }) : super();
-
-  GetUserSuccess copyWith(Image profilePicture) => GetUserSuccess(
-        super._json,
-        profilePicture: profilePicture,
-        sentFriendRequests: sentFriendRequests,
-        receivedFriendRequests: receivedFriendRequests,
-        friendships: friendships,
-        exploreUsers: exploreUsers,
-      );
 }

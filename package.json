@@ -6,5 +6,8 @@
     "dev": "flutter run",
     "prebuild": "bundle install --gemfile=$BUNDLE_GEMFILE",
     "build": "cd ios && bundle exec fastlane ios beta $BUILD_NAME"
+  },
+  "devDependencies": {
+    "dart-analysis": "workspace:*"
   }
 }

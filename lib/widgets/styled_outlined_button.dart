@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ui/ui.dart';
+
+import '../theme.dart';
 
 final class StyledOutlineButton extends StatelessWidget {
   final String? text;
@@ -23,8 +23,8 @@ final class StyledOutlineButton extends StatelessWidget {
           backgroundColor: MaterialStateProperty.all(Colors.transparent),
           padding: MaterialStateProperty.all(
             EdgeInsets.symmetric(
-              horizontal: hPadding ?? 31.5.w,
-              vertical: vPadding ?? 18.h,
+              horizontal: hPadding ?? 31.5,
+              vertical: vPadding ?? 18,
             ),
           ),
           side: MaterialStateProperty.all(

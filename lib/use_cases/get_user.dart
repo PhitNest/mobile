@@ -1,98 +1,79 @@
-import 'package:core/core.dart';
-import 'package:ui/ui.dart';
-
 import '../entities/entities.dart';
 import '../repositories/repositories.dart';
+import '../util/aws/aws.dart';
+import '../util/http/http.dart';
 
-Future<HttpResponse<GetUserResponse>> user(Session session) async {
+Future<HttpResponse<GetUserResponseWithExplorePictures>> user(
+    Session session) async {
   switch (await getUser(session)) {
     case HttpResponseSuccess(data: final data, headers: final headers):
-      final List<FriendRequestWithProfilePicture> sentRequests = [];
-      final List<FriendRequestWithProfilePicture> receivedRequests = [];
-      final List<FriendWithoutMessageWithProfilePicture> friends = [];
-      final removeFromExplore = {data.user.id};
-      final friendships =
-          await Future.wait(data.friendships.map((friendship) async {
-        final pfp = await getProfilePicture(
-            session, friendship.other(data.user.id).identityId);
-        if (pfp != null) {
-          switch (friendship) {
-            case FriendRequest(
-                id: final id,
-                sender: final sender,
-                receiver: final receiver,
-                createdAt: final createdAt
-              ):
-              return FriendRequestWithProfilePicture(
-                id: id,
-                sender: sender,
-                receiver: receiver,
-                createdAt: createdAt,
-                profilePicture: pfp,
-              );
-            case FriendWithoutMessage(
-                id: final id,
-                sender: final sender,
-                receiver: final receiver,
-                createdAt: final createdAt,
-                acceptedAt: final acceptedAt,
-              ):
-              return FriendWithoutMessageWithProfilePicture(
-                id: id,
-                sender: sender,
-                receiver: receiver,
-                createdAt: createdAt,
-                acceptedAt: acceptedAt,
-                profilePicture: pfp,
-              );
-          }
-        }
-      }));
-      for (final friendship in friendships) {
-        switch (friendship) {
-          case null:
-            break;
-          case FriendRequestWithProfilePicture(sender: final sender):
-            if (sender.id == data.user.id) {
-              sentRequests.add(friendship);
-              removeFromExplore.add(sender.id);
-            } else {
-              receivedRequests.add(friendship);
-            }
-            break;
-          case FriendWithoutMessageWithProfilePicture(sender: final sender):
-            friends.add(friendship);
-            removeFromExplore.add(sender.id);
-            break;
-          default:
-            throw Exception('An unknown error has occurred.');
+      final receivedUserIds = <String, FriendRequest>{};
+      final sentRequestUserIds = <String, FriendRequest>{};
+      final friendUserIds = <String, FriendRequest>{};
+
+      for (final friendRequest in data.friendRequests) {
+        if (friendRequest.accepted) {
+          friendUserIds.putIfAbsent(
+              friendRequest.sender.id == data.user.id
+                  ? friendRequest.receiver.id
+                  : friendRequest.sender.id,
+              () => friendRequest);
+        } else if (friendRequest.sender.id == data.user.id) {
+          sentRequestUserIds.putIfAbsent(
+              friendRequest.receiver.id, () => friendRequest);
+        } else {
+          receivedUserIds.putIfAbsent(
+              friendRequest.sender.id, () => friendRequest);
         }
       }
+
+      final List<FriendRequestWithProfilePicture> receivedRequests = [];
+      final List<FriendRequestWithProfilePicture> sentRequests = [];
+      final List<FriendRequestWithProfilePicture> friends = [];
+
       final exploreUsers = (await Future.wait(data.explore.map((user) async {
         final profilePicture =
             await getProfilePicture(session, user.identityId);
         if (profilePicture != null) {
-          return UserExploreWithPicture(
-            user: user,
-            profilePicture: profilePicture,
-          );
+          if (sentRequestUserIds.containsKey(user.id)) {
+            sentRequests.add(FriendRequestWithProfilePicture(
+              friendRequest: sentRequestUserIds[user.id]!,
+              profilePicture: profilePicture,
+            ));
+          } else if (friendUserIds.containsKey(user.id)) {
+            friends.add(FriendRequestWithProfilePicture(
+              friendRequest: friendUserIds[user.id]!,
+              profilePicture: profilePicture,
+            ));
+          } else {
+            if (receivedUserIds.containsKey(user.id)) {
+              receivedRequests.add(FriendRequestWithProfilePicture(
+                friendRequest: receivedUserIds[user.id]!,
+                profilePicture: profilePicture,
+              ));
+            }
+            return ExploreUser(
+              user: user,
+              profilePicture: profilePicture,
+            );
+          }
         }
         return null;
       })))
           .where((exploreUser) =>
-              exploreUser != null &&
-              !removeFromExplore.contains(exploreUser.user.id))
-          .cast<UserExploreWithPicture>()
+              exploreUser != null && exploreUser.user.id != data.user.id)
+          .cast<ExploreUser>()
           .toList();
+
       final profilePicture =
           await getProfilePicture(session, data.user.identityId);
       if (profilePicture == null) {
         return HttpResponseOk(
           FailedToLoadProfilePicture(
-            data,
+            user: data.user,
             sentFriendRequests: sentRequests,
             receivedFriendRequests: receivedRequests,
-            friendships: friends,
+            friends: friends,
             exploreUsers: exploreUsers,
           ),
           headers,
@@ -100,12 +81,12 @@ Future<HttpResponse<GetUserResponse>> user(Session session) async {
       }
       return HttpResponseOk(
         GetUserSuccess(
-          data,
+          user: data.user,
           profilePicture: profilePicture,
           exploreUsers: exploreUsers,
           sentFriendRequests: sentRequests,
           receivedFriendRequests: receivedRequests,
-          friendships: friends,
+          friends: friends,
         ),
         headers,
       );

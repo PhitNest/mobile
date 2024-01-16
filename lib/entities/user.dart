@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:json_types/json.dart';
 
-final class UserExplore extends Json {
+base class User extends Json {
   final idJson = Json.string('id');
   final firstNameJson = Json.string('firstName');
   final lastNameJson = Json.string('lastName');
@@ -15,11 +15,11 @@ final class UserExplore extends Json {
 
   String get fullName => '$firstName $lastName';
 
-  UserExplore.parse(super.json) : super.parse();
+  User.parse(super.json) : super.parse();
 
-  UserExplore.parser() : super();
+  User.parser() : super();
 
-  UserExplore.populated({
+  User.populated({
     required String id,
     required String firstName,
     required String lastName,
@@ -36,38 +36,38 @@ final class UserExplore extends Json {
       [idJson, firstNameJson, lastNameJson, identityIdJson];
 }
 
-final class UserExploreWithPicture extends Equatable {
-  final Image profilePicture;
-  final UserExplore user;
-
-  const UserExploreWithPicture({
-    required this.user,
-    required this.profilePicture,
-  }) : super();
-
-  @override
-  List<Object?> get props => [user, profilePicture];
-}
-
-final class User extends UserExplore {
+final class UserWithEmail extends User {
   final emailJson = Json.string('email');
 
   String get email => emailJson.value;
 
-  User.parse(super.json) : super.parse();
+  UserWithEmail.parse(super.json) : super.parse();
 
-  User.parser() : super.parser();
+  UserWithEmail.parser() : super.parser();
 
-  User.populated({
+  UserWithEmail.populated({
+    required String email,
     required super.id,
     required super.firstName,
     required super.lastName,
     required super.identityId,
-    required String email,
   }) : super.populated() {
     emailJson.populate(email);
   }
 
   @override
   List<JsonKey<dynamic, dynamic>> get keys => [...super.keys, emailJson];
+}
+
+final class ExploreUser extends Equatable {
+  final Image profilePicture;
+  final User user;
+
+  const ExploreUser({
+    required this.user,
+    required this.profilePicture,
+  }) : super();
+
+  @override
+  List<Object?> get props => [user, profilePicture];
 }
