@@ -67,23 +67,6 @@ class NavBarConsumer extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Visibility(
-                            visible: false,
-                            child: NavBarPageButton(
-                              text: 'NEST',
-                              selected: state.page == NavBarPage.news,
-                              reversed: reversed,
-                              onPressed: () => context.navBarBloc.add(
-                                  const NavBarPressPageEvent(NavBarPage.news)),
-                            ),
-                          ),
-                          NavBarPageButton(
-                            text: 'EXPLORE',
-                            selected: state.page == NavBarPage.explore,
-                            reversed: reversed,
-                            onPressed: () => context.navBarBloc.add(
-                                const NavBarPressPageEvent(NavBarPage.explore)),
-                          ),
                           StyledIndicator(
                             offset: const Size(8, 8),
                             count: state.numAlerts,
@@ -93,6 +76,23 @@ class NavBarConsumer extends StatelessWidget {
                               reversed: reversed,
                               onPressed: () => context.navBarBloc.add(
                                   const NavBarPressPageEvent(NavBarPage.chat)),
+                            ),
+                          ),
+                          NavBarPageButton(
+                            text: 'EXPLORE',
+                            selected: state.page == NavBarPage.explore,
+                            reversed: reversed,
+                            onPressed: () => context.navBarBloc.add(
+                                const NavBarPressPageEvent(NavBarPage.explore)),
+                          ),
+                          Opacity(
+                            opacity: 0,
+                            child: NavBarPageButton(
+                              text: 'NEST',
+                              selected: state.page == NavBarPage.news,
+                              reversed: reversed,
+                              onPressed: () => context.navBarBloc.add(
+                                  const NavBarPressPageEvent(NavBarPage.news)),
                             ),
                           ),
                           NavBarPageButton(

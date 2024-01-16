@@ -17,8 +17,6 @@ final class NavBarPageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextButton(
         style: ButtonStyle(
-          maximumSize: MaterialStateProperty.all(const Size.fromWidth(78)),
-          minimumSize: MaterialStateProperty.all(const Size.fromWidth(78)),
           overlayColor: MaterialStateProperty.all(Colors.transparent),
         ),
         onPressed: !selected ? onPressed : null,
