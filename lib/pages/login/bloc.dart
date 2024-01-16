@@ -18,7 +18,7 @@ extension on BuildContext {
 typedef LoginProvider
     = FormProvider<LoginControllers, LoginParams, LoginResponse>;
 
-LoginProvider _loginForm(
+LoginProvider _loginFormProvider(
   CreateFormConsumer<LoginControllers, LoginParams, LoginResponse>
       createConsumer,
 ) =>
