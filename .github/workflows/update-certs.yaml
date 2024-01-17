@@ -3,7 +3,7 @@ name: Update certs
 on: workflow_dispatch
 
 jobs:
-  deploy:
+  update-certs:
     runs-on: macos-latest
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/ios/Gemfile
