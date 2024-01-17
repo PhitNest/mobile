@@ -28,7 +28,7 @@ jobs:
           bundler-cache: true
 
       - name: Install dependencies
-        run: npm install -g turbo && cd apps/mobile && flutter pub get
+        run: cd apps/mobile && flutter pub get
 
       - name: Setup SSH key
         env:
@@ -46,4 +46,4 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           BUILD_NAME: build_name:${{ github.ref_name }}
-        run: turbo build --filter=mobile
+        run: cd apps/mobile && bundle install --gemfile=$BUNDLE_GEMFILE && cd ios && bundle exec fastlane ios beta $BUILD_NAME
