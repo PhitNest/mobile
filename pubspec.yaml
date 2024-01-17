@@ -37,7 +37,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^3.0.1
   dart_analysis:
-    path: ./node_modules/dart-analysis
+    path: ../../packages/dart-analysis
 
 flutter:
   uses-material-design: true
