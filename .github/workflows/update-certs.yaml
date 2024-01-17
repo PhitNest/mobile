@@ -46,4 +46,4 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
           BUILD_NAME: build_name:${{ github.ref_name }}
-        run: bundle install --gemfile=$BUNDLE_GEMFILE && cd ios && bundle exec fastlane match appstore
+        run: bundle install --gemfile=$BUNDLE_GEMFILE && cd apps/mobile/ios && bundle exec fastlane match appstore
