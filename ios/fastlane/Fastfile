@@ -15,7 +15,7 @@ APP_IDENTIFIER = 'com.phitnest.ios'
 # Issuer ID from the Keys section of https://appstoreconnect.apple.com/access/users
 APPSTORECONNECT_ISSUER_ID = '54ac82fd-b7be-454a-b467-d3408ef595fb'
 # Key ID from the key matching the `APP_STORE_CONNECT_API_KEY_KEY` secret, found under the Keys section of https://appstoreconnect.apple.com/access/users
-APPSTORECONNECT_KEY_ID = '8J2XZUQ4SZ'
+APPSTORECONNECT_KEY_ID = 'WJNX3N9B9J'
 
 # Uncomment the line if you want fastlane to automatically update itself
 update_fastlane
