@@ -24,6 +24,7 @@ jobs:
       - name: Setup ruby & Bundler
         uses: ruby/setup-ruby@v1
         with:
+          working-directory: apps/mobile
           bundler-cache: true
 
       - name: Install dependencies
