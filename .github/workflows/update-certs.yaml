@@ -6,7 +6,7 @@ jobs:
   update-certs:
     runs-on: macos-latest
     env:
-      BUNDLE_GEMFILE: ${{ github.workspace }}/ios/Gemfile
+      BUNDLE_GEMFILE: ${{ github.workspace }}/apps/mobile/ios/Gemfile
     steps:
       - name: Check out from git
         uses: actions/checkout@v4
@@ -24,10 +24,11 @@ jobs:
       - name: Setup ruby & Bundler
         uses: ruby/setup-ruby@v1
         with:
+          working-directory: apps/mobile
           bundler-cache: true
 
       - name: Install dependencies
-        run: flutter pub get
+        run: cd apps/mobile && flutter pub get
 
       - name: Setup SSH key
         env:
