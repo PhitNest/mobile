@@ -1,13 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'pages/pages.dart';
 import 'theme.dart';
 import 'util/aws/aws.dart';
 import 'util/bloc/bloc.dart';
 import 'util/cache/cache.dart';
+import 'util/logger.dart';
 import 'widgets/widgets.dart';
 
 class AppScrollBehavior extends MaterialScrollBehavior {
@@ -21,11 +25,25 @@ class AppScrollBehavior extends MaterialScrollBehavior {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeCache();
-  runApp(const PhitNestApp());
+  await SentryFlutter.init(
+    (options) {
+      options.dsn =
+          'https://6ea76c391eb3687b5be5b29820bac0fb@o4506590032101376.ingest.sentry.io/4506590033149952';
+      options.tracesSampleRate = 1.0;
+    },
+    appRunner: () async {
+      runApp(PhitNestApp(logStream.stream.listen((message) async {
+        await Sentry.captureMessage(message);
+      })));
+    },
+  );
 }
 
 final class PhitNestApp extends StatelessWidget {
-  const PhitNestApp({super.key}) : super();
+  // ignore: unused_field
+  final StreamSubscription<String> _logStreamSubscription;
+
+  const PhitNestApp(this._logStreamSubscription, {super.key}) : super();
 
   @override
   Widget build(BuildContext context) => BlocProvider(

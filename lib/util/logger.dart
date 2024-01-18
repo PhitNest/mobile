@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:basic_utils/basic_utils.dart';
 import 'package:equatable/equatable.dart';
 import 'package:logger/logger.dart';
@@ -6,6 +8,8 @@ const kDetailLinePrefix = '\n\t';
 
 final _prettyLogger = Logger(printer: PrettyPrinter(methodCount: 0));
 
+final logStream = StreamController<String>();
+
 String _wrapText(String text, int spaces) => StringUtils.addCharAtPosition(
       text,
       '\n${List.filled(spaces, '\t').join()}',
@@ -13,10 +17,15 @@ String _wrapText(String text, int spaces) => StringUtils.addCharAtPosition(
       repeat: true,
     );
 
-String _logMessage(String title, List<String>? details) =>
-    '${_wrapText(title, 0)}'
-    '${details != null ? '$kDetailLinePrefix'
-        '${details.map((e) => _wrapText(e, 2)).join(kDetailLinePrefix)}' : ''}';
+String _logMessage(String title, List<String>? details) {
+  final text = '${_wrapText(title, 0)}'
+      '${details != null ? '$kDetailLinePrefix'
+          '${details.map((e) => _wrapText(e, 2)).join(
+                kDetailLinePrefix,
+              )}' : ''}';
+  logStream.add(text);
+  return text;
+}
 
 void debug(String title, {List<String>? details}) =>
     _prettyLogger.d(_logMessage(title, details));
