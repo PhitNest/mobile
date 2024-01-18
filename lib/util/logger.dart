@@ -11,9 +11,7 @@ final _messages = <String>[];
 void logToSentry() {
   if (_messages.isNotEmpty) {
     info('Logging to sentry...');
-    final log = _messages.join('\n\n');
-    _messages.clear();
-    throw log;
+    throw _messages.join('\n\n');
   }
 }
 
