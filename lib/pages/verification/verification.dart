@@ -37,81 +37,86 @@ final class VerificationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: SingleChildScrollView(
+        body: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            child: BlocProvider(
-              create: (_) => ResendLoaderBloc(load: resend),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Verify your email',
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                  Center(
-                    child: verificationForm(
-                      _confirmAndLogin,
-                      (context, controllers, submit) => LoaderConsumer(
-                        listener: (context, loaderState) =>
-                            _handleConfirmStateChanged(
-                                context, controllers, loaderState),
-                        builder: (context, loaderState) => ResendLoaderConsumer(
-                          listener: _handleResendStateChanged,
-                          builder: (context, resendState) => Column(
-                            children: [
-                              VerificationField(
-                                controller: controllers.codeController,
-                                focusNode: controllers.focusNode,
-                                onChanged: (value) {},
-                                onCompleted: switch (resendState) {
-                                  LoaderLoadingState() => (_) {},
-                                  _ => (code) {
-                                      submit(code, loaderState);
-                                      final currentFocus =
-                                          FocusScope.of(context);
-                                      if (!currentFocus.hasPrimaryFocus) {
-                                        currentFocus.unfocus();
+            child: Container(
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: BlocProvider(
+                create: (_) => ResendLoaderBloc(load: resend),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Verify your email',
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                    Center(
+                      child: verificationForm(
+                        _confirmAndLogin,
+                        (context, controllers, submit) => LoaderConsumer(
+                          listener: (context, loaderState) =>
+                              _handleConfirmStateChanged(
+                                  context, controllers, loaderState),
+                          builder: (context, loaderState) =>
+                              ResendLoaderConsumer(
+                            listener: _handleResendStateChanged,
+                            builder: (context, resendState) => Column(
+                              children: [
+                                VerificationField(
+                                  controller: controllers.codeController,
+                                  focusNode: controllers.focusNode,
+                                  onChanged: (value) {},
+                                  onCompleted: switch (resendState) {
+                                    LoaderLoadingState() => (_) {},
+                                    _ => (code) {
+                                        submit(code, loaderState);
+                                        final currentFocus =
+                                            FocusScope.of(context);
+                                        if (!currentFocus.hasPrimaryFocus) {
+                                          currentFocus.unfocus();
+                                        }
                                       }
-                                    }
-                                },
-                              ),
-                              ...switch (loaderState) {
-                                LoaderLoadingState() => [const Loader()],
-                                _ => switch (resendState) {
-                                    LoaderLoadingState() => [const Loader()],
-                                    _ => [
-                                        ElevatedButton(
-                                          onPressed: () => submit(
-                                            controllers.codeController.text,
-                                            loaderState,
-                                          ),
-                                          child: Text(
-                                            'CONFIRM',
-                                            style: theme.textTheme.bodySmall,
-                                          ),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () => context
-                                              .resendEmailLoaderBloc
-                                              .add(LoaderLoadEvent(
-                                                  unauthenticatedSession)),
-                                          child: Text(
-                                            'RESEND',
-                                            style: theme.textTheme.bodySmall,
-                                          ),
-                                        ),
-                                      ],
                                   },
-                              },
-                            ],
+                                ),
+                                ...switch (loaderState) {
+                                  LoaderLoadingState() => [const Loader()],
+                                  _ => switch (resendState) {
+                                      LoaderLoadingState() => [const Loader()],
+                                      _ => [
+                                          ElevatedButton(
+                                            onPressed: () => submit(
+                                              controllers.codeController.text,
+                                              loaderState,
+                                            ),
+                                            child: Text(
+                                              'CONFIRM',
+                                              style: theme.textTheme.bodySmall,
+                                            ),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () => context
+                                                .resendEmailLoaderBloc
+                                                .add(LoaderLoadEvent(
+                                                    unauthenticatedSession)),
+                                            child: Text(
+                                              'RESEND',
+                                              style: theme.textTheme.bodySmall,
+                                            ),
+                                          ),
+                                        ],
+                                    },
+                                },
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
