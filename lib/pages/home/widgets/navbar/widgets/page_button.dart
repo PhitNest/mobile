@@ -22,6 +22,7 @@ final class NavBarPageButton extends StatelessWidget {
         onPressed: !selected ? onPressed : null,
         child: Text(
           text,
+          textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodySmall!.copyWith(
                 fontWeight: FontWeight.bold,
                 color: reversed

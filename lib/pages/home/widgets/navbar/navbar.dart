@@ -64,8 +64,8 @@ class NavBarConsumer extends StatelessWidget {
                         ),
                       ),
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           StyledIndicator(
                             offset: const Size(8, 8),
@@ -91,8 +91,16 @@ class NavBarConsumer extends StatelessWidget {
                               text: 'NEST',
                               selected: state.page == NavBarPage.news,
                               reversed: reversed,
-                              onPressed: () => context.navBarBloc.add(
-                                  const NavBarPressPageEvent(NavBarPage.news)),
+                              onPressed: () {},
+                            ),
+                          ),
+                          Opacity(
+                            opacity: 0,
+                            child: NavBarPageButton(
+                              text: 'NEST',
+                              selected: state.page == NavBarPage.news,
+                              reversed: reversed,
+                              onPressed: () {},
                             ),
                           ),
                           NavBarPageButton(
