@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:basic_utils/basic_utils.dart';
 import 'package:equatable/equatable.dart';
 import 'package:logger/logger.dart';
@@ -8,7 +6,14 @@ const kDetailLinePrefix = '\n\t';
 
 final _prettyLogger = Logger(printer: PrettyPrinter(methodCount: 0));
 
-final logStream = StreamController<String>();
+final _messages = <String>[];
+
+void logToSentry() {
+  if (_messages.isNotEmpty) {
+    info('Logging to sentry...');
+    throw _messages.join('\n\n');
+  }
+}
 
 String _wrapText(String text, int spaces) => StringUtils.addCharAtPosition(
       text,
@@ -23,7 +28,7 @@ String _logMessage(String title, List<String>? details) {
           '${details.map((e) => _wrapText(e, 2)).join(
                 kDetailLinePrefix,
               )}' : ''}';
-  logStream.add(text);
+  _messages.add(text);
   return text;
 }
 

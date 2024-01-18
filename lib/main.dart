@@ -31,19 +31,15 @@ Future<void> main() async {
           'https://6ea76c391eb3687b5be5b29820bac0fb@o4506590032101376.ingest.sentry.io/4506590033149952';
       options.tracesSampleRate = 1.0;
     },
-    appRunner: () async {
-      runApp(PhitNestApp(logStream.stream.listen((message) async {
-        await Sentry.captureMessage(message);
-      })));
-    },
+    appRunner: () => runApp(
+        PhitNestApp(Timer(const Duration(minutes: 1), () => logToSentry()))),
   );
 }
 
 final class PhitNestApp extends StatelessWidget {
-  // ignore: unused_field
-  final StreamSubscription<String> _logStreamSubscription;
+  final Timer logger;
 
-  const PhitNestApp(this._logStreamSubscription, {super.key}) : super();
+  const PhitNestApp(this.logger, {super.key}) : super();
 
   @override
   Widget build(BuildContext context) => BlocProvider(
