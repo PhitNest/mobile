@@ -85,23 +85,11 @@ class NavBarConsumer extends StatelessWidget {
                             onPressed: () => context.navBarBloc.add(
                                 const NavBarPressPageEvent(NavBarPage.explore)),
                           ),
-                          Opacity(
-                            opacity: 0,
-                            child: NavBarPageButton(
-                              text: 'NEST',
-                              selected: state.page == NavBarPage.news,
-                              reversed: reversed,
-                              onPressed: () {},
-                            ),
-                          ),
-                          Opacity(
-                            opacity: 0,
-                            child: NavBarPageButton(
-                              text: 'NEST',
-                              selected: state.page == NavBarPage.news,
-                              reversed: reversed,
-                              onPressed: () {},
-                            ),
+                          NavBarPageButton(
+                            text: '',
+                            selected: state.page == NavBarPage.news,
+                            reversed: reversed,
+                            onPressed: () {},
                           ),
                           NavBarPageButton(
                             text: 'OPTIONS',
