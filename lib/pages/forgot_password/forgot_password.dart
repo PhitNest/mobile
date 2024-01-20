@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme.dart';
@@ -6,7 +7,7 @@ import '../../util/aws/aws.dart';
 import '../../util/bloc/bloc.dart';
 import '../../util/validators/validators.dart';
 import '../../widgets/widgets.dart';
-import '../verification/verification.dart';
+import '../pages.dart';
 
 part 'bloc.dart';
 
@@ -104,6 +105,53 @@ final class ForgotPasswordScreen extends StatelessWidget {
                                 ),
                               ),
                           },
+                        ),
+                        RichText(
+                          text: TextSpan(
+                            text: "Don't have an account?",
+                            style: theme.textTheme.bodySmall,
+                            children: [
+                              TextSpan(
+                                text: ' Register',
+                                style: theme.textTheme.bodySmall!.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.of(context).push(
+                                      CupertinoPageRoute<void>(
+                                        builder: (context) =>
+                                            const RegisterPage(),
+                                      ),
+                                    );
+                                  },
+                              ),
+                            ],
+                          ),
+                        ),
+                        RichText(
+                          text: TextSpan(
+                            text: 'Remembered your password?',
+                            style: theme.textTheme.bodySmall,
+                            children: [
+                              TextSpan(
+                                text: ' Login',
+                                style: theme.textTheme.bodySmall!.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.of(context).push(
+                                      CupertinoPageRoute<void>(
+                                        builder: (context) => const LoginPage(),
+                                      ),
+                                    );
+                                  },
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
