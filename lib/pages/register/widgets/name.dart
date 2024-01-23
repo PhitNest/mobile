@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../../../theme.dart';
 import '../../../util/validators/validators.dart';
 import '../../../widgets/widgets.dart';
-import '../register.dart';
+import '../../pages.dart';
 
 final class RegisterNamePage extends StatelessWidget {
   final RegisterControllers controllers;
@@ -48,7 +51,50 @@ final class RegisterNamePage extends StatelessWidget {
                     'NEXT',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                )
+                ),
+                RichText(
+                  text: TextSpan(
+                    text: 'Already registered?',
+                    style: theme.textTheme.bodySmall,
+                    children: [
+                      TextSpan(
+                        text: ' Login',
+                        style: theme.textTheme.bodySmall!.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.of(context).push(
+                              CupertinoPageRoute<void>(
+                                builder: (context) => const LoginPage(),
+                              ),
+                            );
+                          },
+                      ),
+                      TextSpan(
+                        text: ' or ',
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      TextSpan(
+                        text: 'Forgot Password',
+                        style: theme.textTheme.bodySmall!.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.of(context).push(
+                              CupertinoPageRoute<void>(
+                                builder: (context) =>
+                                    const ForgotPasswordScreen(),
+                              ),
+                            );
+                          },
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
