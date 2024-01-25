@@ -1,6 +1,6 @@
 part of 'navbar.dart';
 
-enum NavBarPage { news, explore, chat, options }
+enum NavBarPage { friends, explore, chat, options }
 
 sealed class NavBarState extends Equatable {
   final NavBarPage page;
@@ -292,13 +292,13 @@ final class NavBarBloc extends Bloc<NavBarEvent, NavBarState> {
     on<NavBarReverseEvent>(
       (event, emit) {
         switch (state) {
-          case NavBarInactiveState() ||
-                NavBarLogoReadyState() ||
+          case NavBarLogoReadyState() ||
                 NavBarReversedState() ||
                 NavBarHoldingLogoState():
             badState(state, event);
           case NavBarInitialState() || NavBarSendingFriendRequestState():
             emit(NavBarReversedState(numAlerts: state.numAlerts));
+          case NavBarInactiveState():
         }
       },
     );
@@ -362,14 +362,14 @@ void _handleNavBarStateChanged(
   PageController pageController,
   NavBarState state,
 ) {
-  switch (context.userBloc.state) {
+  switch (context.homeBloc.state) {
     case LoaderLoadedState(data: final response):
       switch (response) {
         case AuthRes(data: final response):
           switch (response) {
             case HttpResponseSuccess(data: final response):
               switch (response) {
-                case GetUserSuccess(exploreUsers: final exploreUsers):
+                case HomeDataLoaded(exploreUsers: final exploreUsers):
                   switch (state) {
                     case NavBarInactiveState(page: final page):
                       if (page == NavBarPage.explore) {

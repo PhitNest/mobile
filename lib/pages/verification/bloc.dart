@@ -21,17 +21,6 @@ extension on BuildContext {
 typedef VerificationProvider
     = FormProvider<VerificationControllers, String, LoginResponse?>;
 
-VerificationProvider verificationForm(
-  Future<LoginResponse?> Function(String code) confirm,
-  CreateFormConsumer<VerificationControllers, String, LoginResponse?>
-      createConsumer,
-) =>
-    FormProvider(
-      createLoader: (_) => LoaderBloc(load: confirm),
-      createControllers: (_) => VerificationControllers(),
-      createConsumer: createConsumer,
-    );
-
 void _handleResendStateChanged(
     BuildContext context, LoaderState<String?> loaderState) {
   switch (loaderState) {

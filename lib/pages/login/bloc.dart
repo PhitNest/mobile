@@ -18,21 +18,6 @@ extension on BuildContext {
 typedef LoginProvider
     = FormProvider<LoginControllers, LoginParams, LoginResponse>;
 
-LoginProvider _loginFormProvider(
-  CreateFormConsumer<LoginControllers, LoginParams, LoginResponse>
-      createConsumer,
-) =>
-    LoginProvider(
-      createControllers: (_) => LoginControllers(),
-      createLoader: (_) => LoaderBloc(load: login),
-      createConsumer: createConsumer,
-    );
-
-LoginParams _params(LoginControllers controllers) => LoginParams(
-      email: controllers.emailController.text,
-      password: controllers.passwordController.text,
-    );
-
 void _handleStateChanged(BuildContext context, LoginControllers controllers,
     LoaderState<LoginResponse> loaderState) {
   switch (loaderState) {

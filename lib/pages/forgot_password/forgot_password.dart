@@ -18,8 +18,10 @@ final class ForgotPasswordScreen extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: _forgotPasswordForm(
-            (context, controllers, submit) => LoaderConsumer(
+          child: ForgotPasswordProvider(
+            createControllers: (_) => ForgotPasswordControllers(),
+            createLoader: (_) => LoaderBloc(load: sendForgotPasswordRequest),
+            createConsumer: (context, controllers, submit) => LoaderConsumer(
               listener: (context, loaderState) =>
                   _handleStateChanged(context, controllers, loaderState),
               builder: (context, loaderState) {

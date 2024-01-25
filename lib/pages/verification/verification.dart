@@ -54,9 +54,11 @@ final class VerificationPage extends StatelessWidget {
                       style: theme.textTheme.bodyLarge,
                     ),
                     Center(
-                      child: verificationForm(
-                        _confirmAndLogin,
-                        (context, controllers, submit) => LoaderConsumer(
+                      child: FormProvider(
+                        createLoader: (_) => LoaderBloc(load: _confirmAndLogin),
+                        createControllers: (_) => VerificationControllers(),
+                        createConsumer: (context, controllers, submit) =>
+                            LoaderConsumer(
                           listener: (context, loaderState) =>
                               _handleConfirmStateChanged(
                                   context, controllers, loaderState),

@@ -58,7 +58,13 @@ final class PhotoInstructionsPage extends StatelessWidget {
                       Center(
                         child: ElevatedButton(
                           onPressed: () => context.choosePhotoBloc
-                              .add(LoaderLoadEvent(() => _takePhoto(context))),
+                              .add(LoaderLoadEvent(() => _photoChosen(
+                                    context,
+                                    () => ImagePicker().pickImage(
+                                      source: ImageSource.camera,
+                                      preferredCameraDevice: CameraDevice.front,
+                                    ),
+                                  ))),
                           child: Text(
                             'TAKE PHOTO',
                             style: theme.textTheme.bodySmall,
@@ -68,7 +74,11 @@ final class PhotoInstructionsPage extends StatelessWidget {
                       Center(
                         child: StyledOutlineButton(
                           onPress: () => context.choosePhotoBloc
-                              .add(LoaderLoadEvent(() => _pickPhoto(context))),
+                              .add(LoaderLoadEvent(() => _photoChosen(
+                                    context,
+                                    () => ImagePicker()
+                                        .pickImage(source: ImageSource.gallery),
+                                  ))),
                           text: 'UPLOAD PHOTO',
                         ),
                       )

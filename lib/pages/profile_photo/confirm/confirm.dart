@@ -17,28 +17,12 @@ part 'bloc.dart';
 
 final class ConfirmPhotoPage extends StatelessWidget {
   final CroppedFile photo;
+  late final pfp = Image.file(File(photo.path));
 
-  const ConfirmPhotoPage({
+  ConfirmPhotoPage({
     super.key,
     required this.photo,
   }) : super();
-
-  Image get pfp => Image.file(File(photo.path));
-
-  Future<ConfirmPhotoResponse> _submit(Session session) async {
-    final bytes = await photo.readAsBytes();
-    final error = await uploadProfilePicture(
-      photo: ByteStream.fromBytes(bytes),
-      length: bytes.length,
-      session: session,
-      identityId: session.credentials.userIdentityId!,
-    );
-    if (error != null) {
-      return ConfirmPhotoFailure(message: error);
-    } else {
-      return const ConfirmPhotoSuccess();
-    }
-  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -48,7 +32,20 @@ final class ConfirmPhotoPage extends StatelessWidget {
             child: BlocProvider(
               create: (context) => ConfirmPhotoBloc(
                 sessionLoader: context.sessionLoader,
-                load: (_, session) => _submit(session),
+                load: (_, session) async {
+                  final bytes = await photo.readAsBytes();
+                  final error = await uploadProfilePicture(
+                    photo: ByteStream.fromBytes(bytes),
+                    length: bytes.length,
+                    session: session,
+                    identityId: session.credentials.userIdentityId!,
+                  );
+                  if (error != null) {
+                    return ConfirmPhotoFailure(message: error);
+                  } else {
+                    return const ConfirmPhotoSuccess();
+                  }
+                },
               ),
               child: ConfirmPhotoConsumer(
                 listener: (context, confirmState) =>

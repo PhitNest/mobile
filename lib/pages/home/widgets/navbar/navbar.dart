@@ -65,17 +65,18 @@ class NavBarConsumer extends StatelessWidget {
                       ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           StyledIndicator(
                             offset: const Size(8, 8),
                             count: state.numAlerts,
                             child: NavBarPageButton(
                               text: 'FRIENDS',
-                              selected: state.page == NavBarPage.chat,
+                              selected: state.page == NavBarPage.friends,
                               reversed: reversed,
                               onPressed: () => context.navBarBloc.add(
-                                  const NavBarPressPageEvent(NavBarPage.chat)),
+                                  const NavBarPressPageEvent(
+                                      NavBarPage.friends)),
                             ),
                           ),
                           NavBarPageButton(
@@ -85,9 +86,12 @@ class NavBarConsumer extends StatelessWidget {
                             onPressed: () => context.navBarBloc.add(
                                 const NavBarPressPageEvent(NavBarPage.explore)),
                           ),
+                          const SizedBox(
+                            width: 20,
+                          ),
                           NavBarPageButton(
-                            text: '',
-                            selected: state.page == NavBarPage.news,
+                            text: 'CHAT',
+                            selected: state.page == NavBarPage.chat,
                             reversed: reversed,
                             onPressed: () {},
                           ),

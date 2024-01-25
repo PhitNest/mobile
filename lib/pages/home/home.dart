@@ -21,59 +21,6 @@ class HomePage extends StatefulWidget {
   State<StatefulWidget> createState() => _HomePageState();
 }
 
-Widget _buildHome(
-  BuildContext context, {
-  required LoaderState<AuthResOrLost<HttpResponse<bool>>> deleteUserState,
-  required LoaderState<AuthResOrLost<void>> logoutState,
-  required LoaderState<
-          AuthResOrLost<HttpResponse<GetUserResponseWithExplorePictures>>>
-      userState,
-  required Widget Function(GetUserSuccess userResponse) builder,
-}) {
-  final loader = Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      const Loader(),
-      StyledOutlineButton(
-        onPress: () => context.logoutBloc.add(const LoaderLoadEvent(null)),
-        text: 'Sign Out',
-        hPadding: 16,
-        vPadding: 8,
-      ),
-    ],
-  );
-  Widget homeBuilder() => switch (logoutState) {
-        LoaderInitialState() => switch (userState) {
-            LoaderLoadedState(data: final response) => switch (response) {
-                AuthRes(data: final response) => switch (response) {
-                    HttpResponseSuccess(data: final getUserResponse) => switch (
-                          getUserResponse) {
-                        GetUserSuccess() => builder(getUserResponse),
-                        _ => loader,
-                      },
-                    _ => loader,
-                  },
-                _ => loader,
-              },
-            _ => loader,
-          },
-        _ => loader,
-      };
-
-  return switch (deleteUserState) {
-    LoaderInitialState() => homeBuilder(),
-    LoaderLoadedState(data: final response) => switch (response) {
-        AuthRes(data: final response) => switch (response) {
-            HttpResponseSuccess(data: final deleted) =>
-              deleted ? const Loader() : homeBuilder(),
-            HttpResponseFailure() => homeBuilder(),
-          },
-        _ => loader,
-      },
-    _ => loader,
-  };
-}
-
 class _HomePageState extends State<HomePage> {
   final pageController = PageController();
 
@@ -87,7 +34,7 @@ class _HomePageState extends State<HomePage> {
               BlocProvider(
                 create: (context) => UserBloc(
                     sessionLoader: context.sessionLoader,
-                    load: (_, session) => user(session),
+                    load: (_, session) => getHomeData(session),
                     loadOnStart: const LoadOnStart(null)),
               ),
               BlocProvider(
@@ -116,48 +63,42 @@ class _HomePageState extends State<HomePage> {
                   pageController: pageController,
                   builder: (context, navBarState) => UserConsumer(
                     listener: (context, userState) =>
-                        _handleGetUserStateChanged(
+                        _handleHomeDataStateChanged(
                             context, userState, navBarState),
-                    builder: (context, userState) => _buildHome(
-                      context,
-                      deleteUserState: deleteUserState,
-                      logoutState: logoutState,
-                      userState: userState,
-                      builder: (getUserResponse) => SendFriendRequestConsumer(
-                        listener: (context, sendFriendRequestState) =>
-                            _handleSendFriendRequestStateChanged(
-                          context,
-                          sendFriendRequestState,
-                          getUserResponse,
-                        ),
-                        builder: (context, sendFriendRequestState) =>
-                            switch (navBarState) {
-                          NavBarReversedState() =>
-                            const Center(child: Text('You have matched!')),
-                          _ => switch (navBarState.page) {
-                              NavBarPage.explore => ExplorePage(
-                                  pageController: pageController,
-                                  users: getUserResponse.exploreUsers,
-                                  navBarState: navBarState,
-                                ),
-                              NavBarPage.news => Container(),
-                              NavBarPage.chat => FriendsPage(
-                                  initialExploreUsers:
-                                      getUserResponse.exploreUsers,
-                                  initialFriends: getUserResponse.friends,
-                                  initialReceivedRequests:
-                                      getUserResponse.receivedFriendRequests,
-                                  userId: getUserResponse.user.id,
-                                ),
-                              NavBarPage.options => OptionsPage(
-                                  user: getUserResponse.user,
-                                  profilePicture:
-                                      getUserResponse.profilePicture,
-                                ),
-                            },
-                        },
-                      ),
-                    ),
+                    builder: (context, userState) {
+                      final loader = Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Loader(),
+                          StyledOutlineButton(
+                            onPress: () => context.logoutBloc
+                                .add(const LoaderLoadEvent(null)),
+                            text: 'Sign Out',
+                            hPadding: 16,
+                            vPadding: 8,
+                          ),
+                        ],
+                      );
+                      homeBuilder() => _homeBuilder(
+                            logoutState,
+                            userState,
+                            navBarState,
+                            loader,
+                          );
+                      return switch (deleteUserState) {
+                        LoaderInitialState() => homeBuilder(),
+                        LoaderLoadedState(data: final response) => switch (
+                              response) {
+                            AuthRes(data: final response) => switch (response) {
+                                HttpResponseSuccess(data: final deleted) =>
+                                  deleted ? const Loader() : homeBuilder(),
+                                HttpResponseFailure() => homeBuilder(),
+                              },
+                            _ => loader,
+                          },
+                        _ => loader,
+                      };
+                    },
                   ),
                 ),
               ),
@@ -165,6 +106,59 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       );
+
+  Widget _homeBuilder(
+          LoaderState<AuthResOrLost<void>> logoutState,
+          LoaderState<AuthResOrLost<HttpResponse<HomeDataPicturesLoaded>>>
+              userState,
+          NavBarState navBarState,
+          Column loader) =>
+      switch (logoutState) {
+        LoaderInitialState() => switch (userState) {
+            LoaderLoadedState(data: final response) => switch (response) {
+                AuthRes(data: final response) => switch (response) {
+                    HttpResponseSuccess(data: final homeData) => switch (
+                          homeData) {
+                        HomeDataLoaded() => SendFriendRequestConsumer(
+                            listener: (context, sendFriendRequestState) =>
+                                _handleSendFriendRequestStateChanged(
+                              context,
+                              sendFriendRequestState,
+                              homeData,
+                            ),
+                            builder: (context, sendFriendRequestState) =>
+                                switch (navBarState) {
+                              NavBarReversedState() =>
+                                const Center(child: Text('You have matched!')),
+                              _ => switch (navBarState.page) {
+                                  NavBarPage.explore => ExplorePage(
+                                      pageController: pageController,
+                                      users: homeData.exploreUsers,
+                                      navBarState: navBarState,
+                                    ),
+                                  NavBarPage.chat => Container(),
+                                  NavBarPage.friends => FriendsPage(
+                                      friends: homeData.friends,
+                                      requests: homeData.receivedFriendRequests,
+                                      userId: homeData.user.id,
+                                    ),
+                                  NavBarPage.options => OptionsPage(
+                                      user: homeData.user,
+                                      profilePicture: homeData.profilePicture,
+                                    ),
+                                },
+                            },
+                          ),
+                        _ => loader,
+                      },
+                    _ => loader,
+                  },
+                _ => loader,
+              },
+            _ => loader,
+          },
+        _ => loader,
+      };
 
   @override
   void dispose() {

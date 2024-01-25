@@ -11,6 +11,11 @@ import '../pages.dart';
 
 part 'bloc.dart';
 
+LoginParams _params(LoginControllers controllers) => LoginParams(
+      email: controllers.emailController.text,
+      password: controllers.passwordController.text,
+    );
+
 final class LoginPage extends StatelessWidget {
   const LoginPage({super.key}) : super();
 
@@ -22,8 +27,11 @@ final class LoginPage extends StatelessWidget {
             child: Container(
               height: constraints.maxHeight,
               padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: _loginFormProvider(
-                (context, controllers, submit) => LoaderConsumer(
+              child: LoginProvider(
+                createControllers: (_) => LoginControllers(),
+                createLoader: (_) => LoaderBloc(load: login),
+                createConsumer: (context, controllers, submit) =>
+                    LoaderConsumer(
                   listener: (context, loaderState) =>
                       _handleStateChanged(context, controllers, loaderState),
                   builder: (context, loaderState) => Column(

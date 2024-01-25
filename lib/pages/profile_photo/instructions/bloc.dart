@@ -36,26 +36,6 @@ Future<CroppedFile?> _photoChosen(
       },
     );
 
-Future<CroppedFile?> _pickPhoto(BuildContext context) => _photoChosen(
-      context,
-      () => ImagePicker().pickImage(source: ImageSource.gallery),
-    );
-
-Future<CroppedFile?> _takePhoto(BuildContext context) => _photoChosen(
-      context,
-      () => ImagePicker().pickImage(
-        source: ImageSource.camera,
-        preferredCameraDevice: CameraDevice.front,
-      ),
-    );
-
-void _goToConfirm(BuildContext context, CroppedFile photo) =>
-    Navigator.of(context).push(
-      CupertinoPageRoute<void>(
-        builder: (_) => ConfirmPhotoPage(photo: photo),
-      ),
-    );
-
 void _handleStateChanged(
   BuildContext context,
   LoaderState<CroppedFile?> loaderState,
@@ -63,7 +43,11 @@ void _handleStateChanged(
   switch (loaderState) {
     case LoaderLoadedState(data: final photo):
       if (photo != null) {
-        _goToConfirm(context, photo);
+        Navigator.of(context).push(
+          CupertinoPageRoute<void>(
+            builder: (_) => ConfirmPhotoPage(photo: photo),
+          ),
+        );
       }
     default:
   }

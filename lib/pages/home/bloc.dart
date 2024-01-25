@@ -8,13 +8,12 @@ typedef SendFriendRequestConsumer
 typedef DeleteUserBloc = AuthLoaderBloc<void, HttpResponse<bool>>;
 typedef DeleteUserConsumer = AuthLoaderConsumer<void, HttpResponse<bool>>;
 
-typedef UserBloc
-    = AuthLoaderBloc<void, HttpResponse<GetUserResponseWithExplorePictures>>;
-typedef UserConsumer = AuthLoaderConsumer<void,
-    HttpResponse<GetUserResponseWithExplorePictures>>;
+typedef UserBloc = AuthLoaderBloc<void, HttpResponse<HomeDataPicturesLoaded>>;
+typedef UserConsumer
+    = AuthLoaderConsumer<void, HttpResponse<HomeDataPicturesLoaded>>;
 
 extension HomeBlocGetters on BuildContext {
-  UserBloc get userBloc => authLoader();
+  UserBloc get homeBloc => authLoader();
   SendFriendRequestBloc get sendFriendRequestBloc => authParallelBloc();
   DeleteUserBloc get deleteUserBloc => authLoader();
 }
@@ -43,10 +42,9 @@ void _handleLogoutStateChanged(
   }
 }
 
-Future<void> _handleGetUserStateChanged(
+Future<void> _handleHomeDataStateChanged(
   BuildContext context,
-  LoaderState<AuthResOrLost<HttpResponse<GetUserResponseWithExplorePictures>>>
-      loaderState,
+  LoaderState<AuthResOrLost<HttpResponse<HomeDataPicturesLoaded>>> loaderState,
   NavBarState navBarState,
 ) async {
   switch (loaderState) {
@@ -61,10 +59,10 @@ Future<void> _handleGetUserStateChanged(
                 message: failure.message,
                 error: true,
               );
-              context.userBloc.add(const LoaderLoadEvent(null));
+              context.homeBloc.add(const LoaderLoadEvent(null));
             case HttpResponseSuccess(data: final response):
               switch (response) {
-                case GetUserSuccess(
+                case HomeDataLoaded(
                     exploreUsers: final exploreUsers,
                     receivedFriendRequests: final receivedRequests,
                   ):
@@ -83,7 +81,7 @@ Future<void> _handleGetUserStateChanged(
                   }
                 case FailedToLoadProfilePicture():
                   Image? image;
-                  final userBloc = context.userBloc;
+                  final userBloc = context.homeBloc;
                   while (image == null) {
                     image = await Navigator.push(
                       context,
@@ -93,10 +91,9 @@ Future<void> _handleGetUserStateChanged(
                     );
                   }
                   userBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
-                      GetUserSuccess(
+                      HomeDataLoaded(
                         user: response.user,
                         exploreUsers: response.exploreUsers,
-                        sentFriendRequests: response.sentFriendRequests,
                         receivedFriendRequests: response.receivedFriendRequests,
                         friends: response.friends,
                         profilePicture: image,
@@ -145,7 +142,7 @@ void _handleSendFriendRequestStateChanged(
   BuildContext context,
   ParallelLoaderState<ExploreUser, AuthResOrLost<HttpResponse<FriendRequest>>>
       loaderState,
-  GetUserSuccess getUserSuccess,
+  HomeDataLoaded homeData,
 ) {
   switch (loaderState) {
     case ParallelLoadedState(data: final response, req: final req):
@@ -154,26 +151,22 @@ void _handleSendFriendRequestStateChanged(
           switch (data) {
             case HttpResponseSuccess(data: final data):
               if (data.accepted) {
-                StyledBanner.show(
-                  message: 'Friend request accepted',
-                  error: false,
-                );
-                context.userBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
-                    GetUserSuccess(
-                      user: getUserSuccess.user,
-                      profilePicture: getUserSuccess.profilePicture,
-                      exploreUsers: getUserSuccess.exploreUsers,
-                      sentFriendRequests: getUserSuccess.sentFriendRequests,
-                      receivedFriendRequests:
-                          getUserSuccess.receivedFriendRequests
-                            ..removeWhere(
-                              (element) =>
-                                  element.friendRequest
-                                      .other(getUserSuccess.user.id)
-                                      .id ==
-                                  data.other(getUserSuccess.user.id).id,
-                            ),
-                      friends: getUserSuccess.friends
+                context.homeBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
+                    HomeDataLoaded(
+                      user: homeData.user,
+                      profilePicture: homeData.profilePicture,
+                      exploreUsers: homeData.exploreUsers
+                        ..removeWhere((element) =>
+                            element.user.id == data.other(homeData.user.id).id),
+                      receivedFriendRequests: homeData.receivedFriendRequests
+                        ..removeWhere(
+                          (element) =>
+                              element.friendRequest
+                                  .other(homeData.user.id)
+                                  .id ==
+                              data.other(homeData.user.id).id,
+                        ),
+                      friends: homeData.friends
                         ..add(FriendRequestWithProfilePicture(
                             friendRequest: data,
                             profilePicture: req.profilePicture)),
@@ -185,32 +178,24 @@ void _handleSendFriendRequestStateChanged(
                   message: 'Friend request sent',
                   error: false,
                 );
-                context.userBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
-                    GetUserSuccess(
-                      exploreUsers: getUserSuccess.exploreUsers
+                context.homeBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
+                    HomeDataLoaded(
+                      exploreUsers: homeData.exploreUsers
                         ..removeWhere(
                           (element) =>
                               element.user.id ==
-                              data.other(getUserSuccess.user.id).id,
+                              data.other(homeData.user.id).id,
                         ),
-                      sentFriendRequests: getUserSuccess.sentFriendRequests
-                        ..add(
-                          FriendRequestWithProfilePicture(
-                            friendRequest: data,
-                            profilePicture: req.profilePicture,
-                          ),
+                      receivedFriendRequests: homeData.receivedFriendRequests
+                        ..removeWhere(
+                          (element) =>
+                              element.friendRequest
+                                  .other(homeData.user.id)
+                                  .id ==
+                              data.other(homeData.user.id).id,
                         ),
-                      receivedFriendRequests:
-                          getUserSuccess.receivedFriendRequests
-                            ..removeWhere(
-                              (element) =>
-                                  element.friendRequest
-                                      .other(getUserSuccess.user.id)
-                                      .id ==
-                                  data.other(getUserSuccess.user.id).id,
-                            ),
-                      friends: getUserSuccess.friends,
-                      user: getUserSuccess.user,
+                      friends: homeData.friends,
+                      user: homeData.user,
                       profilePicture: req.profilePicture,
                     ),
                     null))));
