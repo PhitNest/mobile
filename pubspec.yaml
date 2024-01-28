@@ -1,7 +1,7 @@
 name: mobile
 description: PhitNest Mobile App
 publish_to: "none"
-version: 1.0.0+4
+version: 1.0.0+5
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -32,7 +32,7 @@ dependencies:
   shared_preferences: ^2.2.2
   dio: ^5.4.0
   google_fonts: ^6.1.0
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
