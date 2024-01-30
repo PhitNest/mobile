@@ -169,13 +169,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.6"
-  dart_analysis:
-    dependency: "direct dev"
-    description:
-      path: "../../packages/dart-analysis"
-      relative: true
-    source: path
-    version: "1.0.0+1"
   dio:
     dependency: "direct main"
     description:
