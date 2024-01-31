@@ -90,7 +90,7 @@ class NavBarConsumer extends StatelessWidget {
                             width: 20,
                           ),
                           NavBarPageButton(
-                            text: 'CHAT',
+                            text: '',
                             selected: state.page == NavBarPage.chat,
                             reversed: reversed,
                             onPressed: () {},
