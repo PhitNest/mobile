@@ -25,7 +25,7 @@ enum ChangePasswordFailureType {
   noSuchUser;
 
   String get message => switch (this) {
-        ChangePasswordFailureType.invalidUserPool => 'Invalid user pool',
+        ChangePasswordFailureType.invalidUserPool => 'Please update your app.',
         ChangePasswordFailureType.invalidPassword => 'Invalid password',
         ChangePasswordFailureType.noSuchUser => 'No such user',
       };

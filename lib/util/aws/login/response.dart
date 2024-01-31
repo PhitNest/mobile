@@ -23,7 +23,7 @@ enum LoginFailureType {
   String get message => switch (this) {
         LoginFailureType.invalidEmailPassword => 'Invalid email/password.',
         LoginFailureType.noSuchUser => 'No such user.',
-        LoginFailureType.invalidUserPool => 'Invalid user pool.',
+        LoginFailureType.invalidUserPool => 'Please update your app.',
       };
 }
 
