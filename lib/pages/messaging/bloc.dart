@@ -9,6 +9,5 @@ typedef ConversationLoaderConsumer
     = AuthLoaderConsumer<void, HttpResponse<Conversation>>;
 
 extension on BuildContext {
-  WebsocketLoaderBloc get websocketLoaderBloc => authLoader();
   ConversationLoaderBloc get conversationLoaderBloc => authLoader();
 }

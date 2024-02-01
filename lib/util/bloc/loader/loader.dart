@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:async/async.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +31,8 @@ final class LoadOnStart<T> extends Equatable {
 /// [ResType] is the type of the response data.
 base class LoaderBloc<ReqType, ResType>
     extends Bloc<LoaderEvent<ReqType, ResType>, LoaderState<ResType>> {
+  final FutureOr<void> Function(LoaderState<ResType> state)? onDispose;
+
   /// [load] is the function that is used to load data from an async source.
   ///
   /// [loadOnStart] is an optional parameter that can be used to load data
@@ -40,6 +44,7 @@ base class LoaderBloc<ReqType, ResType>
     required Future<ResType> Function(ReqType) load,
     ResType? initialData,
     LoadOnStart<ReqType>? loadOnStart,
+    this.onDispose,
   }) : super((() {
           if (loadOnStart != null) {
             final operation =
@@ -128,6 +133,7 @@ base class LoaderBloc<ReqType, ResType>
         await operation.cancel();
       case LoaderLoadedState() || LoaderInitialState():
     }
+    onDispose?.call(state);
     return super.close();
   }
 }

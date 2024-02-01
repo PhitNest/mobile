@@ -4,9 +4,7 @@ import '../../../../entities/entities.dart';
 import '../../../../theme.dart';
 import '../../../messaging/messaging.dart';
 
-part 'bloc.dart';
-
-class ConversationsPage extends StatelessWidget {
+final class ConversationsPage extends StatelessWidget {
   final String userId;
   final List<FriendRequestWithProfilePicture> friends;
 
@@ -40,6 +38,7 @@ class ConversationsPage extends StatelessWidget {
                         context,
                         CupertinoPageRoute<void>(
                             builder: (context) => MessagingPage(
+                                userId: userId,
                                 friend:
                                     friends[i].friendRequest.other(userId)))),
                   ),

@@ -3,7 +3,8 @@ import 'package:json_types/json.dart';
 final class Conversation extends Json {
   final messagesJson = Json.objectList('messages', Message.parser);
 
-  List<Message> get messages => messagesJson.value;
+  List<Message> get messages =>
+      messagesJson.value..sort((a, b) => a.messageId.compareTo(b.messageId));
 
   Conversation.parse(super.json) : super.parse();
 
@@ -18,18 +19,18 @@ final class Conversation extends Json {
 }
 
 final class Message extends Json {
-  final messageIdJson = Json.string('messageId');
+  final messageIdJson = Json.int('messageId');
   final senderIdJson = Json.string('senderId');
   final receiverIdJson = Json.string('receiverId');
   final contentJson = Json.string('content');
 
-  String get messageId => messageIdJson.value;
+  int get messageId => messageIdJson.value;
   String get senderId => senderIdJson.value;
   String get receiverId => receiverIdJson.value;
   String get content => contentJson.value;
 
   Message.populated({
-    required String messageId,
+    required int messageId,
     required String senderId,
     required String receiverId,
     required String content,

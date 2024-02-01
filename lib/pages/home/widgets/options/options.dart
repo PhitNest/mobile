@@ -5,7 +5,6 @@ import '../../../../entities/entities.dart';
 import '../../../../theme.dart';
 import '../../../../util/bloc/bloc.dart';
 import '../../../../widgets/widgets.dart';
-import '../../../about_us/about_us.dart';
 import '../../home.dart';
 
 class OptionsPage extends StatelessWidget {
@@ -41,23 +40,23 @@ class OptionsPage extends StatelessWidget {
                   style: theme.textTheme.bodyMedium,
                 ),
                 profilePicture,
-                TextButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    CupertinoPageRoute<void>(
-                      builder: (_) => const AboutUsScreen(),
-                    ),
-                  ),
-                  style: TextButton.styleFrom(),
-                  child: Text(
-                    'About Us',
-                    style: theme.textTheme.bodySmall!.copyWith(
-                      fontStyle: FontStyle.normal,
-                      decoration: TextDecoration.underline,
-                      decorationStyle: TextDecorationStyle.solid,
-                    ),
-                  ),
-                ),
+                // TextButton(
+                //   onPressed: () => Navigator.push(
+                //     context,
+                //     CupertinoPageRoute<void>(
+                //       builder: (_) => const AboutUsScreen(),
+                //     ),
+                //   ),
+                //   style: TextButton.styleFrom(),
+                //   child: Text(
+                //     'About Us',
+                //     style: theme.textTheme.bodySmall!.copyWith(
+                //       fontStyle: FontStyle.normal,
+                //       decoration: TextDecoration.underline,
+                //       decorationStyle: TextDecorationStyle.solid,
+                //     ),
+                //   ),
+                // ),
                 StyledOutlineButton(
                   onPress: () =>
                       context.deleteUserBloc.add(const LoaderLoadEvent(null)),
