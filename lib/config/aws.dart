@@ -4,6 +4,6 @@ const kClientId = '2979b6j3fcbvqkcraf3o0grqei';
 const kIdentityPoolId = 'us-east-1:17e5d96f-9138-4fe4-a994-e10e93ddbb97';
 const kRegion = 'us-east-1';
 const kUserBucketName = 'phitnest-user-bucket-prod';
-const kHost = 'api.phitnest.com';
+const kHost = 'https://api.phitnest.com';
 const kPort = '443';
 const kWebsocketUrl = 'wss://2v40adkuvg.execute-api.us-east-1.amazonaws.com/prod';
