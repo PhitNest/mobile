@@ -6,5 +6,4 @@ const kRegion = 'us-east-1';
 const kUserBucketName = 'phitnest-user-bucket-prod';
 const kHost = 'https://api.phitnest.com/';
 const kPort = '443';
-const kWebsocketUrl =
-    'wss://2v40adkuvg.execute-api.us-east-1.amazonaws.com/prod';
+const kWebsocketUrl = 'wss://2v40adkuvg.execute-api.us-east-1.amazonaws.com/prod';
