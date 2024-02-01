@@ -31,35 +31,22 @@ class ConversationsPage extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, i) => Padding(
                   padding: const EdgeInsets.all(8),
-                  child: Text(
-                    friends[i].friendRequest.other(userId).fullName,
-                    style: theme.textTheme.bodyMedium,
+                  child: GestureDetector(
+                    child: Text(
+                      friends[i].friendRequest.other(userId).fullName,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    onTap: () => Navigator.push(
+                        context,
+                        CupertinoPageRoute<void>(
+                            builder: (context) => MessagingPage(
+                                friend:
+                                    friends[i].friendRequest.other(userId)))),
                   ),
                 ),
               ),
             ),
           ],
         ),
-      );
-}
-
-class ConversationWidget extends StatelessWidget {
-  final FriendRequestWithProfilePicture friend;
-
-  const ConversationWidget({
-    super.key,
-    required this.friend,
-  });
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-        child: Text(
-          friend.friendRequest.sender.fullName,
-          style: theme.textTheme.bodyMedium,
-        ),
-        onTap: () => Navigator.push(
-            context,
-            CupertinoPageRoute<void>(
-                builder: (context) => const MessagingPage())),
       );
 }
