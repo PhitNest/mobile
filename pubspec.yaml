@@ -22,7 +22,7 @@ dependencies:
   http: ^1.0.0
   simple_gradient_text: ^1.2.4
   async: ^2.11.0
-  json_types: ^2.0.2
+  json_types: ^3.0.1
   logger: ^2.0.2+1
   basic_utils: ^5.7.0
   amazon_cognito_identity_dart_2: ^3.6.0

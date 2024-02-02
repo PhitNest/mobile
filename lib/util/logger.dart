@@ -2,20 +2,19 @@ import 'package:basic_utils/basic_utils.dart';
 import 'package:equatable/equatable.dart';
 import 'package:logger/logger.dart' hide LogEvent;
 
-import '../entities/user_log.dart';
+import '../entities/log_event.dart';
 import '../repositories/log_event.dart';
 
 const kDetailLinePrefix = '\n\t';
 
 final _prettyLogger = Logger(printer: PrettyPrinter(methodCount: 0));
 
-final _messages = <(String, String)>[];
+final _messages = <LogEvent>[];
 
 Future<void> logToDb() async {
   if (_messages.isNotEmpty) {
     info('Logging to sentry...');
-    await Future.wait(_messages.map((message) => postLogEvent(
-        LogEvent.populed(action: message.$1, details: message.$2))));
+    await Future.wait(_messages.map((message) => postLogEvent(message)));
     _messages.clear();
   }
 }
@@ -27,14 +26,15 @@ String _wrapText(String text, int spaces) => StringUtils.addCharAtPosition(
       repeat: true,
     );
 
-String _logMessage(String title, List<String>? details) {
+String _logMessage(String title, List<String>? details, {String userId = ''}) {
   final detailString = details != null
       ? '$kDetailLinePrefix${details.map((e) => _wrapText(e, 2)).join(
             kDetailLinePrefix,
           )}'
       : '';
   final text = '${_wrapText(title, 0)}$detailString';
-  _messages.add((title, detailString));
+  _messages.add(
+      LogEvent.populed(action: title, details: detailString, userId: userId));
   return text;
 }
 
