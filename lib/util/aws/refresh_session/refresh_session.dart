@@ -24,11 +24,11 @@ Future<RefreshSessionResponse> _handleRefreshFailures(
       _ => RefreshSessionUnknownFailure(message: e.message),
     };
   } on ArgumentError catch (e) {
-    error(e.toString());
+    await logError(e.toString());
     return const RefreshSessionKnownFailure(
         RefreshSessionFailureType.invalidUserPool);
   } catch (e) {
-    error(e.toString());
+    await logError(e.toString());
     return RefreshSessionUnknownFailure(message: e.toString());
   }
 }
@@ -49,6 +49,8 @@ Future<RefreshSessionResponse> refreshSession(Session session) async {
           ),
         );
       }
+      await logError('Failed to refresh session',
+          userId: session.user.username);
       return const RefreshSessionUnknownFailure(message: null);
     },
   );

@@ -12,6 +12,7 @@ final _prettyLogger = Logger(printer: PrettyPrinter(methodCount: 0));
 Future<void> logError(String title,
     {List<String>? details, String? userId}) async {
   final (_, title: action, details: d) = _logMessage(title, details);
+  error(title, details: details);
   await postLogEvent(
       LogEvent.populed(action: action, details: d, userId: userId));
 }
