@@ -508,10 +508,10 @@ packages:
     dependency: "direct main"
     description:
       name: json_types
-      sha256: d8308d49a4dc3bf7df5ca2d11f2cdaa2a0ce13372d29bac05acd55c126fdfef2
+      sha256: "017b804140199baed6a837f8b0d4155d0df2ae9e7e4237ea356bb1623cd7b406"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "3.0.1"
   leak_tracker:
     dependency: transitive
     description:
