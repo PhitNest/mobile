@@ -9,16 +9,11 @@ const kDetailLinePrefix = '\n\t';
 
 final _prettyLogger = Logger(printer: PrettyPrinter(methodCount: 0));
 
-final _messages = <(String, String)>[];
-
 Future<void> logError(String title,
     {List<String>? details, String? userId}) async {
-  if (_messages.isNotEmpty) {
-    info('Logging to database...');
-    await Future.wait(_messages.map((message) => postLogEvent(LogEvent.populed(
-        action: message.$1, details: message.$2, userId: userId))));
-    _messages.clear();
-  }
+  final (_, title: action, details: d) = _logMessage(title, details);
+  await postLogEvent(
+      LogEvent.populed(action: action, details: d, userId: userId));
 }
 
 String _wrapText(String text, int spaces) => StringUtils.addCharAtPosition(
@@ -28,28 +23,28 @@ String _wrapText(String text, int spaces) => StringUtils.addCharAtPosition(
       repeat: true,
     );
 
-String _logMessage(String title, List<String>? details) {
+(String, {String title, String details}) _logMessage(
+    String title, List<String>? details) {
   final detailString = details != null
       ? '$kDetailLinePrefix${details.map((e) => _wrapText(e, 2)).join(
             kDetailLinePrefix,
           )}'
       : '';
   final text = '${_wrapText(title, 0)}$detailString';
-  _messages.add((title, detailString));
-  return text;
+  return (text, title: title, details: detailString);
 }
 
 void debug(String title, {List<String>? details}) =>
-    _prettyLogger.d(_logMessage(title, details));
+    _prettyLogger.d(_logMessage(title, details).$1);
 
 void info(String title, {List<String>? details}) =>
-    _prettyLogger.i(_logMessage(title, details));
+    _prettyLogger.i(_logMessage(title, details).$1);
 
 void warning(String title, {List<String>? details}) =>
-    _prettyLogger.w(_logMessage(title, details));
+    _prettyLogger.w(_logMessage(title, details).$1);
 
 void error(String title, {List<String>? details}) =>
-    _prettyLogger.e(_logMessage(title, details));
+    _prettyLogger.e(_logMessage(title, details).$1);
 
 void badState(Equatable state, Equatable event) =>
     error('$state:\n\tInvalid event: $event');
