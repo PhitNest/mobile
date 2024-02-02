@@ -71,7 +71,7 @@ Future<HttpResponse<ResType>> request<ResType>({
 
     // Log the request details
     debug('Request${session != null ? " (Authorized)" : ""}:',
-        details: details(data), userId: session?.user.username);
+        details: details(data));
 
     int elapsedMs() =>
         DateTime.now().millisecondsSinceEpoch -
@@ -84,8 +84,7 @@ Future<HttpResponse<ResType>> request<ResType>({
     if (readFromCache != null) {
       final cached = readFromCache();
       if (cached != null) {
-        debug('Request cached:',
-            details: [cached.toString()], userId: session?.user.username);
+        debug('Request cached:', details: [cached.toString()]);
         return HttpResponseCache(cached);
       }
     }
@@ -118,7 +117,7 @@ Future<HttpResponse<ResType>> request<ResType>({
         HttpMethod.delete => dio.delete<dynamic>(url),
       }
           .timeout(_timeout)
-          .then((response) {
+          .then((response) async {
         final jsonData = response.data;
         if (jsonData is Map<String, dynamic> || jsonData is List<dynamic>) {
           // Handle successful responses
@@ -126,14 +125,15 @@ Future<HttpResponse<ResType>> request<ResType>({
             // Parse the response data
             final parsed = parse(jsonData);
             // Log success
-            debug('Request success:',
-                details: responseDetails(parsed),
-                userId: session?.user.username);
+            debug(
+              'Request success:',
+              details: responseDetails(parsed),
+            );
             return HttpResponseOk(parsed, response.headers);
           } else {
             // Handle unsuccessful responses
             final parsed = Failure.parse(jsonData as Map<String, dynamic>);
-            error('Request failure:',
+            await logError('Request failure:',
                 details: responseDetails(parsed),
                 userId: session?.user.username);
             return HttpResponseFailure(parsed, response.headers);
@@ -144,18 +144,18 @@ Future<HttpResponse<ResType>> request<ResType>({
       });
     } on TimeoutException {
       // Log and return a NetworkConnectionFailure on timeout
-      error('Request timeout:',
+      await logError('Request timeout:',
           details: responseDetails(data), userId: session?.user.username);
       return HttpResponseFailure(
           Failure.populated('Timeout', 'Request timeout'), Headers());
     } on Failure catch (failure) {
-      error('Request failure:',
+      await logError('Request failure:',
           details: responseDetails(failure), userId: session?.user.username);
       return HttpResponseFailure(failure, Headers());
     } catch (e) {
       // Log and return failure by value
       final failure = Failure.populated('UnknownFailure', e.toString());
-      error('Request failure:',
+      await logError('Request failure:',
           details: responseDetails(failure), userId: session?.user.username);
       return HttpResponseFailure(failure, Headers());
     }

@@ -10,7 +10,6 @@ import 'theme.dart';
 import 'util/aws/aws.dart';
 import 'util/bloc/bloc.dart';
 import 'util/cache/cache.dart';
-import 'util/logger.dart';
 import 'widgets/widgets.dart';
 
 class AppScrollBehavior extends MaterialScrollBehavior {
@@ -24,14 +23,11 @@ class AppScrollBehavior extends MaterialScrollBehavior {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeCache();
-  runApp(PhitNestApp(
-      Timer(const Duration(minutes: 30), () async => await logToDb())));
+  runApp(const PhitNestApp());
 }
 
 final class PhitNestApp extends StatelessWidget {
-  final Timer logger;
-
-  const PhitNestApp(this.logger, {super.key}) : super();
+  const PhitNestApp({super.key}) : super();
 
   @override
   Widget build(BuildContext context) => BlocProvider(

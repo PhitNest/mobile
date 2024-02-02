@@ -9,12 +9,14 @@ const kDetailLinePrefix = '\n\t';
 
 final _prettyLogger = Logger(printer: PrettyPrinter(methodCount: 0));
 
-final _messages = <LogEvent>[];
+final _messages = <(String, String)>[];
 
-Future<void> logToDb() async {
+Future<void> logError(String title,
+    {List<String>? details, String? userId}) async {
   if (_messages.isNotEmpty) {
     info('Logging to database...');
-    await Future.wait(_messages.map((message) => postLogEvent(message)));
+    await Future.wait(_messages.map((message) => postLogEvent(LogEvent.populed(
+        action: message.$1, details: message.$2, userId: userId))));
     _messages.clear();
   }
 }
@@ -26,29 +28,28 @@ String _wrapText(String text, int spaces) => StringUtils.addCharAtPosition(
       repeat: true,
     );
 
-String _logMessage(String title, List<String>? details, {String? userId}) {
+String _logMessage(String title, List<String>? details) {
   final detailString = details != null
       ? '$kDetailLinePrefix${details.map((e) => _wrapText(e, 2)).join(
             kDetailLinePrefix,
           )}'
       : '';
   final text = '${_wrapText(title, 0)}$detailString';
-  _messages.add(
-      LogEvent.populed(action: title, details: detailString, userId: userId));
+  _messages.add((title, detailString));
   return text;
 }
 
-void debug(String title, {List<String>? details, String? userId}) =>
-    _prettyLogger.d(_logMessage(title, details, userId: userId));
+void debug(String title, {List<String>? details}) =>
+    _prettyLogger.d(_logMessage(title, details));
 
-void info(String title, {List<String>? details, String? userId}) =>
-    _prettyLogger.i(_logMessage(title, details, userId: userId));
+void info(String title, {List<String>? details}) =>
+    _prettyLogger.i(_logMessage(title, details));
 
-void warning(String title, {List<String>? details, String? userId}) =>
-    _prettyLogger.w(_logMessage(title, details, userId: userId));
+void warning(String title, {List<String>? details}) =>
+    _prettyLogger.w(_logMessage(title, details));
 
-void error(String title, {List<String>? details, String? userId}) =>
-    _prettyLogger.e(_logMessage(title, details, userId: userId));
+void error(String title, {List<String>? details}) =>
+    _prettyLogger.e(_logMessage(title, details));
 
-void badState(Equatable state, Equatable event, {String? userId}) =>
-    error('$state:\n\tInvalid event: $event', userId: userId);
+void badState(Equatable state, Equatable event) =>
+    error('$state:\n\tInvalid event: $event');

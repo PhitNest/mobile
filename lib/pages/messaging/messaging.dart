@@ -186,8 +186,8 @@ final class MessagingPageState extends State<MessagingStatefulWidget> {
     subscription = widget.connection.stream.listen(
       (event) => setState(() => messages.add(
           Message.parse(jsonDecode(event as String) as Map<String, dynamic>))),
-      onError: (dynamic e) {
-        error(e.toString(), userId: widget.userId);
+      onError: (dynamic e) async {
+        await logError(e.toString(), userId: widget.userId);
         StyledBanner.show(
           message: e.toString(),
           error: true,
@@ -196,7 +196,7 @@ final class MessagingPageState extends State<MessagingStatefulWidget> {
     );
   }
 
-  void submit() {
+  Future<void> submit() async {
     if (messageController.text.isNotEmpty) {
       try {
         final message = messageController.text;
@@ -217,7 +217,7 @@ final class MessagingPageState extends State<MessagingStatefulWidget> {
         });
         messageController.clear();
       } catch (e) {
-        error(e.toString(), userId: widget.userId);
+        await logError(e.toString(), userId: widget.userId);
         StyledBanner.show(message: e.toString(), error: true);
       }
     }
