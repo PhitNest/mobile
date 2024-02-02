@@ -71,7 +71,7 @@ Future<HttpResponse<ResType>> request<ResType>({
 
     // Log the request details
     debug('Request${session != null ? " (Authorized)" : ""}:',
-        details: details(data));
+        details: details(data), userId: session?.user.username);
 
     int elapsedMs() =>
         DateTime.now().millisecondsSinceEpoch -
@@ -84,7 +84,8 @@ Future<HttpResponse<ResType>> request<ResType>({
     if (readFromCache != null) {
       final cached = readFromCache();
       if (cached != null) {
-        debug('Request cached:', details: [cached.toString()]);
+        debug('Request cached:',
+            details: [cached.toString()], userId: session?.user.username);
         return HttpResponseCache(cached);
       }
     }
@@ -125,12 +126,16 @@ Future<HttpResponse<ResType>> request<ResType>({
             // Parse the response data
             final parsed = parse(jsonData);
             // Log success
-            debug('Request success:', details: responseDetails(parsed));
+            debug('Request success:',
+                details: responseDetails(parsed),
+                userId: session?.user.username);
             return HttpResponseOk(parsed, response.headers);
           } else {
             // Handle unsuccessful responses
             final parsed = Failure.parse(jsonData as Map<String, dynamic>);
-            error('Request failure:', details: responseDetails(parsed));
+            error('Request failure:',
+                details: responseDetails(parsed),
+                userId: session?.user.username);
             return HttpResponseFailure(parsed, response.headers);
           }
         } else {
@@ -139,16 +144,19 @@ Future<HttpResponse<ResType>> request<ResType>({
       });
     } on TimeoutException {
       // Log and return a NetworkConnectionFailure on timeout
-      error('Request timeout:', details: responseDetails(data));
+      error('Request timeout:',
+          details: responseDetails(data), userId: session?.user.username);
       return HttpResponseFailure(
           Failure.populated('Timeout', 'Request timeout'), Headers());
     } on Failure catch (failure) {
-      error('Request failure:', details: responseDetails(failure));
+      error('Request failure:',
+          details: responseDetails(failure), userId: session?.user.username);
       return HttpResponseFailure(failure, Headers());
     } catch (e) {
       // Log and return failure by value
       final failure = Failure.populated('UnknownFailure', e.toString());
-      error('Request failure:', details: responseDetails(failure));
+      error('Request failure:',
+          details: responseDetails(failure), userId: session?.user.username);
       return HttpResponseFailure(failure, Headers());
     }
   }

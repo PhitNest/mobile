@@ -1,4 +1,4 @@
-import '../entities/user_log.dart';
+import '../entities/log_event.dart';
 import '../util/http/http.dart';
 
 Future<HttpResponse<void>> postLogEvent(

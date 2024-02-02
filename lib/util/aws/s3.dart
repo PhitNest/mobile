@@ -58,14 +58,16 @@ Future<Image?> getProfilePicture(Session session, String identityId) async {
     if (res.statusCode == 200) {
       return Image.memory(res.bodyBytes);
     } else {
-      error('Failed to get profile picture', details: [
-        'Status code: ${res.statusCode}',
-        'Response body: ${res.body}',
-      ]);
+      error('Failed to get profile picture',
+          details: [
+            'Status code: ${res.statusCode}',
+            'Response body: ${res.body}',
+          ],
+          userId: session.user.username);
       return null;
     }
   } catch (e) {
-    error(e.toString());
+    error(e.toString(), userId: session.user.username);
     return null;
   }
 }
@@ -128,17 +130,16 @@ Future<String?> uploadProfilePicture({
 
     final res = await req.send();
     await for (String value in res.stream.transform(utf8.decoder)) {
-      debug(value);
+      debug(value, userId: session.user.username);
     }
     return null;
   } catch (e) {
-    error(
-      'Error thrown while uploading picture',
-      details: [
-        'Identity ID: $identityId',
-        'Error: ${e.toString()}',
-      ],
-    );
+    error('Error thrown while uploading picture',
+        details: [
+          'Identity ID: $identityId',
+          'Error: ${e.toString()}',
+        ],
+        userId: session.user.username);
     return e.toString();
   }
 }

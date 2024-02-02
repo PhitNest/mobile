@@ -15,7 +15,7 @@ Future<SendForgotPasswordResponse> sendForgotPasswordRequest(
     await user.forgotPassword();
     return SendForgotPasswordSuccess(user);
   } on CognitoClientException catch (e) {
-    error(e.toString());
+    error(e.toString(), userId: email);
     return switch (e.code) {
       'ResourceNotFoundException' => const SendForgotPasswordKnownFailure(
           SendForgotPasswordFailure.invalidUserPool),
@@ -26,12 +26,12 @@ Future<SendForgotPasswordResponse> sendForgotPasswordRequest(
       _ => SendForgotPasswordUnknownFailure(message: e.message),
     };
   } on ArgumentError catch (e) {
-    error(e.toString());
+    error(e.toString(), userId: email);
     return const SendForgotPasswordKnownFailure(
       SendForgotPasswordFailure.invalidUserPool,
     );
   } catch (e) {
-    error(e.toString());
+    error(e.toString(), userId: email);
     return SendForgotPasswordUnknownFailure(message: e.toString());
   }
 }
@@ -47,7 +47,7 @@ Future<SubmitForgotPasswordFailure?> submitForgotPassword({
       return SubmitForgotPasswordFailure.invalidCode;
     }
   } on CognitoClientException catch (e) {
-    error(e.toString());
+    error(e.toString(), userId: session.user.username);
     return switch (e.code) {
       'ResourceNotFoundException' =>
         SubmitForgotPasswordFailure.invalidUserPool,
@@ -59,7 +59,7 @@ Future<SubmitForgotPasswordFailure?> submitForgotPassword({
       _ => SubmitForgotPasswordFailure.unknown,
     };
   } catch (e) {
-    error(e.toString());
+    error(e.toString(), userId: session.user.username);
     return SubmitForgotPasswordFailure.unknown;
   }
 }

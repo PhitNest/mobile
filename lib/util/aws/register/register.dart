@@ -31,7 +31,7 @@ Future<RegisterResponse> register(
       return const RegisterUnknownFailure(message: null);
     }
   } on CognitoClientException catch (e) {
-    error(e.toString());
+    error(e.toString(), userId: params.email);
     return switch (e.code) {
       'ResourceNotFoundException' =>
         const RegisterKnownFailure((RegisterFailureType.invalidUserPool)),
@@ -45,10 +45,10 @@ Future<RegisterResponse> register(
       _ => RegisterUnknownFailure(message: e.message),
     };
   } on ArgumentError catch (e) {
-    error(e.toString());
+    error(e.toString(), userId: params.email);
     return const RegisterKnownFailure(RegisterFailureType.invalidUserPool);
   } catch (e) {
-    error(e.toString());
+    error(e.toString(), userId: params.email);
     return RegisterUnknownFailure(message: e.toString());
   }
 }

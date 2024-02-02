@@ -26,7 +26,7 @@ String _wrapText(String text, int spaces) => StringUtils.addCharAtPosition(
       repeat: true,
     );
 
-String _logMessage(String title, List<String>? details, {String userId = ''}) {
+String _logMessage(String title, List<String>? details, {String? userId}) {
   final detailString = details != null
       ? '$kDetailLinePrefix${details.map((e) => _wrapText(e, 2)).join(
             kDetailLinePrefix,
@@ -38,17 +38,17 @@ String _logMessage(String title, List<String>? details, {String userId = ''}) {
   return text;
 }
 
-void debug(String title, {List<String>? details}) =>
-    _prettyLogger.d(_logMessage(title, details));
+void debug(String title, {List<String>? details, String? userId}) =>
+    _prettyLogger.d(_logMessage(title, details, userId: userId));
 
-void info(String title, {List<String>? details}) =>
-    _prettyLogger.i(_logMessage(title, details));
+void info(String title, {List<String>? details, String? userId}) =>
+    _prettyLogger.i(_logMessage(title, details, userId: userId));
 
-void warning(String title, {List<String>? details}) =>
-    _prettyLogger.w(_logMessage(title, details));
+void warning(String title, {List<String>? details, String? userId}) =>
+    _prettyLogger.w(_logMessage(title, details, userId: userId));
 
-void error(String title, {List<String>? details}) =>
-    _prettyLogger.e(_logMessage(title, details));
+void error(String title, {List<String>? details, String? userId}) =>
+    _prettyLogger.e(_logMessage(title, details, userId: userId));
 
-void badState(Equatable state, Equatable event) =>
-    error('$state:\n\tInvalid event: $event');
+void badState(Equatable state, Equatable event, {String? userId}) =>
+    error('$state:\n\tInvalid event: $event', userId: userId);

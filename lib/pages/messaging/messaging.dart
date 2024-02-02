@@ -187,7 +187,7 @@ final class MessagingPageState extends State<MessagingStatefulWidget> {
       (event) => setState(() => messages.add(
           Message.parse(jsonDecode(event as String) as Map<String, dynamic>))),
       onError: (dynamic e) {
-        error(e.toString());
+        error(e.toString(), userId: widget.userId);
         StyledBanner.show(
           message: e.toString(),
           error: true,
@@ -217,7 +217,7 @@ final class MessagingPageState extends State<MessagingStatefulWidget> {
         });
         messageController.clear();
       } catch (e) {
-        error(e.toString());
+        error(e.toString(), userId: widget.userId);
         StyledBanner.show(message: e.toString(), error: true);
       }
     }
