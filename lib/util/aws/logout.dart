@@ -1,6 +1,9 @@
 import 'aws.dart';
 
-Future<void> logout(Session session) => Future.wait(
-    [session.user.signOut(), session.credentials.resetAwsCredentials()]);
+Future<void> logout(Session session) => session.credentials
+    .resetAwsCredentials()
+    .then((_) => session.user.signOut());
 
-Future<bool> deleteAccount(Session session) => session.user.deleteUser();
+Future<bool> deleteAccount(Session session) => session.credentials
+    .resetAwsCredentials()
+    .then((_) => session.user.deleteUser());
