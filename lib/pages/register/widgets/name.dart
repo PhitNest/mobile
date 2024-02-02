@@ -65,7 +65,7 @@ final class RegisterNamePage extends StatelessWidget {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            Navigator.of(context).push(
+                            Navigator.of(context).pushReplacement(
                               CupertinoPageRoute<void>(
                                 builder: (context) => const LoginPage(),
                               ),
