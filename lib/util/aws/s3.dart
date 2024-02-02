@@ -67,8 +67,7 @@ Future<Image?> getProfilePicture(Session session, String identityId) async {
       return null;
     }
   } catch (e) {
-    await logError('Failed to get profile picture',
-        details: ['Error: ${e.toString()}'], userId: session.user.username);
+    error('Failed to get profile picture', details: ['Error: ${e.toString()}']);
     return null;
   }
 }
