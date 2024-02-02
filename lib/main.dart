@@ -25,7 +25,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeCache();
   runApp(PhitNestApp(
-      Timer(const Duration(minutes: 1), () async => await logToDb())));
+      Timer(const Duration(minutes: 30), () async => await logToDb())));
 }
 
 final class PhitNestApp extends StatelessWidget {
