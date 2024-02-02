@@ -1,17 +1,22 @@
 import 'package:basic_utils/basic_utils.dart';
 import 'package:equatable/equatable.dart';
-import 'package:logger/logger.dart';
+import 'package:logger/logger.dart' hide LogEvent;
+
+import '../entities/user_log.dart';
+import '../repositories/log_event.dart';
 
 const kDetailLinePrefix = '\n\t';
 
 final _prettyLogger = Logger(printer: PrettyPrinter(methodCount: 0));
 
-final _messages = <String>[];
+final _messages = <(String, String)>[];
 
-void logToSentry() {
+Future<void> logToDb() async {
   if (_messages.isNotEmpty) {
     info('Logging to sentry...');
-    throw _messages.join('\n\n');
+    await Future.wait(_messages.map((message) => postLogEvent(
+        LogEvent.populed(action: message.$1, details: message.$2))));
+    _messages.clear();
   }
 }
 
@@ -23,12 +28,13 @@ String _wrapText(String text, int spaces) => StringUtils.addCharAtPosition(
     );
 
 String _logMessage(String title, List<String>? details) {
-  final text = '${_wrapText(title, 0)}'
-      '${details != null ? '$kDetailLinePrefix'
-          '${details.map((e) => _wrapText(e, 2)).join(
-                kDetailLinePrefix,
-              )}' : ''}';
-  _messages.add(text);
+  final detailString = details != null
+      ? '$kDetailLinePrefix${details.map((e) => _wrapText(e, 2)).join(
+            kDetailLinePrefix,
+          )}'
+      : '';
+  final text = '${_wrapText(title, 0)}$detailString';
+  _messages.add((title, detailString));
   return text;
 }
 
