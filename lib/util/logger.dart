@@ -13,7 +13,7 @@ final _messages = <LogEvent>[];
 
 Future<void> logToDb() async {
   if (_messages.isNotEmpty) {
-    info('Logging to sentry...');
+    info('Logging to database...');
     await Future.wait(_messages.map((message) => postLogEvent(message)));
     _messages.clear();
   }
