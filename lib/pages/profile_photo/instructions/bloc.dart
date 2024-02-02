@@ -31,6 +31,7 @@ Future<CroppedFile?> _photoChosen(
       },
     ).catchError(
       (dynamic e) async {
+        StyledBanner.show(message: e.toString(), error: true);
         await logError(e.toString());
         return null;
       },
