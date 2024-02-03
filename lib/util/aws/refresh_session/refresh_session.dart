@@ -24,7 +24,7 @@ Future<RefreshSessionResponse> _handleRefreshFailures(
       _ => RefreshSessionUnknownFailure(message: e.message),
     };
   } on ArgumentError catch (e) {
-    await logError(e.toString());
+    error(e.toString());
     return const RefreshSessionKnownFailure(
         RefreshSessionFailureType.invalidUserPool);
   } catch (e) {

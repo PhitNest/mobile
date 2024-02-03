@@ -31,12 +31,13 @@ Future<LoginResponse> login(LoginParams params) async {
         );
       }
     }
+    await logError('Failed to login', userId: user.username);
     return const LoginUnknownResponse(message: null);
   } on CognitoUserConfirmationNecessaryException catch (e) {
-    await logError(e.toString(), userId: user.username);
+    error(e.toString());
     return LoginConfirmationRequired(user: user, password: params.password);
   } on CognitoClientException catch (e) {
-    await logError(e.toString(), userId: user.username);
+    error(e.toString());
     return switch (e.code) {
       'ResourceNotFoundException' =>
         const LoginKnownFailure(LoginFailureType.invalidUserPool),
@@ -50,7 +51,7 @@ Future<LoginResponse> login(LoginParams params) async {
     await logError(e.toString(), userId: user.username);
     return const LoginKnownFailure(LoginFailureType.invalidUserPool);
   } on CognitoUserNewPasswordRequiredException catch (e) {
-    await logError(e.toString(), userId: user.username);
+    error(e.toString());
     return LoginChangePasswordRequired(user);
   } catch (err) {
     await logError(err.toString(), userId: user.username);

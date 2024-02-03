@@ -28,10 +28,11 @@ Future<RegisterResponse> register(
         params.password,
       );
     } else {
+      await logError('Failed to register', userId: params.email);
       return const RegisterUnknownFailure(message: null);
     }
   } on CognitoClientException catch (e) {
-    await logError(e.toString(), userId: params.email);
+    error(e.toString());
     return switch (e.code) {
       'ResourceNotFoundException' =>
         const RegisterKnownFailure((RegisterFailureType.invalidUserPool)),

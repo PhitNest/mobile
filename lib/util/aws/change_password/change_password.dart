@@ -35,7 +35,7 @@ Future<ChangePasswordResponse> changePassword({
       return const ChangePasswordUnknownFailure(message: null);
     }
   } on CognitoClientException catch (e) {
-    await logError(e.toString(), userId: unauthenticatedSession.user.username);
+    error(e.toString());
     return switch (e.code) {
       'ResourceNotFoundException' => const ChangePasswordKnownFailure(
           ChangePasswordFailureType.invalidUserPool,
