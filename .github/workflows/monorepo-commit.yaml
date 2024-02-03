@@ -19,6 +19,9 @@ jobs:
       - name: Update submodule
         run: cd apps/mobile && git checkout ${{ github.ref_name }} && git pull origin ${{ github.ref_name }}
 
+      - name: Fix frozen lock file
+        run: npm i -g aws-cdk pnpm turbo && pnpm install --no-frozen-lockfile
+
       - name: Commit to monorepo
         uses: EndBug/add-and-commit@v9
         with:
