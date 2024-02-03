@@ -141,11 +141,8 @@ class _HomePageState extends State<HomePage> {
                                       userId: homeData.user.id,
                                       friends: homeData.friends,
                                     ),
-                                  NavBarPage.friends => FriendsPage(
-                                      friends: homeData.friends,
-                                      requests: homeData.receivedFriendRequests,
-                                      userId: homeData.user.id,
-                                    ),
+                                  NavBarPage.friends =>
+                                    FriendsPage(homeData: homeData),
                                   NavBarPage.options => OptionsPage(
                                       user: homeData.user,
                                       profilePicture: homeData.profilePicture,
