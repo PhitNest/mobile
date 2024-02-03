@@ -134,7 +134,7 @@ final class MessagingPage extends StatelessWidget {
                                         HttpResponseSuccess(
                                           data: final conversation
                                         ) =>
-                                            MessagingWidget(
+                                          MessagingWidget(
                                             userId: userId,
                                             friend: friend,
                                             connection: connection,
@@ -156,31 +156,30 @@ final class MessagingPage extends StatelessWidget {
 }
 
 class MessagingWidget extends StatelessWidget {
-  const MessagingWidget({super.key,
-    required this.userId,
-    required this.friend,
-    required this.connection,
-    required this.initialMessages
-  });
+  const MessagingWidget(
+      {super.key,
+      required this.userId,
+      required this.friend,
+      required this.connection,
+      required this.initialMessages});
 
   final String userId;
   final User friend;
   final WebSocketChannel connection;
   final List<Message> initialMessages;
 
-
   @override
   Widget build(BuildContext context) {
     return MessagingProvider(
       createControllers: (_) => MessagingControllers(messages: initialMessages),
-      createLoader: (_) =>
-          LoaderBloc(load: (requestData) =>
-          Future<HttpResponse<void>>.value(const HttpResponseOk(null, null))),
+      createLoader: (_) => LoaderBloc(
+          load: (requestData) => Future<HttpResponse<void>>.value(
+              const HttpResponseOk(null, null))),
       createConsumer: (context, controllers, _) => LoaderConsumer(
         listener: (context, loaderState) {},
         builder: (context, loaderState) {
-          WidgetsBinding.instance.addPostFrameCallback((_) =>
-              afterBuild(controllers));
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => afterBuild(controllers));
           return Column(
             children: [
               Expanded(
@@ -260,9 +259,9 @@ class MessagingWidget extends StatelessWidget {
 
   void afterBuild(MessagingControllers controllers) {
     controllers.subscription = connection.stream.listen(
-          (event) {
+      (event) {
         final message =
-        Message.parse(jsonDecode(event as String) as Map<String, dynamic>);
+            Message.parse(jsonDecode(event as String) as Map<String, dynamic>);
         if (message.senderId == friend.id) {
           controllers.messages.add(message);
         }
