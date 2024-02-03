@@ -10,6 +10,7 @@ devtools_options.yaml
 .history
 .svn/
 migrate_working_dir/
+.firebase
 
 # IntelliJ related
 *.iml
