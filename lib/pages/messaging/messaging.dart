@@ -184,8 +184,13 @@ final class MessagingPageState extends State<MessagingStatefulWidget> {
   void initState() {
     super.initState();
     subscription = widget.connection.stream.listen(
-      (event) => setState(() => messages.add(
-          Message.parse(jsonDecode(event as String) as Map<String, dynamic>))),
+      (event) {
+        final message =
+            Message.parse(jsonDecode(event as String) as Map<String, dynamic>);
+        if (message.senderId == widget.friend.id) {
+          setState(() => messages.add(message));
+        }
+      },
       onError: (dynamic e) async {
         await logError(e.toString(), userId: widget.userId);
         StyledBanner.show(
