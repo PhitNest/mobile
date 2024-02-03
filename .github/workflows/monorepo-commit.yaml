@@ -1,6 +1,8 @@
 name: Monorepo commit
 
-on: push
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
   commit:
