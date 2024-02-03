@@ -134,7 +134,7 @@ final class MessagingPage extends StatelessWidget {
                                         HttpResponseSuccess(
                                           data: final conversation
                                         ) =>
-                                          MessagingStatefulWidget(
+                                            MessagingWidget(
                                             userId: userId,
                                             friend: friend,
                                             connection: connection,
@@ -155,132 +155,125 @@ final class MessagingPage extends StatelessWidget {
                   })));
 }
 
-final class MessagingStatefulWidget extends StatefulWidget {
+class MessagingWidget extends StatelessWidget {
+  const MessagingWidget({super.key,
+    required this.userId,
+    required this.friend,
+    required this.connection,
+    required this.initialMessages
+  });
+
   final String userId;
   final User friend;
   final WebSocketChannel connection;
   final List<Message> initialMessages;
 
-  const MessagingStatefulWidget({
-    super.key,
-    required this.userId,
-    required this.friend,
-    required this.connection,
-    required this.initialMessages,
-  }) : super();
 
   @override
-  MessagingPageState createState() => MessagingPageState();
-}
+  Widget build(BuildContext context) {
+    return MessagingProvider(
+      createControllers: (_) => MessagingControllers(messages: initialMessages),
+      createLoader: (_) =>
+          LoaderBloc(load: (requestData) =>
+          Future<HttpResponse<void>>.value(const HttpResponseOk(null, null))),
+      createConsumer: (context, controllers, _) => LoaderConsumer(
+        listener: (context, loaderState) {},
+        builder: (context, loaderState) {
+          WidgetsBinding.instance.addPostFrameCallback((_) =>
+              afterBuild(controllers));
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: controllers.messages.length,
+                  itemBuilder: (context, i) => Align(
+                    alignment: controllers.messages[i].senderId == userId
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      child: Text(
+                        controllers.messages[i].content,
+                        textAlign: controllers.messages[i].senderId == userId
+                            ? TextAlign.right
+                            : TextAlign.left,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: controllers.messageController,
+                      onSubmitted: (_) => submit(controllers),
+                      decoration: InputDecoration(
+                        hintText: 'Type a message',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.send,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () => submit(controllers),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
 
-final class MessagingPageState extends State<MessagingStatefulWidget> {
-  final TextEditingController messageController = TextEditingController();
-  late final List<Message> messages = widget.initialMessages;
-  late final StreamSubscription<dynamic> subscription;
+  Future<void> submit(MessagingControllers controllers) async {
+    if (controllers.messageController.text.isNotEmpty) {
+      try {
+        final message = controllers.messageController.text;
+        connection.sink.add(jsonEncode({
+          'action': 'send-message',
+          'data': jsonEncode({
+            'receiverId': friend.id,
+            'content': message,
+          }),
+        }));
+        controllers.messages.add(Message.populated(
+          receiverId: friend.id,
+          messageId: controllers.messages.length,
+          senderId: userId,
+          content: message,
+        ));
+        controllers.messageController.clear();
+      } catch (e) {
+        await logError(e.toString(), userId: userId);
+        StyledBanner.show(message: e.toString(), error: true);
+      }
+    }
+  }
 
-  MessagingPageState() : super();
-
-  @override
-  void initState() {
-    super.initState();
-    subscription = widget.connection.stream.listen(
-      (event) {
+  void afterBuild(MessagingControllers controllers) {
+    controllers.subscription = connection.stream.listen(
+          (event) {
         final message =
-            Message.parse(jsonDecode(event as String) as Map<String, dynamic>);
-        if (message.senderId == widget.friend.id) {
-          setState(() => messages.add(message));
+        Message.parse(jsonDecode(event as String) as Map<String, dynamic>);
+        if (message.senderId == friend.id) {
+          controllers.messages.add(message);
         }
       },
       onError: (dynamic e) async {
-        await logError(e.toString(), userId: widget.userId);
+        await logError(e.toString(), userId: userId);
         StyledBanner.show(
           message: e.toString(),
           error: true,
         );
       },
     );
-  }
-
-  Future<void> submit() async {
-    if (messageController.text.isNotEmpty) {
-      try {
-        final message = messageController.text;
-        widget.connection.sink.add(jsonEncode({
-          'action': 'send-message',
-          'data': jsonEncode({
-            'receiverId': widget.friend.id,
-            'content': message,
-          }),
-        }));
-        setState(() {
-          messages.add(Message.populated(
-            receiverId: widget.friend.id,
-            messageId: messages.length,
-            senderId: widget.userId,
-            content: message,
-          ));
-        });
-        messageController.clear();
-      } catch (e) {
-        await logError(e.toString(), userId: widget.userId);
-        StyledBanner.show(message: e.toString(), error: true);
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) => Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (context, i) => Align(
-                alignment: messages[i].senderId == widget.userId
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  width: MediaQuery.of(context).size.width * 0.7,
-                  child: Text(
-                    messages[i].content,
-                    textAlign: messages[i].senderId == widget.userId
-                        ? TextAlign.right
-                        : TextAlign.left,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: messageController,
-                  onSubmitted: (_) => submit(),
-                  decoration: InputDecoration(
-                    hintText: 'Type a message',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.send,
-                  color: Colors.grey,
-                ),
-                onPressed: submit,
-              ),
-            ],
-          ),
-        ],
-      );
-
-  @override
-  Future<void> dispose() async {
-    super.dispose();
-    messageController.dispose();
-    await subscription.cancel();
   }
 }
