@@ -17,7 +17,7 @@ Future<String?> confirmEmail({
     }
   } on CognitoClientException catch (e) {
     final errorMessage = e.message ?? e.toString();
-    error(errorMessage);
+    await logError(errorMessage, userId: user.username);
     return errorMessage;
   }
 }
@@ -29,7 +29,7 @@ Future<String?> resendConfirmationEmail({
     await user.resendConfirmationCode();
     return null;
   } catch (e) {
-    error(e.toString());
+    await logError(e.toString(), userId: user.username);
     return e.toString();
   }
 }

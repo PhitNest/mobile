@@ -19,7 +19,7 @@ enum SendForgotPasswordFailure {
   noSuchUser;
 
   String get message => switch (this) {
-        SendForgotPasswordFailure.invalidUserPool => 'Invalid user pool',
+        SendForgotPasswordFailure.invalidUserPool => 'Please update your app.',
         SendForgotPasswordFailure.invalidEmail => 'Invalid email',
         SendForgotPasswordFailure.noSuchUser => 'No such user',
       };
@@ -70,7 +70,8 @@ enum SubmitForgotPasswordFailure {
   unknown;
 
   String get message => switch (this) {
-        SubmitForgotPasswordFailure.invalidUserPool => 'Invalid user pool.',
+        SubmitForgotPasswordFailure.invalidUserPool =>
+          ' Please update your app.',
         SubmitForgotPasswordFailure.invalidEmail => 'Invalid email.',
         SubmitForgotPasswordFailure.invalidPassword => 'Invalid password.',
         SubmitForgotPasswordFailure.noSuchUser => 'No such user.',

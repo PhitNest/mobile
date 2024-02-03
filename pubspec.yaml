@@ -1,7 +1,7 @@
 name: mobile
 description: PhitNest Mobile App
 publish_to: "none"
-version: 1.0.0+5
+version: 1.0.0+9
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -10,7 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  sentry_flutter: ^7.14.0
   equatable: ^2.0.5
   flutter_svg: ^2.0.7
   flutter_launcher_icons: ^0.13.1
@@ -23,7 +22,7 @@ dependencies:
   http: ^1.0.0
   simple_gradient_text: ^1.2.4
   async: ^2.11.0
-  json_types: ^2.0.2
+  json_types: ^3.0.1
   logger: ^2.0.2+1
   basic_utils: ^5.7.0
   amazon_cognito_identity_dart_2: ^3.6.0
@@ -32,6 +31,7 @@ dependencies:
   shared_preferences: ^2.2.2
   dio: ^5.4.0
   google_fonts: ^6.1.0
+  web_socket_channel: ^2.4.3
 
 dev_dependencies:
   flutter_test:

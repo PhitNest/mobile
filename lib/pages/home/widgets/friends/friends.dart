@@ -13,15 +13,11 @@ import '../../../pages.dart';
 part 'bloc.dart';
 
 class FriendsPage extends StatelessWidget {
-  final String userId;
-  final List<FriendRequestWithProfilePicture> requests;
-  final List<FriendRequestWithProfilePicture> friends;
+  final HomeDataLoaded homeData;
 
   const FriendsPage({
     super.key,
-    required this.userId,
-    required this.requests,
-    required this.friends,
+    required this.homeData,
   }) : super();
 
   @override
@@ -29,10 +25,12 @@ class FriendsPage extends StatelessWidget {
         create: (context) => DeleteFriendRequestBloc(
           sessionLoader: context.sessionLoader,
           load: (friendship, session) => deleteFriendRequest(
-              friendship.friendRequest.other(userId).id, session),
+              friendship.friendRequest.other(homeData.user.id).id, session),
         ),
         child: DeleteFriendRequestConsumer(
-          listener: _handleDeleteFriendshipStateChanged,
+          listener: (context, deleteFriendshipLoaderState) =>
+              _handleDeleteFriendshipStateChanged(
+                  context, deleteFriendshipLoaderState, homeData),
           builder: (context, deleteFriendshipState) =>
               SendFriendRequestConsumer(
             listener: _handleSendFriendRequestStateChanged,
@@ -40,8 +38,8 @@ class FriendsPage extends StatelessWidget {
               final loadingIds = {
                 ...sendFriendRequestState.operations
                     .map((op) => op.req.user.id),
-                ...deleteFriendshipState.operations
-                    .map((op) => op.req.friendRequest.other(userId).id),
+                ...deleteFriendshipState.operations.map(
+                    (op) => op.req.friendRequest.other(homeData.user.id).id),
               };
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -54,11 +52,13 @@ class FriendsPage extends StatelessWidget {
                     Expanded(
                       child: ListView.builder(
                         padding: EdgeInsets.zero,
-                        itemCount: requests.length,
+                        itemCount: homeData.receivedFriendRequests.length,
                         itemBuilder: (context, i) => FriendRequestWidget(
-                            loading: loadingIds.contains(
-                                requests[i].friendRequest.other(userId).id),
-                            request: requests[i]),
+                            loading: loadingIds.contains(homeData
+                                .receivedFriendRequests[i].friendRequest
+                                .other(homeData.user.id)
+                                .id),
+                            request: homeData.receivedFriendRequests[i]),
                       ),
                     ),
                     Text(
@@ -67,19 +67,20 @@ class FriendsPage extends StatelessWidget {
                     ),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: friends.length,
+                        itemCount: homeData.friends.length,
                         padding: EdgeInsets.zero,
                         itemBuilder: (context, i) => Padding(
                           padding: const EdgeInsets.all(8),
-                          child: loadingIds.contains(
-                                  friends[i].friendRequest.other(userId).id)
+                          child: loadingIds.contains(homeData
+                                  .friends[i].friendRequest
+                                  .other(homeData.user.id)
+                                  .id)
                               ? const Center(child: CircularProgressIndicator())
                               : Row(
                                   children: [
                                     Text(
-                                      friends[i]
-                                          .friendRequest
-                                          .other(userId)
+                                      homeData.friends[i].friendRequest
+                                          .other(homeData.user.id)
                                           .fullName,
                                       style: theme.textTheme.bodyMedium,
                                     ),
@@ -88,7 +89,8 @@ class FriendsPage extends StatelessWidget {
                                       vPadding: 9,
                                       onPress: () => context
                                           .deleteFriendshipBloc
-                                          .add(ParallelPushEvent(friends[i])),
+                                          .add(ParallelPushEvent(
+                                              homeData.friends[i])),
                                       text: 'REMOVE',
                                     )
                                   ],

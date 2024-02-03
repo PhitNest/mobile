@@ -113,6 +113,7 @@ final class AuthLoaderBloc<ReqType, ResType>
     required Future<ResType> Function(ReqType, Session) load,
     super.loadOnStart,
     super.initialData,
+    super.onDispose,
   }) : super(load: (req) => _handleRequest(load, sessionLoader, req));
 }
 

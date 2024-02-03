@@ -49,12 +49,14 @@ Future<ChangePasswordResponse> changePassword({
       _ => ChangePasswordUnknownFailure(message: e.message),
     };
   } on ArgumentError catch (err) {
-    error(err.toString());
+    await logError(err.toString(),
+        userId: unauthenticatedSession.user.username);
     return const ChangePasswordKnownFailure(
       ChangePasswordFailureType.invalidUserPool,
     );
   } catch (err) {
-    error(err.toString());
+    await logError(err.toString(),
+        userId: unauthenticatedSession.user.username);
     return ChangePasswordUnknownFailure(message: err.toString());
   }
 }

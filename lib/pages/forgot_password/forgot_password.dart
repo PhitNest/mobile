@@ -121,11 +121,12 @@ final class ForgotPasswordScreen extends StatelessWidget {
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    Navigator.of(context).push(
+                                    Navigator.of(context).pushAndRemoveUntil(
                                       CupertinoPageRoute<void>(
                                         builder: (context) =>
                                             const RegisterPage(),
                                       ),
+                                      (_) => false,
                                     );
                                   },
                               ),
@@ -145,10 +146,11 @@ final class ForgotPasswordScreen extends StatelessWidget {
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    Navigator.of(context).push(
+                                    Navigator.of(context).pushAndRemoveUntil(
                                       CupertinoPageRoute<void>(
                                         builder: (context) => const LoginPage(),
                                       ),
+                                      (_) => false,
                                     );
                                   },
                               ),

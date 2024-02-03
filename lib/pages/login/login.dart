@@ -106,7 +106,7 @@ final class LoginPage extends StatelessWidget {
                                 ..onTap = () {
                                   context.loginBloc
                                       .add(const LoaderCancelEvent());
-                                  Navigator.of(context).push(
+                                  Navigator.of(context).pushReplacement(
                                     CupertinoPageRoute<void>(
                                       builder: (context) =>
                                           const RegisterPage(),

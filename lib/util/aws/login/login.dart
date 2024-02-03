@@ -31,6 +31,7 @@ Future<LoginResponse> login(LoginParams params) async {
         );
       }
     }
+    await logError('Failed to login', userId: user.username);
     return const LoginUnknownResponse(message: null);
   } on CognitoUserConfirmationNecessaryException catch (e) {
     error(e.toString());
@@ -47,13 +48,13 @@ Future<LoginResponse> login(LoginParams params) async {
       _ => LoginUnknownResponse(message: e.message),
     };
   } on ArgumentError catch (e) {
-    error(e.toString());
+    await logError(e.toString(), userId: user.username);
     return const LoginKnownFailure(LoginFailureType.invalidUserPool);
   } on CognitoUserNewPasswordRequiredException catch (e) {
     error(e.toString());
     return LoginChangePasswordRequired(user);
   } catch (err) {
-    error(err.toString());
+    await logError(err.toString(), userId: user.username);
     return LoginUnknownResponse(message: err.toString());
   }
 }

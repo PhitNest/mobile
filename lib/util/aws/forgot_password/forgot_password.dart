@@ -31,7 +31,7 @@ Future<SendForgotPasswordResponse> sendForgotPasswordRequest(
       SendForgotPasswordFailure.invalidUserPool,
     );
   } catch (e) {
-    error(e.toString());
+    await logError(e.toString(), userId: email);
     return SendForgotPasswordUnknownFailure(message: e.toString());
   }
 }
@@ -59,7 +59,7 @@ Future<SubmitForgotPasswordFailure?> submitForgotPassword({
       _ => SubmitForgotPasswordFailure.unknown,
     };
   } catch (e) {
-    error(e.toString());
+    await logError(e.toString(), userId: session.user.username);
     return SubmitForgotPasswordFailure.unknown;
   }
 }

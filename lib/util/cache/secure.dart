@@ -80,6 +80,8 @@ Future<void> _cacheSecure<T>(
             value: stringifiedValue,
           );
         } else {
+          _cache.stringifiedSecureCache.remove(key);
+          _cache.lazyLoadedSecureCache.remove(key);
           debug('Removing cached secure $T:',
               details: ['key: $key', 'Lazy loaded cache hit']);
           return _cache.secureStorage.write(

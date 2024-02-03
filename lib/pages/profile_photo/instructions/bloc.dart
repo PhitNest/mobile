@@ -30,8 +30,9 @@ Future<CroppedFile?> _photoChosen(
         return null;
       },
     ).catchError(
-      (dynamic e) {
-        error(e.toString());
+      (dynamic e) async {
+        StyledBanner.show(message: e.toString(), error: true);
+        await logError(e.toString());
         return null;
       },
     );

@@ -28,6 +28,7 @@ Future<RegisterResponse> register(
         params.password,
       );
     } else {
+      await logError('Failed to register', userId: params.email);
       return const RegisterUnknownFailure(message: null);
     }
   } on CognitoClientException catch (e) {
@@ -45,10 +46,10 @@ Future<RegisterResponse> register(
       _ => RegisterUnknownFailure(message: e.message),
     };
   } on ArgumentError catch (e) {
-    error(e.toString());
+    await logError(e.toString(), userId: params.email);
     return const RegisterKnownFailure(RegisterFailureType.invalidUserPool);
   } catch (e) {
-    error(e.toString());
+    await logError(e.toString(), userId: params.email);
     return RegisterUnknownFailure(message: e.toString());
   }
 }

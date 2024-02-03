@@ -51,6 +51,7 @@ void _handleDeleteFriendshipStateChanged(
   ParallelLoaderState<FriendRequestWithProfilePicture,
           AuthResOrLost<HttpResponse<void>>>
       loaderState,
+  HomeDataLoaded homeData,
 ) {
   switch (loaderState) {
     case ParallelLoadedState(data: final response, req: final req):
@@ -63,6 +64,19 @@ void _handleDeleteFriendshipStateChanged(
                   message: 'Friend removed',
                   error: false,
                 );
+                context.homeBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
+                    HomeDataLoaded(
+                      user: homeData.user,
+                      profilePicture: homeData.profilePicture,
+                      exploreUsers: homeData.exploreUsers
+                        ..add(ExploreUser(
+                          user: req.friendRequest.other(homeData.user.id),
+                          profilePicture: req.profilePicture,
+                        )),
+                      receivedFriendRequests: homeData.receivedFriendRequests,
+                      friends: homeData.friends..remove(req),
+                    ),
+                    null))));
               }
             case HttpResponseFailure(failure: final failure):
               StyledBanner.show(

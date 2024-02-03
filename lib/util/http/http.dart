@@ -117,7 +117,7 @@ Future<HttpResponse<ResType>> request<ResType>({
         HttpMethod.delete => dio.delete<dynamic>(url),
       }
           .timeout(_timeout)
-          .then((response) {
+          .then((response) async {
         final jsonData = response.data;
         if (jsonData is Map<String, dynamic> || jsonData is List<dynamic>) {
           // Handle successful responses
@@ -125,12 +125,17 @@ Future<HttpResponse<ResType>> request<ResType>({
             // Parse the response data
             final parsed = parse(jsonData);
             // Log success
-            debug('Request success:', details: responseDetails(parsed));
+            debug(
+              'Request success:',
+              details: responseDetails(parsed),
+            );
             return HttpResponseOk(parsed, response.headers);
           } else {
             // Handle unsuccessful responses
             final parsed = Failure.parse(jsonData as Map<String, dynamic>);
-            error('Request failure:', details: responseDetails(parsed));
+            await logError('Request failure:',
+                details: responseDetails(parsed),
+                userId: session?.user.username);
             return HttpResponseFailure(parsed, response.headers);
           }
         } else {
@@ -139,16 +144,19 @@ Future<HttpResponse<ResType>> request<ResType>({
       });
     } on TimeoutException {
       // Log and return a NetworkConnectionFailure on timeout
-      error('Request timeout:', details: responseDetails(data));
+      await logError('Request timeout:',
+          details: responseDetails(data), userId: session?.user.username);
       return HttpResponseFailure(
           Failure.populated('Timeout', 'Request timeout'), Headers());
     } on Failure catch (failure) {
-      error('Request failure:', details: responseDetails(failure));
+      await logError('Request failure:',
+          details: responseDetails(failure), userId: session?.user.username);
       return HttpResponseFailure(failure, Headers());
     } catch (e) {
       // Log and return failure by value
       final failure = Failure.populated('UnknownFailure', e.toString());
-      error('Request failure:', details: responseDetails(failure));
+      await logError('Request failure:',
+          details: responseDetails(failure), userId: session?.user.username);
       return HttpResponseFailure(failure, Headers());
     }
   }

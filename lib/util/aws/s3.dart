@@ -65,7 +65,7 @@ Future<Image?> getProfilePicture(Session session, String identityId) async {
       return null;
     }
   } catch (e) {
-    error(e.toString());
+    error('Failed to get profile picture', details: ['Error: ${e.toString()}']);
     return null;
   }
 }
@@ -132,13 +132,12 @@ Future<String?> uploadProfilePicture({
     }
     return null;
   } catch (e) {
-    error(
-      'Error thrown while uploading picture',
-      details: [
-        'Identity ID: $identityId',
-        'Error: ${e.toString()}',
-      ],
-    );
+    await logError('Error thrown while uploading picture',
+        details: [
+          'Identity ID: $identityId',
+          'Error: ${e.toString()}',
+        ],
+        userId: session.user.username);
     return e.toString();
   }
 }

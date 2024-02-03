@@ -35,7 +35,7 @@ enum RefreshSessionFailureType {
   invalidToken;
 
   String get message => switch (this) {
-        RefreshSessionFailureType.invalidUserPool => 'Invalid user pool.',
+        RefreshSessionFailureType.invalidUserPool => 'Please update your app.',
         RefreshSessionFailureType.noSuchUser => 'No such user.',
         RefreshSessionFailureType.invalidToken => 'Invalid token.'
       };
