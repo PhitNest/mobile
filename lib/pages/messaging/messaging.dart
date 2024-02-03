@@ -238,7 +238,16 @@ final class MessagingPageState extends State<MessagingStatefulWidget> {
                 alignment: messages[i].senderId == widget.userId
                     ? Alignment.centerRight
                     : Alignment.centerLeft,
-                child: Text(messages[i].content),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  child: Text(
+                    messages[i].content,
+                    textAlign: messages[i].senderId == widget.userId
+                        ? TextAlign.right
+                        : TextAlign.left,
+                  ),
+                ),
               ),
             ),
           ),
