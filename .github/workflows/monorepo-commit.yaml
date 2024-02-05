@@ -19,7 +19,7 @@ jobs:
       - name: Update submodule
         run: |
           git submodule update --init --recursive . && \
-            git submodule foreach git pull origin ${{ github.ref_name }}
+            git submodule foreach git pull --rebase origin ${{ github.ref_name }}
 
       - name: Fix frozen lock file
         run: npm i -g aws-cdk pnpm turbo && pnpm install --no-frozen-lockfile
