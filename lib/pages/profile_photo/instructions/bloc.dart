@@ -27,8 +27,6 @@ Future<CroppedFile?> _photoChosen(
                   context: context,
                   presentStyle: CropperPresentStyle.page,
                   enableZoom: true,
-                  showZoomer: true,
-                  enableResize: true,
                 )
               ]);
         }
