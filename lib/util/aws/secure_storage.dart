@@ -22,7 +22,7 @@ final class SecureCognitoStorage extends CognitoStorage {
   Future<String?> removeItem(String key) async {
     keyList.remove(key);
     final res = getSecureCachedString(key);
-    cacheSecureString(key, null);
+    await cacheSecureString(key, null);
     return res;
   }
 
