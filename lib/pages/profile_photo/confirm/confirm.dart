@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart';
@@ -17,11 +18,15 @@ part 'bloc.dart';
 
 final class ConfirmPhotoPage extends StatelessWidget {
   final CroppedFile photo;
-  late final pfp = Image.file(File(photo.path));
+  final Uint8List photoBytes;
+  late final Image pfp =
+      kIsWeb ? Image.memory(photoBytes) : Image.file(File(photo.path));
 
+  // ignore: prefer_const_constructors_in_immutables
   ConfirmPhotoPage({
     super.key,
     required this.photo,
+    required this.photoBytes,
   }) : super();
 
   @override
@@ -33,10 +38,9 @@ final class ConfirmPhotoPage extends StatelessWidget {
               create: (context) => ConfirmPhotoBloc(
                 sessionLoader: context.sessionLoader,
                 load: (_, session) async {
-                  final bytes = await photo.readAsBytes();
                   final error = await uploadProfilePicture(
-                    photo: ByteStream.fromBytes(bytes),
-                    length: bytes.length,
+                    photo: ByteStream.fromBytes(photoBytes),
+                    length: photoBytes.length,
                     session: session,
                     identityId: session.credentials.userIdentityId!,
                   );

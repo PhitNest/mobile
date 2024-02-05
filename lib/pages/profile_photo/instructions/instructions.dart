@@ -1,5 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -15,6 +19,10 @@ part 'bloc.dart';
 
 final class PhotoInstructionsPage extends StatelessWidget {
   const PhotoInstructionsPage({super.key}) : super();
+
+  Future<(CroppedFile, Uint8List)?> _handlePhotoChosen(
+          CroppedFile? photo) async =>
+      photo != null ? (photo, await photo.readAsBytes()) : null;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -57,14 +65,15 @@ final class PhotoInstructionsPage extends StatelessWidget {
                       ),
                       Center(
                         child: ElevatedButton(
-                          onPressed: () => context.choosePhotoBloc
-                              .add(LoaderLoadEvent(() => _photoChosen(
+                          onPressed: () => context.choosePhotoBloc.add(
+                              LoaderLoadEvent(() async =>
+                                  await _handlePhotoChosen(await _photoChosen(
                                     context,
                                     () => ImagePicker().pickImage(
                                       source: ImageSource.camera,
                                       preferredCameraDevice: CameraDevice.front,
                                     ),
-                                  ))),
+                                  )))),
                           child: Text(
                             'TAKE PHOTO',
                             style: theme.textTheme.bodySmall,
@@ -73,12 +82,13 @@ final class PhotoInstructionsPage extends StatelessWidget {
                       ),
                       Center(
                         child: StyledOutlineButton(
-                          onPress: () => context.choosePhotoBloc
-                              .add(LoaderLoadEvent(() => _photoChosen(
+                          onPress: () => context.choosePhotoBloc.add(
+                              LoaderLoadEvent(() async =>
+                                  await _handlePhotoChosen(await _photoChosen(
                                     context,
                                     () => ImagePicker()
                                         .pickImage(source: ImageSource.gallery),
-                                  ))),
+                                  )))),
                           text: 'UPLOAD PHOTO',
                         ),
                       )

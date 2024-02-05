@@ -1,9 +1,9 @@
 part of 'instructions.dart';
 
-typedef ChoosePhotoBloc
-    = LoaderBloc<Future<CroppedFile?> Function(), CroppedFile?>;
-typedef ChoosePhotoConsumer
-    = LoaderConsumer<Future<CroppedFile?> Function(), CroppedFile?>;
+typedef ChoosePhotoBloc = LoaderBloc<
+    Future<(CroppedFile, Uint8List)?> Function(), (CroppedFile, Uint8List)?>;
+typedef ChoosePhotoConsumer = LoaderConsumer<
+    Future<(CroppedFile, Uint8List)?> Function(), (CroppedFile, Uint8List)?>;
 
 extension on BuildContext {
   ChoosePhotoBloc get choosePhotoBloc => loader();
@@ -24,7 +24,12 @@ Future<CroppedFile?> _photoChosen(
               ),
               uiSettings: [
                 WebUiSettings(
-                    context: context, presentStyle: CropperPresentStyle.page)
+                  context: context,
+                  presentStyle: CropperPresentStyle.page,
+                  enableZoom: true,
+                  showZoomer: true,
+                  enableResize: true,
+                )
               ]);
         }
         return null;
@@ -39,14 +44,15 @@ Future<CroppedFile?> _photoChosen(
 
 void _handleStateChanged(
   BuildContext context,
-  LoaderState<CroppedFile?> loaderState,
+  LoaderState<(CroppedFile, Uint8List)?> loaderState,
 ) {
   switch (loaderState) {
     case LoaderLoadedState(data: final photo):
       if (photo != null) {
         Navigator.of(context).push(
           CupertinoPageRoute<void>(
-            builder: (_) => ConfirmPhotoPage(photo: photo),
+            builder: (_) =>
+                ConfirmPhotoPage(photo: photo.$1, photoBytes: photo.$2),
           ),
         );
       }
