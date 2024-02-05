@@ -25,7 +25,7 @@ Future<CroppedFile?> _photoChosen(
               uiSettings: [
                 WebUiSettings(
                   context: context,
-                  presentStyle: CropperPresentStyle.page,
+                  presentStyle: CropperPresentStyle.dialog,
                   enableZoom: true,
                 )
               ]);
