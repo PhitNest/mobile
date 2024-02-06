@@ -134,7 +134,7 @@ final class MessagingPage extends StatelessWidget {
                                         HttpResponseSuccess(
                                           data: final conversation
                                         ) =>
-                                          MessagingWidget(
+                                          MessagingWidget.create(
                                             userId: userId,
                                             friend: friend,
                                             connection: connection,
@@ -156,58 +156,45 @@ final class MessagingPage extends StatelessWidget {
 }
 
 class MessagingWidget extends StatelessWidget {
-  const MessagingWidget(
-      {super.key,
-      required this.userId,
-      required this.friend,
-      required this.connection,
-      required this.initialMessages});
+  const MessagingWidget({super.key});
 
-  final String userId;
-  final User friend;
-  final WebSocketChannel connection;
-  final List<Message> initialMessages;
+  static Widget create({
+    required String userId,
+    required User friend,
+    required WebSocketChannel connection,
+    required List<Message> initialMessages,
+  }) =>
+      BlocProvider(
+        create: (context) => MessagingCubit(
+            connection: connection,
+            messages: initialMessages,
+            userId: userId,
+            friend: friend),
+        child: const MessagingWidget(),
+      );
 
   @override
   Widget build(BuildContext context) {
-    return MessagingProvider(
-      createControllers: (_) => MessagingControllers(messages: initialMessages),
-      createLoader: (_) => LoaderBloc(
-          load: (requestData) => Future<HttpResponse<void>>.value(
-              const HttpResponseOk(null, null))),
-      createConsumer: (context, controllers, _) => LoaderConsumer(
-        listener: (context, loaderState) {},
-        builder: (context, loaderState) {
-          WidgetsBinding.instance
-              .addPostFrameCallback((_) => afterBuild(controllers));
-          return Column(
+    return BlocBuilder<MessagingCubit, List<Message>>(
+      builder: (context, state) {
+        final cubit = BlocProvider.of<MessagingCubit>(context);
+        return SafeArea(
+          child: Column(
             children: [
+              Text(cubit.state.length.toString()),
               Expanded(
-                child: ListView.builder(
-                  itemCount: controllers.messages.length,
-                  itemBuilder: (context, i) => Align(
-                    alignment: controllers.messages[i].senderId == userId
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      width: MediaQuery.of(context).size.width * 0.7,
-                      child: Text(
-                        controllers.messages[i].content,
-                        textAlign: controllers.messages[i].senderId == userId
-                            ? TextAlign.right
-                            : TextAlign.left,
-                      ),
-                    ),
-                  ),
+                child: ListView(
+                  children: cubit.state
+                      .map((message) => MessageItemWidget(message))
+                      .toList(),
                 ),
               ),
               Row(
                 children: [
                   Expanded(
                     child: TextField(
-                      controller: controllers.messageController,
-                      onSubmitted: (_) => submit(controllers),
+                      controller: cubit.messageController,
+                      onSubmitted: (_) => cubit.submit,
                       decoration: InputDecoration(
                         hintText: 'Type a message',
                         border: OutlineInputBorder(
@@ -217,62 +204,41 @@ class MessagingWidget extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(
-                      Icons.send,
-                      color: Colors.grey,
-                    ),
-                    onPressed: () => submit(controllers),
+                    icon: const Icon(Icons.send, color: Colors.grey),
+                    onPressed: cubit.submit,
                   ),
                 ],
               ),
             ],
-          );
-        },
-      ),
-    );
-  }
-
-  Future<void> submit(MessagingControllers controllers) async {
-    if (controllers.messageController.text.isNotEmpty) {
-      try {
-        final message = controllers.messageController.text;
-        connection.sink.add(jsonEncode({
-          'action': 'send-message',
-          'data': jsonEncode({
-            'receiverId': friend.id,
-            'content': message,
-          }),
-        }));
-        controllers.messages.add(Message.populated(
-          receiverId: friend.id,
-          messageId: controllers.messages.length,
-          senderId: userId,
-          content: message,
-        ));
-        controllers.messageController.clear();
-      } catch (e) {
-        await logError(e.toString(), userId: userId);
-        StyledBanner.show(message: e.toString(), error: true);
-      }
-    }
-  }
-
-  void afterBuild(MessagingControllers controllers) {
-    controllers.subscription = connection.stream.listen(
-      (event) {
-        final message =
-            Message.parse(jsonDecode(event as String) as Map<String, dynamic>);
-        if (message.senderId == friend.id) {
-          controllers.messages.add(message);
-        }
-      },
-      onError: (dynamic e) async {
-        await logError(e.toString(), userId: userId);
-        StyledBanner.show(
-          message: e.toString(),
-          error: true,
+          ),
         );
       },
+    );
+  }
+}
+
+class MessageItemWidget extends StatelessWidget {
+  const MessageItemWidget(this.message, {super.key});
+
+  final Message message;
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = BlocProvider.of<MessagingCubit>(context);
+    return Align(
+      alignment: message.senderId == cubit.userId
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        width: MediaQuery.of(context).size.width * 0.7,
+        child: Text(
+          message.content,
+          textAlign: message.senderId == cubit.userId
+              ? TextAlign.right
+              : TextAlign.left,
+        ),
+      ),
     );
   }
 }
