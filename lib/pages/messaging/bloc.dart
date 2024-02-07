@@ -12,13 +12,12 @@ extension on BuildContext {
   ConversationLoaderBloc get conversationLoaderBloc => authLoader();
 }
 
-class MessagingCubit extends Cubit<List<Message>> {
+class MessagingCubit extends Cubit<Iterable<Message>> {
   final TextEditingController messageController = TextEditingController();
+  final ScrollController scrollController = ScrollController();
   final WebSocketChannel connection;
   final User friend;
   final String userId;
-
-  late final StreamSubscription<dynamic> subscription;
 
   MessagingCubit({
     required this.userId,
@@ -26,7 +25,8 @@ class MessagingCubit extends Cubit<List<Message>> {
     required this.connection,
     required List<Message> messages,
   }) : super(messages) {
-    subscription = connection.stream.listen(
+    jumpToStart();
+    connection.stream.listen(
       (event) {
         final message =
             Message.parse(jsonDecode(event as String) as Map<String, dynamic>);
@@ -42,6 +42,13 @@ class MessagingCubit extends Cubit<List<Message>> {
         );
       },
     );
+  }
+
+  void jumpToStart() {
+    Future.delayed(
+        const Duration(milliseconds: 100),
+        () =>
+            scrollController.jumpTo(scrollController.position.maxScrollExtent));
   }
 
   Future<void> submit() async {
@@ -71,8 +78,17 @@ class MessagingCubit extends Cubit<List<Message>> {
   }
 
   void addMessage(Message message) {
-    final messages = state;
+    final messages = state.toList();
     messages.add(message);
     emit(messages);
+    jumpToStart();
+  }
+
+  @override
+  Future<void> close() {
+    connection.sink.close();
+    messageController.dispose();
+    scrollController.dispose();
+    return super.close();
   }
 }

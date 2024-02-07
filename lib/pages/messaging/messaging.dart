@@ -175,18 +175,18 @@ class MessagingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MessagingCubit, List<Message>>(
+    return BlocBuilder<MessagingCubit, Iterable<Message>>(
       builder: (context, state) {
         final cubit = BlocProvider.of<MessagingCubit>(context);
         return SafeArea(
           child: Column(
             children: [
-              Text(cubit.state.length.toString()),
               Expanded(
-                child: ListView(
-                  children: cubit.state
-                      .map((message) => MessageItemWidget(message))
-                      .toList(),
+                child: ListView.builder(
+                  controller: cubit.scrollController,
+                  itemCount: cubit.state.length,
+                  itemBuilder: (context, index) =>
+                      MessageItemWidget(cubit.state.elementAt(index)),
                 ),
               ),
               Row(
