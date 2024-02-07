@@ -76,6 +76,7 @@ final class ExploreUserPage extends StatelessWidget {
                     ),
                   ),
                 ),
+                // report user button
                 Positioned(
                   top: 16,
                   right: 16,
