@@ -16,15 +16,13 @@ jobs:
         with:
           repository: PhitNest/phitnest
           ref: ${{ github.ref_name }}
+          submodules: recursive
           token: ${{ secrets.PAT }}
 
       - name: Update submodule
         run: |
-          git checkout ${{ github.ref_name }} && \
-            cd apps/mobile && \
-            git submodule update --init --recursive . && \
-            git checkout ${{ github.ref_name }} && \
-            git pull origin ${{ github.ref_name }}
+          git submodule update --init --recursive
+          git submodule update --recursive --remote
 
       - name: Commit to monorepo
         uses: EndBug/add-and-commit@v9
