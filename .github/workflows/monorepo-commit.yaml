@@ -22,13 +22,8 @@ jobs:
       - name: Update submodule
         run: |
           git submodule update --init --recursive .
-
-          submodules=$(git config --file .gitmodules --get-regexp path | awk '{ print $2 }')
-          for submodule in $submodules; do
-            echo "Updating submodule $submodule"
-            git -C $submodule fetch origin ${{ github.ref_name }}
-            git -C $submodule checkout FETCH_HEAD
-          done
+          git submodule foreach git fetch origin ${{ github.ref_name }}
+          git submodule foreach git checkout FETCH_HEAD
 
       - name: Commit to monorepo
         uses: EndBug/add-and-commit@v9
