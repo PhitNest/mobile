@@ -2,6 +2,9 @@ name: Monorepo commit
 
 on:
   push:
+    branches:
+      - master
+      - release-*
   workflow_dispatch:
 
 jobs:
