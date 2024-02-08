@@ -174,47 +174,46 @@ class MessagingWidget extends StatelessWidget {
       );
 
   @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<MessagingCubit, Iterable<Message>>(
-      builder: (context, state) {
-        final cubit = BlocProvider.of<MessagingCubit>(context);
-        return SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  controller: cubit.scrollController,
-                  itemCount: cubit.state.length,
-                  itemBuilder: (context, index) =>
-                      MessageItemWidget(cubit.state.elementAt(index)),
+  Widget build(BuildContext context) =>
+      BlocBuilder<MessagingCubit, Iterable<Message>>(
+        builder: (context, state) {
+          final cubit = BlocProvider.of<MessagingCubit>(context);
+          return SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    controller: cubit.scrollController,
+                    itemCount: cubit.state.length,
+                    itemBuilder: (context, index) =>
+                        MessageItemWidget(cubit.state.elementAt(index)),
+                  ),
                 ),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: cubit.messageController,
-                      onSubmitted: (_) => cubit.submit,
-                      decoration: InputDecoration(
-                        hintText: 'Type a message',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: cubit.messageController,
+                        onSubmitted: (_) => cubit.submit,
+                        decoration: InputDecoration(
+                          hintText: 'Type a message',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.send, color: Colors.grey),
-                    onPressed: cubit.submit,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+                    IconButton(
+                      icon: const Icon(Icons.send, color: Colors.grey),
+                      onPressed: cubit.submit,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
 }
 
 class MessageItemWidget extends StatelessWidget {
