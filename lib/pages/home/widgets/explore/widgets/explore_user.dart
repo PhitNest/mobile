@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../entities/entities.dart';
+import 'report_user.dart';
 
 final class ExploreUserPage extends StatelessWidget {
   final ExploreUser user;
@@ -73,6 +74,29 @@ final class ExploreUserPage extends StatelessWidget {
                         size: 32,
                       ),
                     ),
+                  ),
+                ),
+                // report user button
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: ReportUserButton(
+                    firstName: user.user.firstName,
+                    lastName: user.user.lastName,
+                    onReportSubmitted: () {
+                      // Logic after the report is submitted,
+                      //such as showing a confirmation message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text(
+                          'Report submitted successfully',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall!
+                              .copyWith(color: Colors.white),
+                        )),
+                      );
+                    },
                   ),
                 ),
               ],
