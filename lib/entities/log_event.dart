@@ -24,5 +24,6 @@ final class LogEvent extends Json {
   LogEvent.parser() : super();
 
   @override
-  List<JsonKey<dynamic, dynamic>> get keys => [actionJson, detailsJson, userIdJson];
+  List<JsonKey<dynamic, dynamic>> get keys =>
+      [actionJson, detailsJson, userIdJson];
 }

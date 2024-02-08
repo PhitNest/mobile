@@ -134,7 +134,7 @@ final class MessagingPage extends StatelessWidget {
                                         HttpResponseSuccess(
                                           data: final conversation
                                         ) =>
-                                          MessagingStatefulWidget(
+                                          MessagingWidget.create(
                                             userId: userId,
                                             friend: friend,
                                             connection: connection,
@@ -155,132 +155,89 @@ final class MessagingPage extends StatelessWidget {
                   })));
 }
 
-final class MessagingStatefulWidget extends StatefulWidget {
-  final String userId;
-  final User friend;
-  final WebSocketChannel connection;
-  final List<Message> initialMessages;
+class MessagingWidget extends StatelessWidget {
+  const MessagingWidget({super.key});
 
-  const MessagingStatefulWidget({
-    super.key,
-    required this.userId,
-    required this.friend,
-    required this.connection,
-    required this.initialMessages,
-  }) : super();
-
-  @override
-  MessagingPageState createState() => MessagingPageState();
-}
-
-final class MessagingPageState extends State<MessagingStatefulWidget> {
-  final TextEditingController messageController = TextEditingController();
-  late final List<Message> messages = widget.initialMessages;
-  late final StreamSubscription<dynamic> subscription;
-
-  MessagingPageState() : super();
-
-  @override
-  void initState() {
-    super.initState();
-    subscription = widget.connection.stream.listen(
-      (event) {
-        final message =
-            Message.parse(jsonDecode(event as String) as Map<String, dynamic>);
-        if (message.senderId == widget.friend.id) {
-          setState(() => messages.add(message));
-        }
-      },
-      onError: (dynamic e) async {
-        await logError(e.toString(), userId: widget.userId);
-        StyledBanner.show(
-          message: e.toString(),
-          error: true,
-        );
-      },
-    );
-  }
-
-  Future<void> submit() async {
-    if (messageController.text.isNotEmpty) {
-      try {
-        final message = messageController.text;
-        widget.connection.sink.add(jsonEncode({
-          'action': 'send-message',
-          'data': jsonEncode({
-            'receiverId': widget.friend.id,
-            'content': message,
-          }),
-        }));
-        setState(() {
-          messages.add(Message.populated(
-            receiverId: widget.friend.id,
-            messageId: messages.length,
-            senderId: widget.userId,
-            content: message,
-          ));
-        });
-        messageController.clear();
-      } catch (e) {
-        await logError(e.toString(), userId: widget.userId);
-        StyledBanner.show(message: e.toString(), error: true);
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) => Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (context, i) => Align(
-                alignment: messages[i].senderId == widget.userId
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  width: MediaQuery.of(context).size.width * 0.7,
-                  child: Text(
-                    messages[i].content,
-                    textAlign: messages[i].senderId == widget.userId
-                        ? TextAlign.right
-                        : TextAlign.left,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: messageController,
-                  onSubmitted: (_) => submit(),
-                  decoration: InputDecoration(
-                    hintText: 'Type a message',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.send,
-                  color: Colors.grey,
-                ),
-                onPressed: submit,
-              ),
-            ],
-          ),
-        ],
+  static Widget create({
+    required String userId,
+    required User friend,
+    required WebSocketChannel connection,
+    required List<Message> initialMessages,
+  }) =>
+      BlocProvider(
+        create: (context) => MessagingCubit(
+            connection: connection,
+            messages: initialMessages,
+            userId: userId,
+            friend: friend),
+        child: const MessagingWidget(),
       );
 
   @override
-  Future<void> dispose() async {
-    super.dispose();
-    messageController.dispose();
-    await subscription.cancel();
+  Widget build(BuildContext context) =>
+      BlocBuilder<MessagingCubit, Iterable<Message>>(
+        builder: (context, state) {
+          final cubit = BlocProvider.of<MessagingCubit>(context);
+          return SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    controller: cubit.scrollController,
+                    itemCount: cubit.state.length,
+                    itemBuilder: (context, index) =>
+                        MessageItemWidget(cubit.state.elementAt(index)),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: cubit.messageController,
+                        onSubmitted: (_) => cubit.submit,
+                        decoration: InputDecoration(
+                          hintText: 'Type a message',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.send, color: Colors.grey),
+                      onPressed: cubit.submit,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      );
+}
+
+class MessageItemWidget extends StatelessWidget {
+  const MessageItemWidget(this.message, {super.key});
+
+  final Message message;
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = BlocProvider.of<MessagingCubit>(context);
+    return Align(
+      alignment: message.senderId == cubit.userId
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        width: MediaQuery.of(context).size.width * 0.7,
+        child: Text(
+          message.content,
+          textAlign: message.senderId == cubit.userId
+              ? TextAlign.right
+              : TextAlign.left,
+        ),
+      ),
+    );
   }
 }
