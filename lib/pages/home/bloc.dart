@@ -196,7 +196,7 @@ void _handleSendFriendRequestStateChanged(
                         ),
                       friends: homeData.friends,
                       user: homeData.user,
-                      profilePicture: req.profilePicture,
+                      profilePicture: homeData.profilePicture,
                     ),
                     null))));
                 context.navBarBloc.add(const NavBarSetLoadingEvent(false));
