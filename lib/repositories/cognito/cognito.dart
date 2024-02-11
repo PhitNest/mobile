@@ -1,12 +1,11 @@
-import 'package:amazon_cognito_identity_dart_2/cognito.dart';
-
 import '../../config/use_local.dart';
 import '../../entities/entities.dart';
 import 'aws.dart';
 import 'local.dart';
 
 abstract base class Cognito {
-  static const instance = kLocal ? LocalCognito() : AwsCognito();
+  static Cognito get instance =>
+      kLocal ? const LocalCognito() : const AwsCognito();
 
   const Cognito() : super();
 
@@ -20,11 +19,11 @@ abstract base class Cognito {
   ///
   /// Returns null if successful, otherwise an error message
   Future<String?> confirmEmail({
-    required CognitoUser user,
+    required UnauthenticatedSession session,
     required String code,
   });
 
-  Future<String?> resendConfirmationEmail(CognitoUser user);
+  Future<String?> resendConfirmationEmail(UnauthenticatedSession session);
 
   Future<void> logout(Session session);
 

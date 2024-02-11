@@ -76,7 +76,7 @@ final class AwsCognito extends Cognito {
   @override
   Future<ChangePasswordResponse> changePassword({
     required String newPassword,
-    required UnauthenticatedSession unauthenticatedSession,
+    required covariant AwsUnauthenticatedSession unauthenticatedSession,
   }) async {
     try {
       final session =
@@ -92,7 +92,7 @@ final class AwsCognito extends Cognito {
           session.getIdToken().getJwtToken(),
         );
         return ChangePasswordSuccess(
-          Session(
+          AwsSession(
             user: unauthenticatedSession.user,
             cognitoSession: session,
             credentials: credentials,
@@ -130,24 +130,25 @@ final class AwsCognito extends Cognito {
 
   @override
   Future<String?> confirmEmail({
-    required CognitoUser user,
+    required covariant AwsUnauthenticatedSession session,
     required String code,
   }) async {
     try {
-      if (await user.confirmRegistration(code)) {
+      if (await session.user.confirmRegistration(code)) {
         return null;
       } else {
         return 'Failed to confirm email';
       }
     } on CognitoClientException catch (e) {
       final errorMessage = e.message ?? e.toString();
-      await logError(errorMessage, userId: user.username);
+      await logError(errorMessage, userId: session.user.username);
       return errorMessage;
     }
   }
 
   @override
-  Future<bool> deleteAccount(Session session) => session.user.deleteUser();
+  Future<bool> deleteAccount(covariant AwsSession session) =>
+      session.user.deleteUser();
 
   @override
   Future<RefreshSessionResponse> getPreviousSession() async {
@@ -164,7 +165,7 @@ final class AwsCognito extends Cognito {
             await credentials
                 .getAwsCredentials(session.getIdToken().getJwtToken());
             return RefreshSessionSuccess(
-              Session(
+              AwsSession(
                 user: user,
                 cognitoSession: session,
                 credentials: credentials,
@@ -194,7 +195,7 @@ final class AwsCognito extends Cognito {
           await credentials
               .getAwsCredentials(session.getIdToken().getJwtToken());
           return LoginSuccess(
-            session: Session(
+            session: AwsSession(
               user: user,
               cognitoSession: session,
               credentials: credentials,
@@ -206,7 +207,9 @@ final class AwsCognito extends Cognito {
       return const LoginUnknownResponse(message: null);
     } on CognitoUserConfirmationNecessaryException catch (e) {
       error(e.toString());
-      return LoginConfirmationRequired(user: user, password: params.password);
+      return LoginConfirmationRequired(
+          session: AwsUnauthenticatedSession(user: user),
+          password: params.password);
     } on CognitoClientException catch (e) {
       error(e.toString());
       return switch (e.code) {
@@ -223,7 +226,7 @@ final class AwsCognito extends Cognito {
       return const LoginKnownFailure(LoginFailureType.invalidUserPool);
     } on CognitoUserNewPasswordRequiredException catch (e) {
       error(e.toString());
-      return LoginChangePasswordRequired(user);
+      return LoginChangePasswordRequired(AwsUnauthenticatedSession(user: user));
     } catch (err) {
       await logError(err.toString(), userId: user.username);
       return LoginUnknownResponse(message: err.toString());
@@ -231,10 +234,11 @@ final class AwsCognito extends Cognito {
   }
 
   @override
-  Future<void> logout(Session session) => session.user.signOut();
+  Future<void> logout(covariant AwsSession session) => session.user.signOut();
 
   @override
-  Future<RefreshSessionResponse> refreshSession(Session session) async {
+  Future<RefreshSessionResponse> refreshSession(
+      covariant AwsSession session) async {
     return await _handleRefreshFailures(
       () async {
         final newUserSession = await session.user
@@ -243,7 +247,7 @@ final class AwsCognito extends Cognito {
           await session.credentials.getAwsCredentials(
               session.cognitoSession.getIdToken().getJwtToken());
           return RefreshSessionSuccess(
-            Session(
+            AwsSession(
               user: session.user,
               cognitoSession: newUserSession,
               credentials: session.credentials,
@@ -273,7 +277,7 @@ final class AwsCognito extends Cognito {
       );
       if (signUpResult.userSub != null) {
         return RegisterSuccess(
-          signUpResult.user,
+          AwsUnauthenticatedSession(user: signUpResult.user),
           params.password,
         );
       } else {
@@ -310,7 +314,7 @@ final class AwsCognito extends Cognito {
     try {
       final user = CognitoUser(email, userPool);
       await user.forgotPassword();
-      return SendForgotPasswordSuccess(user);
+      return SendForgotPasswordSuccess(AwsUnauthenticatedSession(user: user));
     } on CognitoClientException catch (e) {
       error(e.toString());
       return switch (e.code) {
@@ -336,7 +340,7 @@ final class AwsCognito extends Cognito {
   @override
   Future<SubmitForgotPasswordFailure?> submitForgotPassword({
     required SubmitForgotPasswordParams params,
-    required UnauthenticatedSession session,
+    required covariant AwsUnauthenticatedSession session,
   }) async {
     try {
       if (await session.user.confirmPassword(params.code, params.newPassword)) {
@@ -363,12 +367,13 @@ final class AwsCognito extends Cognito {
   }
 
   @override
-  Future<String?> resendConfirmationEmail(CognitoUser user) async {
+  Future<String?> resendConfirmationEmail(
+      covariant AwsUnauthenticatedSession session) async {
     try {
-      await user.resendConfirmationCode();
+      await session.user.resendConfirmationCode();
       return null;
     } catch (e) {
-      await logError(e.toString(), userId: user.username);
+      await logError(e.toString(), userId: session.user.username);
       return e.toString();
     }
   }

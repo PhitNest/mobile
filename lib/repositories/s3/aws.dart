@@ -12,7 +12,7 @@ const _s3host = 's3.$kRegion.amazonaws.com';
 const _s3Endpoint = 'https://$kUserBucketName.$_s3host';
 
 ({Uri uri, Map<String, String> headers}) getProfilePictureUri(
-    Session session, String identityId) {
+    AwsSession session, String identityId) {
   final key = '$kUserBucketName/profilePictures/$identityId';
   final payload = SigV4.hashCanonicalRequest('');
   final datetime = SigV4.generateDatetime();
@@ -51,7 +51,7 @@ $payload''';
   );
 }
 
-Future<Image?> getProfilePicture(Session session, String identityId) async {
+Future<Image?> getProfilePicture(AwsSession session, String identityId) async {
   final uri = getProfilePictureUri(session, identityId);
   try {
     final res = await http.get(uri.uri, headers: uri.headers);
@@ -73,7 +73,7 @@ Future<Image?> getProfilePicture(Session session, String identityId) async {
 Future<String?> uploadProfilePicture({
   required http.ByteStream photo,
   required int length,
-  required Session session,
+  required AwsSession session,
   required String identityId,
 }) async {
   try {

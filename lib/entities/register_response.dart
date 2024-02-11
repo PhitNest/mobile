@@ -1,21 +1,22 @@
-import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:equatable/equatable.dart';
+
+import 'entities.dart';
 
 sealed class RegisterResponse extends Equatable {
   const RegisterResponse();
 }
 
 final class RegisterSuccess extends RegisterResponse {
-  final CognitoUser user;
+  final UnauthenticatedSession session;
   final String password;
 
   const RegisterSuccess(
-    this.user,
+    this.session,
     this.password,
   ) : super();
 
   @override
-  List<Object?> get props => [user, password];
+  List<Object?> get props => [session, password];
 }
 
 sealed class RegisterFailureResponse extends RegisterResponse {

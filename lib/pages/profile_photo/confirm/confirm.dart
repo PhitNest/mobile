@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
 
+import '../../../entities/entities.dart';
 import '../../../repositories/s3/aws.dart';
 import '../../../theme.dart';
 import '../../../util/bloc/bloc.dart';
@@ -41,7 +42,7 @@ final class ConfirmPhotoPage extends StatelessWidget {
                   final error = await uploadProfilePicture(
                     photo: ByteStream.fromBytes(photoBytes),
                     length: photoBytes.length,
-                    session: session,
+                    session: session as AwsSession, // TODO: FIX
                     identityId: session.credentials.userIdentityId!,
                   );
                   if (error != null) {

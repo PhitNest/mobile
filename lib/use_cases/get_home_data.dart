@@ -32,8 +32,9 @@ Future<HttpResponse<HomeDataPicturesLoaded>> getHomeData(
                   exploreUser.id != data.user.id &&
                   !sentRequestUserIds.containsKey(exploreUser.id))
               .map((user) async {
+        // TODO: FIX
         final profilePicture =
-            await getProfilePicture(session, user.identityId);
+            await getProfilePicture(session as AwsSession, user.identityId);
         if (profilePicture != null) {
           if (friendUserIds.containsKey(user.id)) {
             friends.add(FriendRequestWithProfilePicture(
@@ -58,9 +59,9 @@ Future<HttpResponse<HomeDataPicturesLoaded>> getHomeData(
           .where((exploreUser) => exploreUser != null)
           .cast<ExploreUser>()
           .toList();
-
+      // TODO: FIX
       final profilePicture =
-          await getProfilePicture(session, data.user.identityId);
+          await getProfilePicture(session as AwsSession, data.user.identityId);
 
       return profilePicture != null
           ? HttpResponseOk(

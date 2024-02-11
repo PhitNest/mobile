@@ -1,17 +1,18 @@
-import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:equatable/equatable.dart';
+
+import 'entities.dart';
 
 sealed class SendForgotPasswordResponse extends Equatable {
   const SendForgotPasswordResponse() : super();
 }
 
 final class SendForgotPasswordSuccess extends SendForgotPasswordResponse {
-  final CognitoUser user;
+  final UnauthenticatedSession session;
 
-  const SendForgotPasswordSuccess(this.user) : super();
+  const SendForgotPasswordSuccess(this.session) : super();
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [session];
 }
 
 enum SendForgotPasswordFailure {

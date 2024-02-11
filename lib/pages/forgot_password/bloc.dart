@@ -26,7 +26,7 @@ void _handleStateChanged(
   switch (loaderState) {
     case LoaderLoadedState(data: final response):
       switch (response) {
-        case SendForgotPasswordSuccess(user: final user):
+        case SendForgotPasswordSuccess(session: final session):
           Navigator.push(
             context,
             CupertinoPageRoute<void>(
@@ -35,7 +35,7 @@ void _handleStateChanged(
                   email: controllers.emailController.text,
                   password: controllers.newPasswordController.text,
                 ),
-                unauthenticatedSession: UnauthenticatedSession(user: user),
+                unauthenticatedSession: session,
                 resend: (session) => Cognito.instance
                     .sendForgotPasswordRequest(
                       controllers.emailController.text,

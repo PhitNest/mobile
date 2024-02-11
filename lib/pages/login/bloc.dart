@@ -31,16 +31,16 @@ void _handleStateChanged(BuildContext context, LoginControllers controllers,
             ),
             (_) => false,
           );
-        case LoginConfirmationRequired(user: final user):
+        case LoginConfirmationRequired(session: final session):
           Navigator.pushReplacement(
             context,
             CupertinoPageRoute<void>(
               builder: (context) => VerificationPage(
-                unauthenticatedSession: UnauthenticatedSession(user: user),
+                unauthenticatedSession: session,
                 resend: (session) =>
-                    Cognito.instance.resendConfirmationEmail(session.user),
+                    Cognito.instance.resendConfirmationEmail(session),
                 confirm: (session, code) => Cognito.instance.confirmEmail(
-                  user: session.user,
+                  session: session,
                   code: code,
                 ),
                 loginParams: _params(controllers),

@@ -93,9 +93,7 @@ Future<HttpResponse<ResType>> request<ResType>({
     final headerMap = {
       ...headers ?? Map<String, dynamic>.from({}),
       ...session != null
-          ? {
-              'Authorization': session.cognitoSession.idToken.jwtToken,
-            }
+          ? {'Authorization': session.idToken}
           : Map<String, dynamic>.from({}),
     };
 
@@ -134,8 +132,7 @@ Future<HttpResponse<ResType>> request<ResType>({
             // Handle unsuccessful responses
             final parsed = Failure.parse(jsonData as Map<String, dynamic>);
             await logError('Request failure:',
-                details: responseDetails(parsed),
-                userId: session?.user.username);
+                details: responseDetails(parsed), userId: session?.userId);
             return HttpResponseFailure(parsed, response.headers);
           }
         } else {
@@ -145,18 +142,18 @@ Future<HttpResponse<ResType>> request<ResType>({
     } on TimeoutException {
       // Log and return a NetworkConnectionFailure on timeout
       await logError('Request timeout:',
-          details: responseDetails(data), userId: session?.user.username);
+          details: responseDetails(data), userId: session?.userId);
       return HttpResponseFailure(
           Failure.populated('Timeout', 'Request timeout'), Headers());
     } on Failure catch (failure) {
       await logError('Request failure:',
-          details: responseDetails(failure), userId: session?.user.username);
+          details: responseDetails(failure), userId: session?.userId);
       return HttpResponseFailure(failure, Headers());
     } catch (e) {
       // Log and return failure by value
       final failure = Failure.populated('UnknownFailure', e.toString());
       await logError('Request failure:',
-          details: responseDetails(failure), userId: session?.user.username);
+          details: responseDetails(failure), userId: session?.userId);
       return HttpResponseFailure(failure, Headers());
     }
   }

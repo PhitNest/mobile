@@ -1,4 +1,3 @@
-import 'package:amazon_cognito_identity_dart_2/cognito.dart';
 import 'package:equatable/equatable.dart';
 
 import 'session.dart';
@@ -7,8 +6,8 @@ sealed class LoginResponse extends Equatable {
   const LoginResponse() : super();
 }
 
-final class LoginSuccess extends LoginResponse {
-  final Session session;
+final class LoginSuccess<S extends Session> extends LoginResponse {
+  final S session;
 
   const LoginSuccess({
     required this.session,
@@ -48,20 +47,21 @@ final class LoginKnownFailure extends LoginFailureResponse {
   List<Object?> get props => [type];
 }
 
-final class LoginConfirmationRequired extends LoginFailureResponse {
+final class LoginConfirmationRequired<U extends UnauthenticatedSession>
+    extends LoginFailureResponse {
   @override
   String get message => 'Confirmation required.';
 
-  final CognitoUser user;
+  final UnauthenticatedSession session;
   final String password;
 
   const LoginConfirmationRequired({
-    required this.user,
+    required this.session,
     required this.password,
   }) : super();
 
   @override
-  List<Object?> get props => [user, password];
+  List<Object?> get props => [session, password];
 }
 
 final class LoginUnknownResponse extends LoginFailureResponse {
@@ -78,13 +78,13 @@ final class LoginUnknownResponse extends LoginFailureResponse {
 }
 
 final class LoginChangePasswordRequired extends LoginFailureResponse {
-  final CognitoUser user;
+  final UnauthenticatedSession session;
 
   @override
   String get message => 'Change password required.';
 
-  const LoginChangePasswordRequired(this.user) : super();
+  const LoginChangePasswordRequired(this.session) : super();
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [session];
 }

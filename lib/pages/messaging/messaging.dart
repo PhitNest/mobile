@@ -35,7 +35,7 @@ final class MessagingPage extends StatelessWidget {
           load: (_, session) async {
             final connection = WebSocketChannel.connect(
                 Uri.parse('$kWebsocketUrl?authorization='
-                    '${session.cognitoSession.accessToken.jwtToken}'));
+                    '${session.accessToken}'));
             await connection.ready;
             return connection;
           },

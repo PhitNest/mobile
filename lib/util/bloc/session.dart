@@ -55,7 +55,7 @@ Future<AuthResOrLost<ResType>> _handleRequest<ReqType, ResType>(
     case LoaderLoadedState(data: final response):
       switch (response) {
         case RefreshSessionSuccess(session: final session):
-          if (session.cognitoSession.isValid()) {
+          if (session.valid) {
             return AuthRes(await load(req, session));
           } else {
             // Capture the next loaded state from the session loader.
@@ -91,7 +91,7 @@ Future<AuthResOrLost<ResType>> _handleRequest<ReqType, ResType>(
   sessionLoader.add(LoaderSetEvent(response));
   switch (response) {
     case RefreshSessionSuccess(session: final session):
-      if (session.cognitoSession.isValid()) {
+      if (session.valid) {
         return AuthRes(await load(req, session));
       }
       return const AuthLost('No session found');

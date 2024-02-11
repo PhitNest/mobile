@@ -1,5 +1,3 @@
-import 'package:amazon_cognito_identity_dart_2/cognito.dart';
-
 import '../../entities/entities.dart';
 
 import 'cognito.dart';
@@ -10,26 +8,20 @@ final class LocalCognito extends Cognito {
   @override
   Future<ChangePasswordResponse> changePassword({
     required String newPassword,
-    required UnauthenticatedSession unauthenticatedSession,
-  }) {
-    // TODO: implement changePassword
-    throw UnimplementedError();
-  }
+    required covariant LocalUnauthenticatedSession unauthenticatedSession,
+  }) async =>
+      ChangePasswordSuccess(LocalSession(
+          unauthenticatedSession.userId, unauthenticatedSession.identityId));
 
   @override
   Future<String?> confirmEmail({
-    required CognitoUser user,
+    required covariant LocalUnauthenticatedSession session,
     required String code,
-  }) {
-    // TODO: implement confirmEmail
-    throw UnimplementedError();
-  }
+  }) async =>
+      null;
 
   @override
-  Future<bool> deleteAccount(Session session) {
-    // TODO: implement deleteAccount
-    throw UnimplementedError();
-  }
+  Future<bool> deleteAccount(covariant LocalSession session) async => true;
 
   @override
   Future<RefreshSessionResponse> getPreviousSession() {
@@ -44,13 +36,14 @@ final class LocalCognito extends Cognito {
   }
 
   @override
-  Future<void> logout(Session session) {
+  Future<void> logout(covariant LocalSession session) {
     // TODO: implement logout
     throw UnimplementedError();
   }
 
   @override
-  Future<RefreshSessionResponse> refreshSession(Session session) {
+  Future<RefreshSessionResponse> refreshSession(
+      covariant LocalSession session) {
     // TODO: implement refreshSession
     throw UnimplementedError();
   }
@@ -62,7 +55,8 @@ final class LocalCognito extends Cognito {
   }
 
   @override
-  Future<String?> resendConfirmationEmail(CognitoUser user) {
+  Future<String?> resendConfirmationEmail(
+      covariant LocalUnauthenticatedSession session) {
     // TODO: implement resendConfirmationEmail
     throw UnimplementedError();
   }
@@ -76,7 +70,7 @@ final class LocalCognito extends Cognito {
   @override
   Future<SubmitForgotPasswordFailure?> submitForgotPassword({
     required SubmitForgotPasswordParams params,
-    required UnauthenticatedSession session,
+    required covariant LocalUnauthenticatedSession session,
   }) {
     // TODO: implement submitForgotPassword
     throw UnimplementedError();

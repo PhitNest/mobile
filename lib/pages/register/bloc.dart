@@ -42,7 +42,7 @@ void _handleStateChanged(
   switch (loaderState) {
     case LoaderLoadedState(data: final response):
       switch (response) {
-        case RegisterSuccess(user: final user):
+        case RegisterSuccess(session: final session):
           final LoginParams loginParams = LoginParams(
             email: controllers.emailController.text,
             password: controllers.passwordController.text,
@@ -53,12 +53,12 @@ void _handleStateChanged(
               builder: (context) => VerificationPage(
                 loginParams: loginParams,
                 resend: (session) =>
-                    Cognito.instance.resendConfirmationEmail(session.user),
+                    Cognito.instance.resendConfirmationEmail(session),
                 confirm: (session, code) => Cognito.instance.confirmEmail(
-                  user: session.user,
+                  session: session,
                   code: code,
                 ),
-                unauthenticatedSession: UnauthenticatedSession(user: user),
+                unauthenticatedSession: session,
               ),
             ),
           );
