@@ -319,17 +319,17 @@ final class AwsCognito extends Cognito {
       error(e.toString());
       return switch (e.code) {
         'ResourceNotFoundException' => const SendForgotPasswordKnownFailure(
-            SendForgotPasswordFailure.invalidUserPool),
+            SendForgotPasswordFailureType.invalidUserPool),
         'InvalidParameterException' => const SendForgotPasswordKnownFailure(
-            SendForgotPasswordFailure.invalidEmail),
+            SendForgotPasswordFailureType.invalidEmail),
         'UserNotFoundException' => const SendForgotPasswordKnownFailure(
-            SendForgotPasswordFailure.noSuchUser),
+            SendForgotPasswordFailureType.noSuchUser),
         _ => SendForgotPasswordUnknownFailure(message: e.message),
       };
     } on ArgumentError catch (e) {
       error(e.toString());
       return const SendForgotPasswordKnownFailure(
-        SendForgotPasswordFailure.invalidUserPool,
+        SendForgotPasswordFailureType.invalidUserPool,
       );
     } catch (e) {
       await logError(e.toString(), userId: email);

@@ -15,15 +15,16 @@ final class SendForgotPasswordSuccess extends SendForgotPasswordResponse {
   List<Object?> get props => [session];
 }
 
-enum SendForgotPasswordFailure {
+enum SendForgotPasswordFailureType {
   invalidUserPool,
   invalidEmail,
   noSuchUser;
 
   String get message => switch (this) {
-        SendForgotPasswordFailure.invalidUserPool => 'Please update your app.',
-        SendForgotPasswordFailure.invalidEmail => 'Invalid email',
-        SendForgotPasswordFailure.noSuchUser => 'No such user',
+        SendForgotPasswordFailureType.invalidUserPool =>
+          'Please update your app.',
+        SendForgotPasswordFailureType.invalidEmail => 'Invalid email',
+        SendForgotPasswordFailureType.noSuchUser => 'No such user',
       };
 }
 
@@ -39,7 +40,7 @@ final class SendForgotPasswordKnownFailure
   @override
   String get message => type.message;
 
-  final SendForgotPasswordFailure type;
+  final SendForgotPasswordFailureType type;
 
   const SendForgotPasswordKnownFailure(this.type) : super();
 
