@@ -1,4 +1,7 @@
-part of 'login.dart';
+import 'package:amazon_cognito_identity_dart_2/cognito.dart';
+import 'package:equatable/equatable.dart';
+
+import 'session.dart';
 
 sealed class LoginResponse extends Equatable {
   const LoginResponse() : super();

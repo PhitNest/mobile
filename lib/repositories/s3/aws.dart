@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../config/aws.dart';
-import '../logger.dart';
-import 'aws.dart';
+import '../../entities/session.dart';
+import '../../util/logger.dart';
 
 const _s3host = 's3.$kRegion.amazonaws.com';
 const _s3Endpoint = 'https://$kUserBucketName.$_s3host';

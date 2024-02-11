@@ -2,8 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../../entities/entities.dart';
+import '../../repositories/cognito/cognito.dart';
 import '../../theme.dart';
-import '../../util/aws/aws.dart';
 import '../../util/bloc/bloc.dart';
 import '../../util/validators/validators.dart';
 import '../../widgets/widgets.dart';
@@ -29,7 +30,7 @@ final class LoginPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: LoginProvider(
                 createControllers: (_) => LoginControllers(),
-                createLoader: (_) => LoaderBloc(load: login),
+                createLoader: (_) => LoaderBloc(load: Cognito.instance.login),
                 createConsumer: (context, controllers, submit) =>
                     LoaderConsumer(
                   listener: (context, loaderState) =>

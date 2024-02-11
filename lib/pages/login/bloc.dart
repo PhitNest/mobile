@@ -37,10 +37,9 @@ void _handleStateChanged(BuildContext context, LoginControllers controllers,
             CupertinoPageRoute<void>(
               builder: (context) => VerificationPage(
                 unauthenticatedSession: UnauthenticatedSession(user: user),
-                resend: (session) => resendConfirmationEmail(
-                  user: session.user,
-                ),
-                confirm: (session, code) => confirmEmail(
+                resend: (session) =>
+                    Cognito.instance.resendConfirmationEmail(session.user),
+                confirm: (session, code) => Cognito.instance.confirmEmail(
                   user: session.user,
                   code: code,
                 ),

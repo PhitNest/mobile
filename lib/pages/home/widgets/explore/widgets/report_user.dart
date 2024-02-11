@@ -12,10 +12,10 @@ class ReportUserButton extends StatelessWidget {
     required this.onReportSubmitted,
   });
 
-  void _showReportDialog(BuildContext context) {
+  Future<void> _showReportDialog(BuildContext context) async {
     final TextEditingController reportReasonController =
         TextEditingController();
-    showDialog<void>(
+    await showDialog<void>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -41,8 +41,6 @@ class ReportUserButton extends StatelessWidget {
               onPressed: () {
                 // Placeholder for your report submission logic
                 onReportSubmitted();
-                print(
-                    'Reported $firstName $lastName for reason: ${reportReasonController.text}');
                 Navigator.of(context).pop();
               },
             ),
@@ -50,29 +48,28 @@ class ReportUserButton extends StatelessWidget {
         );
       },
     );
+    reportReasonController.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _showReportDialog(context),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: 48,
-          minHeight: 48,
-        ),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: Colors.red.withOpacity(0.85),
-            shape: BoxShape.circle,
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: () => _showReportDialog(context),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: 48,
+            minHeight: 48,
           ),
-          child: const Icon(
-            Icons.report_problem,
-            color: Colors.white,
-            size: 32,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.red.withOpacity(0.85),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.report_problem,
+              color: Colors.white,
+              size: 32,
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../util/aws/aws.dart';
+import '../../entities/entities.dart';
+import '../../repositories/cognito/cognito.dart';
 import '../../util/bloc/bloc.dart';
 import '../styled_loader.dart';
 
@@ -22,7 +23,7 @@ final class RestorePreviousSessionProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BlocProvider(
         create: (_) => RestorePreviousSessionBloc(
-          load: (_) => getPreviousSession(),
+          load: (_) => Cognito.instance.getPreviousSession(),
           loadOnStart: const LoadOnStart(null),
         ),
         child: RestorePreviousSessionConsumer(

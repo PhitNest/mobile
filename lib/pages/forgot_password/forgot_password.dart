@@ -2,8 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../../entities/entities.dart';
+import '../../repositories/cognito/cognito.dart';
 import '../../theme.dart';
-import '../../util/aws/aws.dart';
 import '../../util/bloc/bloc.dart';
 import '../../util/validators/validators.dart';
 import '../../widgets/widgets.dart';
@@ -20,7 +21,8 @@ final class ForgotPasswordScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: ForgotPasswordProvider(
             createControllers: (_) => ForgotPasswordControllers(),
-            createLoader: (_) => LoaderBloc(load: sendForgotPasswordRequest),
+            createLoader: (_) =>
+                LoaderBloc(load: Cognito.instance.sendForgotPasswordRequest),
             createConsumer: (context, controllers, submit) => LoaderConsumer(
               listener: (context, loaderState) =>
                   _handleStateChanged(context, controllers, loaderState),

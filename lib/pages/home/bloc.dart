@@ -228,6 +228,6 @@ LogoutBloc logoutBloc(BuildContext context) => LogoutBloc(
       sessionLoader: context.sessionLoader,
       load: (_, session) async {
         context.sessionLoader.add(const LoaderSetEvent(SessionEnded()));
-        await logout(session);
+        await Cognito.instance.logout(session);
       },
     );

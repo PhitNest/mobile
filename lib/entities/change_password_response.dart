@@ -1,4 +1,6 @@
-part of 'change_password.dart';
+import 'package:equatable/equatable.dart';
+
+import 'session.dart';
 
 sealed class ChangePasswordResponse extends Equatable {
   const ChangePasswordResponse() : super();

@@ -1,4 +1,4 @@
-part of 'login.dart';
+import 'package:equatable/equatable.dart';
 
 final class LoginParams extends Equatable {
   final String email;

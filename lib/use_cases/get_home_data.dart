@@ -1,6 +1,6 @@
 import '../entities/entities.dart';
 import '../repositories/repositories.dart';
-import '../util/aws/aws.dart';
+import '../repositories/s3/aws.dart';
 import '../util/http/http.dart';
 
 Future<HttpResponse<HomeDataPicturesLoaded>> getHomeData(

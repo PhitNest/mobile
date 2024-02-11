@@ -1,4 +1,4 @@
-part of 'forgot_password.dart';
+import 'package:equatable/equatable.dart';
 
 final class SubmitForgotPasswordParams extends Equatable {
   final String email;

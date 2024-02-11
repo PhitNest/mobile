@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../config/aws.dart';
-import '../aws/aws.dart';
+import '../../entities/session.dart';
 import '../failure.dart';
 import '../logger.dart';
 

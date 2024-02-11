@@ -2,7 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../aws/aws.dart';
+import '../../entities/entities.dart';
+import '../../repositories/cognito/cognito.dart';
 import 'loader/loader.dart';
 import 'parallel_loader/parallel_loader.dart';
 
@@ -86,7 +87,7 @@ Future<AuthResOrLost<ResType>> _handleRequest<ReqType, ResType>(
     default:
   }
   // Try to restore the session from local storage.
-  final response = await getPreviousSession();
+  final response = await Cognito.instance.getPreviousSession();
   sessionLoader.add(LoaderSetEvent(response));
   switch (response) {
     case RefreshSessionSuccess(session: final session):

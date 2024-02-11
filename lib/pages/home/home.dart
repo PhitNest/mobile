@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../entities/entities.dart';
+import '../../repositories/cognito/cognito.dart';
 import '../../repositories/repositories.dart';
 import '../../use_cases/use_cases.dart';
-import '../../util/aws/aws.dart';
 import '../../util/bloc/bloc.dart';
 import '../../util/http/http.dart';
 import '../../widgets/widgets.dart';

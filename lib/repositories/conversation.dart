@@ -1,5 +1,5 @@
 import '../entities/entities.dart';
-import '../util/aws/session.dart';
+import '../entities/session.dart';
 import '../util/http/http.dart';
 
 Future<HttpResponse<Conversation>> conversation(

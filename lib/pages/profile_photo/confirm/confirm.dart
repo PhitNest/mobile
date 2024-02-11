@@ -8,8 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
 
+import '../../../repositories/s3/aws.dart';
 import '../../../theme.dart';
-import '../../../util/aws/aws.dart';
 import '../../../util/bloc/bloc.dart';
 import '../../../widgets/widgets.dart';
 import '../../login/login.dart';

@@ -1,4 +1,5 @@
-part of 'register.dart';
+import 'package:amazon_cognito_identity_dart_2/cognito.dart';
+import 'package:equatable/equatable.dart';
 
 sealed class RegisterResponse extends Equatable {
   const RegisterResponse();

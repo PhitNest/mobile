@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'pages/pages.dart';
+import 'repositories/cognito/cognito.dart';
 import 'theme.dart';
-import 'util/aws/aws.dart';
 import 'util/bloc/bloc.dart';
 import 'util/cache/cache.dart';
 import 'widgets/widgets.dart';
@@ -31,7 +31,7 @@ final class PhitNestApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
-        create: (_) => SessionBloc(load: refreshSession),
+        create: (_) => SessionBloc(load: Cognito.instance.refreshSession),
         child: GestureDetector(
           onTap: () {
             final currentFocus = FocusScope.of(context);

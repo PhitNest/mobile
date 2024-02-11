@@ -1,4 +1,5 @@
-part of 'forgot_password.dart';
+import 'package:amazon_cognito_identity_dart_2/cognito.dart';
+import 'package:equatable/equatable.dart';
 
 sealed class SendForgotPasswordResponse extends Equatable {
   const SendForgotPasswordResponse() : super();

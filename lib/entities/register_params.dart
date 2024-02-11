@@ -1,4 +1,4 @@
-part of 'register.dart';
+import 'package:equatable/equatable.dart';
 
 final class RegisterParams extends Equatable {
   final String email;

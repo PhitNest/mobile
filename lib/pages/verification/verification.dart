@@ -2,8 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../entities/entities.dart';
+import '../../repositories/cognito/cognito.dart';
 import '../../theme.dart';
-import '../../util/aws/aws.dart';
 import '../../util/bloc/bloc.dart';
 import '../../widgets/widgets.dart';
 import '../home/home.dart';
@@ -29,7 +30,7 @@ final class VerificationPage extends StatelessWidget {
   Future<LoginResponse> _confirmAndLogin(String code) async {
     final error = await confirm(unauthenticatedSession, code);
     if (error == null) {
-      return await login(loginParams);
+      return await Cognito.instance.login(loginParams);
     } else {
       return LoginUnknownResponse(message: error);
     }
