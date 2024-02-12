@@ -1,5 +1,6 @@
 export 'change_password_response.dart';
 export 'conversation.dart';
+export 'explore_data_model.dart';
 export 'forgot_password_params.dart';
 export 'forgot_password_response.dart';
 export 'friend_request.dart';
@@ -10,5 +11,5 @@ export 'login_response.dart';
 export 'refresh_session_response.dart';
 export 'register_params.dart';
 export 'register_response.dart';
-export 'session.dart';
+export 'session/session.dart';
 export 'user.dart';

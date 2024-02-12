@@ -1,4 +1,4 @@
-import '../entities/session.dart';
+import '../entities/session/session.dart';
 import '../repositories/cognito/cognito.dart';
 import '../repositories/repositories.dart';
 import '../util/http/http.dart';

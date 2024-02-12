@@ -132,11 +132,10 @@ class _HomePageState extends State<HomePage> {
                               NavBarReversedState() =>
                                 const Center(child: Text('You have matched!')),
                               _ => switch (navBarState.page) {
-                                  NavBarPage.explore => ExplorePage(
+                                  NavBarPage.explore => ExplorePage.create(
                                       pageController: pageController,
                                       users: homeData.exploreUsers,
-                                      navBarState: navBarState,
-                                    ),
+                                      navBarState: navBarState),
                                   NavBarPage.chat => ConversationsPage(
                                       userId: homeData.user.id,
                                       friends: homeData.friends,

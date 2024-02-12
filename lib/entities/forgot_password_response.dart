@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
-
-import 'entities.dart';
+import 'session/session.dart';
 
 sealed class SendForgotPasswordResponse extends Equatable {
   const SendForgotPasswordResponse() : super();
