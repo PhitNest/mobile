@@ -23,7 +23,7 @@ final class RestorePreviousSessionProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BlocProvider(
         create: (_) => RestorePreviousSessionBloc(
-          load: (_) => Cognito.instance.getPreviousSession(),
+          load: (_) => getPreviousSession(),
           loadOnStart: const LoadOnStart(null),
         ),
         child: RestorePreviousSessionConsumer(

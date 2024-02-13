@@ -70,13 +70,13 @@ Future<RefreshSessionResponse> _handleRefreshFailures(
   }
 }
 
-final class AwsCognito extends Cognito {
+final class AwsCognito extends Cognito<AwsUnauthenticatedSession, AwsSession> {
   const AwsCognito() : super();
 
   @override
   Future<ChangePasswordResponse> changePassword({
     required String newPassword,
-    required covariant AwsUnauthenticatedSession unauthenticatedSession,
+    required AwsUnauthenticatedSession unauthenticatedSession,
   }) async {
     try {
       final session =
@@ -130,7 +130,7 @@ final class AwsCognito extends Cognito {
 
   @override
   Future<String?> confirmEmail({
-    required covariant AwsUnauthenticatedSession session,
+    required AwsUnauthenticatedSession session,
     required String code,
   }) async {
     try {
@@ -147,8 +147,7 @@ final class AwsCognito extends Cognito {
   }
 
   @override
-  Future<bool> deleteAccount(covariant AwsSession session) =>
-      session.user.deleteUser();
+  Future<bool> deleteAccount(AwsSession session) => session.user.deleteUser();
 
   @override
   Future<RefreshSessionResponse> getPreviousSession() async {
@@ -234,11 +233,10 @@ final class AwsCognito extends Cognito {
   }
 
   @override
-  Future<void> logout(covariant AwsSession session) => session.user.signOut();
+  Future<void> logout(AwsSession session) => session.user.signOut();
 
   @override
-  Future<RefreshSessionResponse> refreshSession(
-      covariant AwsSession session) async {
+  Future<RefreshSessionResponse> refreshSession(AwsSession session) async {
     return await _handleRefreshFailures(
       () async {
         final newUserSession = await session.user
@@ -340,7 +338,7 @@ final class AwsCognito extends Cognito {
   @override
   Future<SubmitForgotPasswordFailure?> submitForgotPassword({
     required SubmitForgotPasswordParams params,
-    required covariant AwsUnauthenticatedSession session,
+    required AwsUnauthenticatedSession session,
   }) async {
     try {
       if (await session.user.confirmPassword(params.code, params.newPassword)) {
@@ -368,7 +366,7 @@ final class AwsCognito extends Cognito {
 
   @override
   Future<String?> resendConfirmationEmail(
-      covariant AwsUnauthenticatedSession session) async {
+      AwsUnauthenticatedSession session) async {
     try {
       await session.user.resendConfirmationCode();
       return null;

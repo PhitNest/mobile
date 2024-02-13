@@ -36,29 +36,23 @@ void _handleStateChanged(
                   password: controllers.newPasswordController.text,
                 ),
                 unauthenticatedSession: session,
-                resend: (session) => Cognito.instance
-                    .sendForgotPasswordRequest(
-                      controllers.emailController.text,
-                    )
-                    .then(
-                      (state) => switch (state) {
-                        SendForgotPasswordSuccess() => null,
-                        SendForgotPasswordFailureResponse(
-                          message: final message
-                        ) =>
-                          message,
-                      },
-                    ),
-                confirm: (session, code) => Cognito.instance
-                    .submitForgotPassword(
-                      params: SubmitForgotPasswordParams(
-                        email: controllers.emailController.text,
-                        code: code,
-                        newPassword: controllers.newPasswordController.text,
-                      ),
-                      session: session,
-                    )
-                    .then((state) => state?.message),
+                resend: (session) => sendForgotPasswordRequest(
+                  controllers.emailController.text,
+                ).then(
+                  (state) => switch (state) {
+                    SendForgotPasswordSuccess() => null,
+                    SendForgotPasswordFailureResponse(message: final message) =>
+                      message,
+                  },
+                ),
+                confirm: (session, code) => submitForgotPassword(
+                  params: SubmitForgotPasswordParams(
+                    email: controllers.emailController.text,
+                    code: code,
+                    newPassword: controllers.newPasswordController.text,
+                  ),
+                  session: session,
+                ).then((state) => state?.message),
               ),
             ),
           );

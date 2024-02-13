@@ -31,7 +31,7 @@ final class PhitNestApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
-        create: (_) => SessionBloc(load: Cognito.instance.refreshSession),
+        create: (_) => SessionBloc(load: refreshSession),
         child: GestureDetector(
           onTap: () {
             final currentFocus = FocusScope.of(context);

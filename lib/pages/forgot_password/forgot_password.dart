@@ -21,8 +21,7 @@ final class ForgotPasswordScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: ForgotPasswordProvider(
             createControllers: (_) => ForgotPasswordControllers(),
-            createLoader: (_) =>
-                LoaderBloc(load: Cognito.instance.sendForgotPasswordRequest),
+            createLoader: (_) => LoaderBloc(load: sendForgotPasswordRequest),
             createConsumer: (context, controllers, submit) => LoaderConsumer(
               listener: (context, loaderState) =>
                   _handleStateChanged(context, controllers, loaderState),
