@@ -1,52 +1,49 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:json_types/json.dart';
+import 'package:parse_json/parse_json.dart';
 
 import 'user.dart';
 
-final class FriendRequest extends Json {
-  final acceptedJson = Json.boolean('accepted');
-  final senderJson = Json.object('sender', User.parser);
-  final receiverJson = Json.object('receiver', User.parser);
-  final createdAtJson = Json.string('createdAt');
+final class FriendRequest extends Equatable {
+  final bool accepted;
+  final User sender;
+  final User receiver;
+  final String createdAt;
 
-  bool get accepted => acceptedJson.value;
-  User get sender => senderJson.value;
-  User get receiver => receiverJson.value;
-  String get createdAt => createdAtJson.value;
+  static final properties = <String, JsonProperty<dynamic>>{
+    'accepted': boolean,
+    'sender': User.fromJson.required,
+    'receiver': User.fromJson.required,
+    'createdAt': string,
+  };
 
   User other(String id) => sender.id == id ? receiver : sender;
 
-  FriendRequest.parse(super.json) : super.parse();
+  const FriendRequest({
+    required this.accepted,
+    required this.sender,
+    required this.receiver,
+    required this.createdAt,
+  }) : super();
 
-  FriendRequest.parser() : super();
-
-  FriendRequest.populated({
-    required bool accepted,
-    required User sender,
-    required User receiver,
-    required String createdAt,
-  }) : super() {
-    acceptedJson.populate(accepted);
-    senderJson.populate(sender);
-    receiverJson.populate(receiver);
-    createdAtJson.populate(createdAt);
-  }
+  factory FriendRequest.fromJson(dynamic json) =>
+      parse(FriendRequest.new, json, properties);
 
   @override
-  List<JsonKey<dynamic, dynamic>> get keys =>
-      [acceptedJson, senderJson, receiverJson, createdAtJson];
+  List<Object?> get props => [accepted, sender, receiver, createdAt];
 }
 
-final class FriendRequestWithProfilePicture extends Equatable {
-  final FriendRequest friendRequest;
+final class FriendRequestWithProfilePicture extends FriendRequest {
   final Image profilePicture;
 
   const FriendRequestWithProfilePicture({
-    required this.friendRequest,
+    required super.accepted,
+    required super.sender,
+    required super.receiver,
+    required super.createdAt,
     required this.profilePicture,
   }) : super();
 
   @override
-  List<Object?> get props => [friendRequest, profilePicture];
+  List<Object?> get props => [...super.props, profilePicture];
 }

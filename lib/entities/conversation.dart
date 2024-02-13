@@ -1,51 +1,48 @@
-import 'package:json_types/json.dart';
+import 'package:equatable/equatable.dart';
+import 'package:parse_json/parse_json.dart';
 
-final class Conversation extends Json {
-  final messagesJson = Json.objectList('messages', Message.parser);
+final class Conversation extends Equatable {
+  late final List<Message> messages;
 
-  List<Message> get messages =>
-      messagesJson.value..sort((a, b) => a.messageId.compareTo(b.messageId));
+  static final properties = {
+    'messages': Message.fromJson.list,
+  };
 
-  Conversation.parse(super.json) : super.parse();
+  Conversation({
+    required List<Message> messages,
+  })  : messages = messages..sort((a, b) => a.messageId.compareTo(b.messageId)),
+        super();
 
-  Conversation.parser() : super();
-
-  Conversation.populated({required List<Message> messages}) : super() {
-    messagesJson.populate(messages);
-  }
+  factory Conversation.fromJson(dynamic json) =>
+      parse(Conversation.new, json, properties);
 
   @override
-  List<JsonKey<dynamic, dynamic>> get keys => [messagesJson];
+  List<Object?> get props => [messages];
 }
 
-final class Message extends Json {
-  final messageIdJson = Json.int('messageId');
-  final senderIdJson = Json.string('senderId');
-  final receiverIdJson = Json.string('receiverId');
-  final contentJson = Json.string('content');
+final class Message extends Equatable {
+  final int messageId;
+  final String senderId;
+  final String receiverId;
+  final String content;
 
-  int get messageId => messageIdJson.value;
-  String get senderId => senderIdJson.value;
-  String get receiverId => receiverIdJson.value;
-  String get content => contentJson.value;
+  static const properties = {
+    'messageId': integer,
+    'senderId': string,
+    'receiverId': string,
+    'content': string,
+  };
 
-  Message.populated({
-    required int messageId,
-    required String senderId,
-    required String receiverId,
-    required String content,
-  }) : super() {
-    messageIdJson.populate(messageId);
-    senderIdJson.populate(senderId);
-    receiverIdJson.populate(receiverId);
-    contentJson.populate(content);
-  }
+  const Message({
+    required this.messageId,
+    required this.senderId,
+    required this.receiverId,
+    required this.content,
+  }) : super();
 
-  Message.parse(super.json) : super.parse();
-
-  Message.parser() : super();
+  factory Message.fromJson(dynamic json) =>
+      parse(Message.new, json, properties);
 
   @override
-  List<JsonKey<dynamic, dynamic>> get keys =>
-      [messageIdJson, senderIdJson, receiverIdJson, contentJson];
+  List<Object?> get props => [messageId, senderId, receiverId, content];
 }

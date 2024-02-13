@@ -157,18 +157,19 @@ void _handleSendFriendRequestStateChanged(
                       profilePicture: homeData.profilePicture,
                       exploreUsers: homeData.exploreUsers
                         ..removeWhere((element) =>
-                            element.user.id == data.other(homeData.user.id).id),
+                            element.id == data.other(homeData.user.id).id),
                       receivedFriendRequests: homeData.receivedFriendRequests
                         ..removeWhere(
                           (element) =>
-                              element.friendRequest
-                                  .other(homeData.user.id)
-                                  .id ==
+                              element.other(homeData.user.id).id ==
                               data.other(homeData.user.id).id,
                         ),
                       friends: homeData.friends
                         ..add(FriendRequestWithProfilePicture(
-                            friendRequest: data,
+                            accepted: data.accepted,
+                            createdAt: data.createdAt,
+                            receiver: data.receiver,
+                            sender: data.sender,
                             profilePicture: req.profilePicture)),
                     ),
                     null))));
@@ -183,15 +184,12 @@ void _handleSendFriendRequestStateChanged(
                       exploreUsers: homeData.exploreUsers
                         ..removeWhere(
                           (element) =>
-                              element.user.id ==
-                              data.other(homeData.user.id).id,
+                              element.id == data.other(homeData.user.id).id,
                         ),
                       receivedFriendRequests: homeData.receivedFriendRequests
                         ..removeWhere(
                           (element) =>
-                              element.friendRequest
-                                  .other(homeData.user.id)
-                                  .id ==
+                              element.other(homeData.user.id).id ==
                               data.other(homeData.user.id).id,
                         ),
                       friends: homeData.friends,

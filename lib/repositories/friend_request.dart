@@ -13,7 +13,7 @@ Future<HttpResponse<FriendRequest>> sendFriendRequest(
       data: {
         'receiverId': receiverId,
       },
-      parse: (json) => FriendRequest.parse(json as Map<String, dynamic>),
+      parse: FriendRequest.fromJson,
     );
 
 Future<HttpResponse<void>> deleteFriendRequest(

@@ -1,27 +1,23 @@
-import 'package:json_types/json.dart';
+import 'package:equatable/equatable.dart';
+import 'package:parse_json/parse_json.dart';
 
-final class Failure extends Json {
-  final typeJson = Json.string('type');
-  final messageJson = Json.string('message');
+final class Failure extends Equatable {
+  final String type;
+  final String message;
 
-  String get type => typeJson.value;
-  String get message => messageJson.value;
+  static const properties = {
+    'type': string,
+    'message': string,
+  };
 
-  Failure.parser() : super();
+  const Failure({
+    required this.type,
+    required this.message,
+  }) : super();
 
-  Failure.populated(
-    String type,
-    String message,
-  ) : super() {
-    typeJson.populate(type);
-    messageJson.populate(message);
-  }
-
-  Failure.parse(super.json) : super.parse();
-
-  @override
-  String toString() => message;
+  factory Failure.fromJson(Map<String, dynamic> json) =>
+      parse(Failure.new, json, properties);
 
   @override
-  List<JsonKey<dynamic, dynamic>> get keys => [typeJson, messageJson];
+  List<Object?> get props => [type, message];
 }

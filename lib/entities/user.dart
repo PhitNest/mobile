@@ -1,73 +1,69 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
-import 'package:json_types/json.dart';
+import 'package:parse_json/parse_json.dart';
 
-base class User extends Json {
-  final idJson = Json.string('id');
-  final firstNameJson = Json.string('firstName');
-  final lastNameJson = Json.string('lastName');
-  final identityIdJson = Json.string('identityId');
+base class User extends Equatable {
+  final String id;
+  final String firstName;
+  final String lastName;
+  final String identityId;
 
-  String get id => idJson.value;
-  String get firstName => firstNameJson.value;
-  String get lastName => lastNameJson.value;
-  String get identityId => identityIdJson.value;
+  static const properties = {
+    'id': string,
+    'firstName': string,
+    'lastName': string,
+    'identityId': string,
+  };
 
   String get fullName => '$firstName $lastName';
 
-  User.parse(super.json) : super.parse();
+  const User({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.identityId,
+  }) : super();
 
-  User.parser() : super();
-
-  User.populated({
-    required String id,
-    required String firstName,
-    required String lastName,
-    required String identityId,
-  }) : super() {
-    idJson.populate(id);
-    firstNameJson.populate(firstName);
-    lastNameJson.populate(lastName);
-    identityIdJson.populate(identityId);
-  }
+  factory User.fromJson(dynamic json) => parse(User.new, json, properties);
 
   @override
-  List<JsonKey<dynamic, dynamic>> get keys =>
-      [idJson, firstNameJson, lastNameJson, identityIdJson];
+  List<Object> get props => [id, firstName, lastName, identityId];
 }
 
 final class UserWithEmail extends User {
-  final emailJson = Json.string('email');
+  final String email;
 
-  String get email => emailJson.value;
+  static const properties = {
+    ...User.properties,
+    'email': string,
+  };
 
-  UserWithEmail.parse(super.json) : super.parse();
-
-  UserWithEmail.parser() : super.parser();
-
-  UserWithEmail.populated({
-    required String email,
+  const UserWithEmail({
     required super.id,
     required super.firstName,
     required super.lastName,
     required super.identityId,
-  }) : super.populated() {
-    emailJson.populate(email);
-  }
+    required this.email,
+  }) : super();
+
+  factory UserWithEmail.fromJson(dynamic json) =>
+      parse(UserWithEmail.new, json, properties);
 
   @override
-  List<JsonKey<dynamic, dynamic>> get keys => [...super.keys, emailJson];
+  List<Object> get props => [...super.props, email];
 }
 
-final class ExploreUser extends Equatable {
+final class ExploreUser extends User {
   final Image profilePicture;
-  final User user;
 
   const ExploreUser({
-    required this.user,
+    required super.id,
+    required super.firstName,
+    required super.lastName,
+    required super.identityId,
     required this.profilePicture,
   }) : super();
 
   @override
-  List<Object?> get props => [user, profilePicture];
+  List<Object> get props => [...super.props, profilePicture];
 }

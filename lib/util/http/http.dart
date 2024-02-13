@@ -130,13 +130,13 @@ Future<HttpResponse<ResType>> request<ResType>({
             return HttpResponseOk(parsed, response.headers);
           } else {
             // Handle unsuccessful responses
-            final parsed = Failure.parse(jsonData as Map<String, dynamic>);
+            final parsed = Failure.fromJson(jsonData as Map<String, dynamic>);
             await logError('Request failure:',
                 details: responseDetails(parsed), userId: session?.userId);
             return HttpResponseFailure(parsed, response.headers);
           }
         } else {
-          throw Failure.populated('Invalid response', jsonData.toString());
+          throw Failure(type: 'Invalid response', message: jsonData.toString());
         }
       });
     } on TimeoutException {
@@ -144,14 +144,15 @@ Future<HttpResponse<ResType>> request<ResType>({
       await logError('Request timeout:',
           details: responseDetails(data), userId: session?.userId);
       return HttpResponseFailure(
-          Failure.populated('Timeout', 'Request timeout'), Headers());
+          const Failure(type: 'Timeout', message: 'Request timeout'),
+          Headers());
     } on Failure catch (failure) {
       await logError('Request failure:',
           details: responseDetails(failure), userId: session?.userId);
       return HttpResponseFailure(failure, Headers());
     } catch (e) {
       // Log and return failure by value
-      final failure = Failure.populated('UnknownFailure', e.toString());
+      final failure = Failure(type: 'UnknownFailure', message: e.toString());
       await logError('Request failure:',
           details: responseDetails(failure), userId: session?.userId);
       return HttpResponseFailure(failure, Headers());

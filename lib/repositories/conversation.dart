@@ -12,5 +12,5 @@ Future<HttpResponse<Conversation>> conversation(
       data: {
         'friendId': friendId,
       },
-      parse: (json) => Conversation.parse(json as Map<String, dynamic>),
+      parse: Conversation.fromJson,
     );

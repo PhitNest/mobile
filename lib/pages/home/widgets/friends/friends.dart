@@ -25,7 +25,7 @@ class FriendsPage extends StatelessWidget {
         create: (context) => DeleteFriendRequestBloc(
           sessionLoader: context.sessionLoader,
           load: (friendship, session) => deleteFriendRequest(
-              friendship.friendRequest.other(homeData.user.id).id, session),
+              friendship.other(homeData.user.id).id, session),
         ),
         child: DeleteFriendRequestConsumer(
           listener: (context, deleteFriendshipLoaderState) =>
@@ -36,10 +36,9 @@ class FriendsPage extends StatelessWidget {
             listener: _handleSendFriendRequestStateChanged,
             builder: (context, sendFriendRequestState) {
               final loadingIds = {
-                ...sendFriendRequestState.operations
-                    .map((op) => op.req.user.id),
-                ...deleteFriendshipState.operations.map(
-                    (op) => op.req.friendRequest.other(homeData.user.id).id),
+                ...sendFriendRequestState.operations.map((op) => op.req.id),
+                ...deleteFriendshipState.operations
+                    .map((op) => op.req.other(homeData.user.id).id),
               };
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -55,7 +54,7 @@ class FriendsPage extends StatelessWidget {
                         itemCount: homeData.receivedFriendRequests.length,
                         itemBuilder: (context, i) => FriendRequestWidget(
                             loading: loadingIds.contains(homeData
-                                .receivedFriendRequests[i].friendRequest
+                                .receivedFriendRequests[i]
                                 .other(homeData.user.id)
                                 .id),
                             request: homeData.receivedFriendRequests[i]),
@@ -71,15 +70,14 @@ class FriendsPage extends StatelessWidget {
                         padding: EdgeInsets.zero,
                         itemBuilder: (context, i) => Padding(
                           padding: const EdgeInsets.all(8),
-                          child: loadingIds.contains(homeData
-                                  .friends[i].friendRequest
+                          child: loadingIds.contains(homeData.friends[i]
                                   .other(homeData.user.id)
                                   .id)
                               ? const Center(child: CircularProgressIndicator())
                               : Row(
                                   children: [
                                     Text(
-                                      homeData.friends[i].friendRequest
+                                      homeData.friends[i]
                                           .other(homeData.user.id)
                                           .fullName,
                                       style: theme.textTheme.bodyMedium,
@@ -123,7 +121,7 @@ class FriendRequestWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            request.friendRequest.sender.fullName,
+            request.sender.fullName,
             style: theme.textTheme.bodyMedium,
           ),
           loading
@@ -133,7 +131,10 @@ class FriendRequestWidget extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () => context.sendFriendRequestBloc.add(
                           ParallelPushEvent(ExploreUser(
-                              user: request.friendRequest.sender,
+                              id: request.sender.id,
+                              firstName: request.sender.firstName,
+                              lastName: request.sender.lastName,
+                              identityId: request.sender.identityId,
                               profilePicture: request.profilePicture))),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(

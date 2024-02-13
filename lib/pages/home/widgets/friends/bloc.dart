@@ -59,18 +59,22 @@ void _handleDeleteFriendshipStateChanged(
         case AuthRes(data: final response):
           switch (response) {
             case HttpResponseSuccess():
-              if (req.friendRequest.accepted) {
+              if (req.accepted) {
                 StyledBanner.show(
                   message: 'Friend removed',
                   error: false,
                 );
+                final otherUser = req.other(homeData.user.id);
                 context.homeBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
                     HomeDataLoaded(
                       user: homeData.user,
                       profilePicture: homeData.profilePicture,
                       exploreUsers: homeData.exploreUsers
                         ..add(ExploreUser(
-                          user: req.friendRequest.other(homeData.user.id),
+                          firstName: otherUser.firstName,
+                          lastName: otherUser.lastName,
+                          id: otherUser.id,
+                          identityId: otherUser.identityId,
                           profilePicture: req.profilePicture,
                         )),
                       receivedFriendRequests: homeData.receivedFriendRequests,

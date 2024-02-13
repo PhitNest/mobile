@@ -81,8 +81,8 @@ final class ExploreUserPage extends StatelessWidget {
                   top: 16,
                   right: 16,
                   child: ReportUserButton(
-                    firstName: user.user.firstName,
-                    lastName: user.user.lastName,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
                     onReportSubmitted: () {
                       // Logic after the report is submitted,
                       //such as showing a confirmation message
@@ -107,7 +107,7 @@ final class ExploreUserPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${user.user.firstName} ${user.user.lastName}',
+                    user.fullName,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   Text(

@@ -10,20 +10,9 @@ bool? getCachedBool(String key) => _cache.sharedPreferences.getBool(key);
 
 double? getCachedDouble(String key) => _cache.sharedPreferences.getDouble(key);
 
-T? getCachedObject<T extends Json>(String key, T Function() parserConstructor) {
+T? getCachedObject<T>(String key, T Function(dynamic json) parser) {
   final result = _cache.sharedPreferences.getString(key);
-  return result != null
-      ? (parserConstructor()..parse(jsonDecode(result) as Map<String, dynamic>))
-      : null;
-}
-
-T? getCachedPolymorphic<T extends JsonPolymorphic<T>>(
-    String key, List<T Function()> parsers) {
-  final result = _cache.sharedPreferences.getString(key);
-  return result != null
-      ? JsonPolymorphic.polymorphicParse(
-          jsonDecode(result) as Map<String, dynamic>, parsers)
-      : null;
+  return result != null ? parser(jsonDecode(result)) : null;
 }
 
 List<String>? getCachedStringList(String key) =>
@@ -41,20 +30,10 @@ List<int>? getCachedIntList(String key) =>
 List<bool>? getCachedBoolList(String key) =>
     _getCachedPrimitiveList(key, bool.parse);
 
-List<T>? getCachedObjectList<T extends Json>(
-        String key, T Function() parserConstructor) =>
+List<T>? getCachedObjectList<T>(String key, T Function(dynamic json) parser) =>
     _cache.sharedPreferences
         .getStringList(key)
-        ?.map((e) =>
-            parserConstructor()..parse(jsonDecode(e) as Map<String, dynamic>))
-        .toList();
-
-List<T>? getCachedPolymorphicList<T extends JsonPolymorphic<T>>(
-        String key, List<T Function()> parsers) =>
-    _cache.sharedPreferences
-        .getStringList(key)
-        ?.map((e) => JsonPolymorphic.polymorphicParse(
-            jsonDecode(e) as Map<String, dynamic>, parsers))
+        ?.map((e) => parser(jsonDecode(e)))
         .toList();
 
 Map<String, T>? _getCachedPrimitiveMap<T>(String key) {
@@ -72,24 +51,12 @@ Map<String, int>? getCachedIntMap(String key) => _getCachedPrimitiveMap(key);
 
 Map<String, bool>? getCachedBoolMap(String key) => _getCachedPrimitiveMap(key);
 
-Map<String, T>? getCachedObjectMap<T extends Json>(
-    String key, T Function(Map<String, dynamic>) parse) {
+Map<String, T>? getCachedObjectMap<T>(
+    String key, T Function(dynamic json) parse) {
   final result = _cache.sharedPreferences.getString(key);
   return result != null
-      ? (jsonDecode(result) as Map<String, dynamic>).map(
-          (key, value) => MapEntry(key, parse(value as Map<String, dynamic>)))
-      : null;
-}
-
-Map<String, T>? getCachedPolymorphicMap<T extends JsonPolymorphic<T>>(
-    String key, List<T Function()> parsers) {
-  final result = _cache.sharedPreferences.getString(key);
-  return result != null
-      ? (jsonDecode(result) as Map<String, dynamic>).map((key, value) =>
-          MapEntry(
-              key,
-              JsonPolymorphic.polymorphicParse(
-                  value as Map<String, dynamic>, parsers)))
+      ? (jsonDecode(result) as Map<String, dynamic>)
+          .map((key, value) => MapEntry(key, parse(value)))
       : null;
 }
 
@@ -108,15 +75,11 @@ Future<void> _cacheItem<T>(
   }
 }
 
-Future<void> cacheObject<T extends Json>(String key, T? value) => _cacheItem(
+Future<void> cacheObject<T extends ToJson>(String key, T? value) => _cacheItem(
       key,
       value,
-      (key, json) => _cache.sharedPreferences.setString(
-        key,
-        jsonEncode(
-          json.toJson(),
-        ),
-      ),
+      (key, json) =>
+          _cache.sharedPreferences.setString(key, jsonEncode(json.toJson())),
     );
 
 Future<void> cacheString(String key, String? value) =>
@@ -131,7 +94,7 @@ Future<void> cacheBool(String key, bool? value) =>
 Future<void> cacheDouble(String key, double? value) =>
     _cacheItem(key, value, _cache.sharedPreferences.setDouble);
 
-Future<void> cacheObjectList<T extends Json>(String key, List<T>? value) =>
+Future<void> cacheObjectList<T extends ToJson>(String key, List<T>? value) =>
     _cacheItem(
         key,
         value,
@@ -161,7 +124,7 @@ Future<void> cacheIntList(String key, List<int>? value) =>
 Future<void> cacheBoolList(String key, List<bool>? value) =>
     _cachePrimitiveList(key, value);
 
-Future<void> cacheObjectMap<T extends Json>(
+Future<void> cacheObjectMap<T extends ToJson>(
         String key, Map<String, T>? value) =>
     _cacheItem(
         key,

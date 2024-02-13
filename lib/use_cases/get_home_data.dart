@@ -37,19 +37,30 @@ Future<HttpResponse<HomeDataPicturesLoaded>> getHomeData(
             await getProfilePicture(session as AwsSession, user.identityId);
         if (profilePicture != null) {
           if (friendUserIds.containsKey(user.id)) {
+            final friendRequest = friendUserIds[user.id]!;
             friends.add(FriendRequestWithProfilePicture(
-              friendRequest: friendUserIds[user.id]!,
+              accepted: friendRequest.accepted,
+              createdAt: friendRequest.createdAt,
+              receiver: friendRequest.receiver,
+              sender: friendRequest.sender,
               profilePicture: profilePicture,
             ));
           } else {
             if (receivedRequestUserIds.containsKey(user.id)) {
+              final friendRequest = receivedRequestUserIds[user.id]!;
               receivedRequests.add(FriendRequestWithProfilePicture(
-                friendRequest: receivedRequestUserIds[user.id]!,
+                accepted: friendRequest.accepted,
+                createdAt: friendRequest.createdAt,
+                receiver: friendRequest.receiver,
+                sender: friendRequest.sender,
                 profilePicture: profilePicture,
               ));
             }
             return ExploreUser(
-              user: user,
+              id: user.id,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              identityId: user.identityId,
               profilePicture: profilePicture,
             );
           }

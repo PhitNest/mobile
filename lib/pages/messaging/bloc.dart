@@ -28,8 +28,7 @@ class MessagingCubit extends Cubit<Iterable<Message>> {
     jumpToStart();
     connection.stream.listen(
       (event) {
-        final message =
-            Message.parse(jsonDecode(event as String) as Map<String, dynamic>);
+        final message = Message.fromJson(jsonDecode(event as String));
         if (message.senderId == friend.id) {
           addMessage(message);
         }
@@ -63,7 +62,7 @@ class MessagingCubit extends Cubit<Iterable<Message>> {
           }),
         }));
 
-        addMessage(Message.populated(
+        addMessage(Message(
           receiverId: friend.id,
           messageId: state.length,
           senderId: userId,

@@ -31,7 +31,7 @@ final class ConversationsPage extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   child: GestureDetector(
                     child: Text(
-                      friends[i].friendRequest.other(userId).fullName,
+                      friends[i].other(userId).fullName,
                       style: theme.textTheme.bodyMedium,
                     ),
                     onTap: () => Navigator.push(
@@ -39,8 +39,7 @@ final class ConversationsPage extends StatelessWidget {
                         CupertinoPageRoute<void>(
                             builder: (context) => MessagingPage(
                                 userId: userId,
-                                friend:
-                                    friends[i].friendRequest.other(userId)))),
+                                friend: friends[i].other(userId)))),
                   ),
                 ),
               ),

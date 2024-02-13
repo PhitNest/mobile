@@ -2,87 +2,75 @@ part of 'cache.dart';
 
 // READ METHODS:
 
-T? _getSecureCached<T>(JsonKey<T, dynamic> params) {
+T? _getSecureCached<T>(String key, T Function(dynamic data) parse) {
   T? val;
-  final lazyLoad = _cache.lazyLoadedSecureCache[params.key];
+  final lazyLoad = _cache.lazyLoadedSecureCache[key];
   if (lazyLoad != null && lazyLoad is T) {
     val = lazyLoad;
-  } else if (_cache.stringifiedSecureCache[params.key] != null) {
-    val = params.parse(jsonDecode(_cache.stringifiedSecureCache[params.key]!));
+  } else if (_cache.stringifiedSecureCache[key] != null) {
+    val = parse(jsonDecode(_cache.stringifiedSecureCache[key]!));
   }
   if (val != null) {
-    debug('Lazy loaded cache hit:', details: ['key: ${params.key}']);
+    debug('Lazy loaded cache hit:', details: ['key: $key']);
   }
   return val;
 }
 
-String? getSecureCachedString(String key) => _getSecureCached(Json.string(key));
+T? _getPrimitive<T>(String key) => _getSecureCached(key, (json) => json as T);
 
-double? getSecureCachedDouble(String key) => _getSecureCached(Json.double(key));
+String? getSecureCachedString(String key) => _getPrimitive(key);
 
-bool? getSecureCachedBool(String key) => _getSecureCached(Json.boolean(key));
+double? getSecureCachedDouble(String key) => _getPrimitive(key);
 
-int? getSecureCachedInt(String key) => _getSecureCached(Json.int(key));
+bool? getSecureCachedBool(String key) => _getPrimitive(key);
 
-T? getSecureCachedObject<T extends Json>(
-        String key, T Function() parserConstructor) =>
-    _getSecureCached(Json.object(key, parserConstructor));
+int? getSecureCachedInt(String key) => _getPrimitive(key);
 
-List<String>? getSecureCachedStringList(String key) =>
-    _getSecureCached(Json.stringList(key));
+T? getSecureCachedObject<T>(String key, T Function(dynamic json) parser) =>
+    _getSecureCached(key, parser.required.function);
 
-List<double>? getSecureCachedDoubleList(String key) =>
-    _getSecureCached(Json.doubleList(key));
+List<String>? getSecureCachedStringList(String key) => _getPrimitive(key);
 
-List<bool>? getSecureCachedBoolList(String key) =>
-    _getSecureCached(Json.booleanList(key));
+List<double>? getSecureCachedDoubleList(String key) => _getPrimitive(key);
 
-List<int>? getSecureCachedIntList(String key) =>
-    _getSecureCached(Json.intList(key));
+List<bool>? getSecureCachedBoolList(String key) => _getPrimitive(key);
 
-List<T>? getSecureCachedObjectList<T extends Json>(
-        String key, T Function() parserConstructor) =>
-    _getSecureCached(Json.objectList(key, parserConstructor));
+List<int>? getSecureCachedIntList(String key) => _getPrimitive(key);
 
-Map<String, String>? getSecureCachedStringMap(String key) =>
-    _getSecureCached(Json.stringMap(key));
+List<T>? getSecureCachedObjectList<T>(
+        String key, T Function(dynamic json) parser) =>
+    _getSecureCached(key, parser.list.function);
 
-Map<String, double>? getSecureCachedDoubleMap(String key) =>
-    _getSecureCached(Json.doubleMap(key));
+Map<String, String>? getSecureCachedStringMap(String key) => _getPrimitive(key);
 
-Map<String, bool>? getSecureCachedBoolMap(String key) =>
-    _getSecureCached(Json.booleanMap(key));
+Map<String, double>? getSecureCachedDoubleMap(String key) => _getPrimitive(key);
 
-Map<String, int>? getSecureCachedIntMap(String key) =>
-    _getSecureCached(Json.intMap(key));
+Map<String, bool>? getSecureCachedBoolMap(String key) => _getPrimitive(key);
 
-Map<String, T>? getSecureCachedObjectMap<T extends Json>(
-        String key, T Function() parserConstructor) =>
-    _getSecureCached(Json.objectMap(key, parserConstructor));
+Map<String, int>? getSecureCachedIntMap(String key) => _getPrimitive(key);
+
+Map<String, T>? getSecureCachedObjectMap<T>(
+        String key, T Function(dynamic json) parser) =>
+    _getSecureCached(key, parser.stringMap.function);
 
 // WRITE METHODS:
 
-Future<void> _cacheSecure<T>(
-  String key,
-  T? value,
-  JsonKey<T, dynamic> Function(String, T value) parser,
-) =>
+Future<void> _cacheSecure(String key, Type type, dynamic value) =>
     _cache.secureCacheLock.synchronized(
       () {
         if (value != null) {
-          final params = parser(key, value);
-          debug('Caching secure $T:', details: ['key: $key']);
-          final stringifiedValue = jsonEncode(params.serialized);
-          _cache.stringifiedSecureCache[params.key] = stringifiedValue;
-          _cache.lazyLoadedSecureCache[params.key] = params.value;
+          debug('Caching secure $type:', details: ['key: $key']);
+          final stringifiedValue = jsonEncode(value);
+          _cache.stringifiedSecureCache[key] = stringifiedValue;
+          _cache.lazyLoadedSecureCache[key] = value;
           return _cache.secureStorage.write(
-            key: params.key,
+            key: key,
             value: stringifiedValue,
           );
         } else {
           _cache.stringifiedSecureCache.remove(key);
           _cache.lazyLoadedSecureCache.remove(key);
-          debug('Removing cached secure $T:',
+          debug('Removing cached secure $type:',
               details: ['key: $key', 'Lazy loaded cache hit']);
           return _cache.secureStorage.write(
             key: key,
@@ -92,49 +80,51 @@ Future<void> _cacheSecure<T>(
       },
     );
 
+Future<void> _cachePrimitive<T>(String key, T? primitive) =>
+    _cacheSecure(key, T, primitive);
+
 Future<void> cacheSecureString(String key, String? value) =>
-    _cacheSecure(key, value, JsonString.populated);
+    _cachePrimitive(key, value);
 
 Future<void> cacheSecureDouble(String key, double? value) =>
-    _cacheSecure(key, value, JsonDouble.populated);
+    _cachePrimitive(key, value);
 
 Future<void> cacheSecureBool(String key, bool? value) =>
-    _cacheSecure(key, value, JsonBoolean.populated);
+    _cachePrimitive(key, value);
 
 Future<void> cacheSecureInt(String key, int? value) =>
-    _cacheSecure(key, value, JsonInt.populated);
+    _cachePrimitive(key, value);
 
-Future<void> cacheSecureObject<T extends Json>(String key, T? value) =>
-    _cacheSecure(key, value, JsonObjectKey.populated);
+Future<void> cacheSecureObject<T extends ToJson>(String key, T? value) =>
+    _cacheSecure(key, T, value?.toJson());
 
 Future<void> cacheSecureStringList(String key, List<String>? value) =>
-    _cacheSecure(key, value, JsonStringList.populated);
+    _cachePrimitive(key, value);
 
 Future<void> cacheSecureDoubleList(String key, List<double>? value) =>
-    _cacheSecure(key, value, JsonDoubleList.populated);
+    _cachePrimitive(key, value);
 
 Future<void> cacheSecureBoolList(String key, List<bool>? value) =>
-    _cacheSecure(key, value, JsonBooleanList.populated);
+    _cachePrimitive(key, value);
 
 Future<void> cacheSecureIntList(String key, List<int>? value) =>
-    _cacheSecure(key, value, JsonIntList.populated);
+    _cachePrimitive(key, value);
 
-Future<void> cacheSecureObjectList<T extends Json>(
+Future<void> cacheSecureObjectList<T extends ToJson>(
         String key, List<T>? value) =>
-    _cacheSecure(key, value, JsonObjectKeyList.populated);
+    _cacheSecure(key, List<T>, value?.toJson());
 
 Future<void> cacheSecureStringMap(String key, Map<String, String>? value) =>
-    _cacheSecure(key, value, JsonStringMap.populated);
+    _cachePrimitive(key, value);
 
 Future<void> cacheSecureDoubleMap(String key, Map<String, double>? value) =>
-    _cacheSecure(key, value, JsonDoubleMap.populated);
+    _cachePrimitive(key, value);
 
 Future<void> cacheSecureBoolMap(String key, Map<String, bool>? value) =>
-    _cacheSecure(key, value, JsonBooleanMap.populated);
+    _cachePrimitive(key, value);
 
 Future<void> cacheSecureIntMap(String key, Map<String, int>? value) =>
-    _cacheSecure(key, value, JsonIntMap.populated);
+    _cachePrimitive(key, value);
 
-Future<void> cacheSecureObjectMap<T extends Json>(
-        String key, Map<String, T>? value) =>
-    _cacheSecure(key, value, JsonObjectKeyMap.populated);
+Future<void> cacheSecureObjectMap<T extends ToJson>(String key, T? value) =>
+    _cacheSecure(key, Map<String, T>, value?.toJson());

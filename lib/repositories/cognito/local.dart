@@ -3,17 +3,21 @@ import '../../entities/entities.dart';
 import '../../util/cache/cache.dart';
 import 'cognito.dart';
 
-extension on LocalSessionDataJson {
-  Future<void> cache() => cacheObject('session:$userId', this);
-}
+const _lastUserIdKey = 'lastUserId';
 
 Future<void> cacheLastUserId(String? userId) =>
-    cacheString('lastUserId', userId);
+    cacheString(_lastUserIdKey, userId);
 
-String? get lastUserId => getCachedString('lastUserId');
+String? get lastUserId => getCachedString(_lastUserIdKey);
+
+String _localSessionKey(String userId) => 'session:$userId';
+
+extension on LocalSessionDataJson {
+  Future<void> cache() => cacheObject(_localSessionKey(userId), this);
+}
 
 LocalSessionDataJson? getLocalSessionJson(String userId) =>
-    getCachedPolymorphic('session:$userId', LocalSessionDataJson.parsers);
+    getCachedObject(_localSessionKey(userId), LocalSessionDataJson.fromJson);
 
 final class LocalCognito
     extends Cognito<LocalUnauthenticatedSession, LocalSession> {
@@ -24,7 +28,7 @@ final class LocalCognito
     required String newPassword,
     required LocalUnauthenticatedSession unauthenticatedSession,
   }) async {
-    final localSessionJson = LocalSessionJson.populated(
+    final localSessionJson = LocalSessionJson(
       userId: unauthenticatedSession.userId,
       identityId: unauthenticatedSession.identityId,
     );
@@ -40,7 +44,7 @@ final class LocalCognito
     required LocalUnauthenticatedSession session,
     required String code,
   }) async {
-    final localSessionJson = LocalSessionJson.populated(
+    final localSessionJson = LocalSessionJson(
       userId: session.userId,
       identityId: session.identityId,
     );
@@ -108,7 +112,7 @@ final class LocalCognito
     final existingUser = getLocalSessionJson(params.email);
 
     if (existingUser == null) {
-      final localSessionJson = LocalUnauthenticatedSessionJson.populated(
+      final localSessionJson = LocalUnauthenticatedSessionJson(
         userId: params.email,
         identityId: params.email,
       );
@@ -132,7 +136,7 @@ final class LocalCognito
   ) async {
     final existingUser = getLocalSessionJson(email);
     if (existingUser != null) {
-      final newJson = LocalUnauthenticatedSessionJson.populated(
+      final newJson = LocalUnauthenticatedSessionJson(
         userId: existingUser.userId,
         identityId: existingUser.identityId,
       );
@@ -150,7 +154,7 @@ final class LocalCognito
   }) async {
     final existingUser = getLocalSessionJson(params.email);
     if (existingUser != null) {
-      final localSessionJson = LocalSessionJson.populated(
+      final localSessionJson = LocalSessionJson(
         userId: existingUser.userId,
         identityId: existingUser.identityId,
       );

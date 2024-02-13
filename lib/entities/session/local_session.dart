@@ -1,7 +1,9 @@
 import 'dart:convert';
 
-import 'package:json_types/json.dart';
+import 'package:equatable/equatable.dart';
+import 'package:parse_json/parse_json.dart';
 
+import '../../util/to_json.dart';
 import 'session.dart';
 
 final class LocalUnauthenticatedSession extends UnauthenticatedSession {
@@ -37,69 +39,73 @@ final class LocalSession extends Session {
   List<Object?> get props => [userId, identityId];
 }
 
-sealed class LocalSessionDataJson
-    extends JsonPolymorphic<LocalSessionDataJson> {
-  final userIdJson = Json.string('userId');
-  final identityIdJson = Json.string('identityId');
+sealed class LocalSessionDataJson extends Equatable with ToJson {
+  static const polymorphicKey = 'type';
 
-  String get userId => userIdJson.value;
-  String get identityId => identityIdJson.value;
+  final String userId;
+  final String identityId;
 
-  LocalSessionDataJson.populated({
-    required String userId,
-    required String identityId,
-  }) : super() {
-    userIdJson.populate(userId);
-    identityIdJson.populate(identityId);
-  }
+  static const properties = {
+    'userId': string,
+    'identityId': string,
+  };
 
-  LocalSessionDataJson.parse(super.json) : super.parse();
+  const LocalSessionDataJson({
+    required this.userId,
+    required this.identityId,
+  }) : super();
 
-  LocalSessionDataJson.parser() : super();
-
-  static const List<LocalSessionDataJson Function()> parsers = [
-    LocalSessionJson.parser,
-    LocalUnauthenticatedSessionJson.parser
-  ];
+  factory LocalSessionDataJson.fromJson(dynamic json) =>
+      polymorphicParse(polymorphicKey, json, {
+        LocalSessionJson.polymorphicId: LocalSessionJson.fromJson,
+        LocalUnauthenticatedSessionJson.polymorphicId:
+            LocalUnauthenticatedSessionJson.fromJson,
+      });
 
   @override
-  List<JsonKey<dynamic, dynamic>> get keys => [userIdJson, identityIdJson];
+  Map<String, dynamic> toJson() => {
+        'userId': userId,
+        'identityId': identityId,
+      };
+
+  @override
+  List<Object?> get props => [userId, identityId];
 }
 
 final class LocalSessionJson extends LocalSessionDataJson {
-  LocalSessionJson.parse(super.json) : super.parse();
+  static const polymorphicId = 'LocalSession';
 
-  late final LocalSession session = LocalSession(
-    userIdJson.value,
-    identityIdJson.value,
-  );
+  LocalSession get session => LocalSession(userId, identityId);
 
-  LocalSessionJson.populated({
+  const LocalSessionJson({
     required super.userId,
     required super.identityId,
-  }) : super.populated();
+  }) : super();
 
-  LocalSessionJson.parser() : super.parser();
+  factory LocalSessionJson.fromJson(dynamic json) =>
+      parse(LocalSessionJson.new, json, LocalSessionDataJson.properties);
 
   @override
-  String get type => 'LocalSession';
+  List<Object?> get props => [...super.props, session];
 }
 
 final class LocalUnauthenticatedSessionJson extends LocalSessionDataJson {
-  LocalUnauthenticatedSessionJson.parse(super.json) : super.parse();
+  static const polymorphicId = 'LocalUnauthenticatedSession';
 
-  late final LocalUnauthenticatedSession session = LocalUnauthenticatedSession(
-    userIdJson.value,
-    identityIdJson.value,
-  );
+  LocalUnauthenticatedSession get session =>
+      LocalUnauthenticatedSession(userId, identityId);
 
-  LocalUnauthenticatedSessionJson.populated({
+  const LocalUnauthenticatedSessionJson({
     required super.userId,
     required super.identityId,
-  }) : super.populated();
+  }) : super();
 
-  LocalUnauthenticatedSessionJson.parser() : super.parser();
+  factory LocalUnauthenticatedSessionJson.fromJson(dynamic json) => parse(
+        LocalUnauthenticatedSessionJson.new,
+        json,
+        LocalSessionDataJson.properties,
+      );
 
   @override
-  String get type => 'LocalUnauthenticatedSession';
+  List<Object?> get props => [...super.props, session];
 }

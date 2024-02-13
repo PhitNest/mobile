@@ -13,8 +13,7 @@ Future<void> logError(String title,
     {List<String>? details, String? userId}) async {
   final (_, title: action, details: d) = _logMessage(title, details);
   error(title, details: details);
-  await postLogEvent(
-      LogEvent.populed(action: action, details: d, userId: userId));
+  await postLogEvent(LogEvent(action: action, details: d, userId: userId));
 }
 
 String _wrapText(String text, int spaces) => StringUtils.addCharAtPosition(

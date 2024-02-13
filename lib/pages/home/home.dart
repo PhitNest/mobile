@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
                 create: (context) => SendFriendRequestBloc(
                     sessionLoader: context.sessionLoader,
                     load: (user, session) =>
-                        sendFriendRequest(user.user.id, session)),
+                        sendFriendRequest(user.id, session)),
               ),
               const BlocProvider(create: logoutBloc),
               BlocProvider(
