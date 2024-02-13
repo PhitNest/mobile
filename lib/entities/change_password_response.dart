@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import 'session/session.dart';
 
 sealed class ChangePasswordResponse extends Equatable {

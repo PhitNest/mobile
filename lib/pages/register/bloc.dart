@@ -30,7 +30,7 @@ RegisterProvider registerForm(
 ) =>
     RegisterProvider(
       createControllers: (_) => RegisterControllers(),
-      createLoader: (_) => LoaderBloc(load: Cognito.instance.register),
+      createLoader: (_) => LoaderBloc(load: register),
       createConsumer: createConsumer,
     );
 
@@ -52,9 +52,8 @@ void _handleStateChanged(
             CupertinoPageRoute<void>(
               builder: (context) => VerificationPage(
                 loginParams: loginParams,
-                resend: (session) =>
-                    Cognito.instance.resendConfirmationEmail(session),
-                confirm: (session, code) => Cognito.instance.confirmEmail(
+                resend: (session) => resendConfirmationEmail(session),
+                confirm: (session, code) => confirmEmail(
                   session: session,
                   code: code,
                 ),

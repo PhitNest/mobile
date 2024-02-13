@@ -15,13 +15,14 @@ String? get lastUserId => getCachedString('lastUserId');
 LocalSessionDataJson? getLocalSessionJson(String userId) =>
     getCachedPolymorphic('session:$userId', LocalSessionDataJson.parsers);
 
-final class LocalCognito extends Cognito {
+final class LocalCognito
+    extends Cognito<LocalUnauthenticatedSession, LocalSession> {
   const LocalCognito() : super();
 
   @override
   Future<ChangePasswordResponse> changePassword({
     required String newPassword,
-    required covariant LocalUnauthenticatedSession unauthenticatedSession,
+    required LocalUnauthenticatedSession unauthenticatedSession,
   }) async {
     final localSessionJson = LocalSessionJson.populated(
       userId: unauthenticatedSession.userId,
@@ -36,7 +37,7 @@ final class LocalCognito extends Cognito {
 
   @override
   Future<String?> confirmEmail({
-    required covariant LocalUnauthenticatedSession session,
+    required LocalUnauthenticatedSession session,
     required String code,
   }) async {
     final localSessionJson = LocalSessionJson.populated(
@@ -49,7 +50,7 @@ final class LocalCognito extends Cognito {
   }
 
   @override
-  Future<bool> deleteAccount(covariant LocalSession session) async {
+  Future<bool> deleteAccount(LocalSession session) async {
     await Future.wait([
       cacheObject<LocalSessionDataJson>('session:${session.userId}', null),
       cacheLastUserId(null)
@@ -96,11 +97,10 @@ final class LocalCognito extends Cognito {
   }
 
   @override
-  Future<void> logout(covariant LocalSession session) => cacheLastUserId(null);
+  Future<void> logout(LocalSession session) => cacheLastUserId(null);
 
   @override
-  Future<RefreshSessionResponse> refreshSession(
-          covariant LocalSession session) async =>
+  Future<RefreshSessionResponse> refreshSession(LocalSession session) async =>
       RefreshSessionSuccess(session);
 
   @override
@@ -122,7 +122,7 @@ final class LocalCognito extends Cognito {
 
   @override
   Future<String?> resendConfirmationEmail(
-    covariant LocalUnauthenticatedSession session,
+    LocalUnauthenticatedSession session,
   ) async =>
       null;
 
@@ -146,7 +146,7 @@ final class LocalCognito extends Cognito {
   @override
   Future<SubmitForgotPasswordFailure?> submitForgotPassword({
     required SubmitForgotPasswordParams params,
-    required covariant LocalUnauthenticatedSession session,
+    required LocalUnauthenticatedSession session,
   }) async {
     final existingUser = getLocalSessionJson(params.email);
     if (existingUser != null) {

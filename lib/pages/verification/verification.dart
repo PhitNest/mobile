@@ -30,7 +30,7 @@ final class VerificationPage extends StatelessWidget {
   Future<LoginResponse> _confirmAndLogin(String code) async {
     final error = await confirm(unauthenticatedSession, code);
     if (error == null) {
-      return await Cognito.instance.login(loginParams);
+      return await login(loginParams);
     } else {
       return LoginUnknownResponse(message: error);
     }
