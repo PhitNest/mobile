@@ -47,6 +47,13 @@ sealed class HomeDataPicturesLoaded extends Equatable {
     required this.exploreUsers,
   }) : super();
 
+  Set<String> get friendUserIds =>
+      friends.map((e) => e.friendRequest.other(user.id).id).toSet();
+
+  Set<String> get sentRequestUserIds => receivedFriendRequests
+      .map((e) => e.friendRequest.other(user.id).id)
+      .toSet();
+
   @override
   List<Object?> get props => [
         user,

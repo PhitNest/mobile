@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../entities/entities.dart';
 import '../../../../../util/bloc/bloc.dart';
-import 'blocs/explore_user_cubit.dart';
+import '../bloc.dart';
 import 'report_user.dart';
 
 final class ExploreUserPage extends StatelessWidget {

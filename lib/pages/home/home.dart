@@ -134,6 +134,10 @@ class _HomePageState extends State<HomePage> {
                               _ => switch (navBarState.page) {
                                   NavBarPage.explore => ExplorePage.create(
                                       pageController: pageController,
+                                      userId: homeData.user.id,
+                                      friendUserIds: homeData.friendUserIds,
+                                      sentRequestUserIds:
+                                          homeData.sentRequestUserIds,
                                       users: homeData.exploreUsers,
                                       navBarState: navBarState),
                                   NavBarPage.chat => ConversationsPage(

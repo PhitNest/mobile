@@ -7,7 +7,7 @@ import '../../../../util/bloc/bloc.dart';
 import '../../../../util/http/http.dart';
 import '../../../../widgets/styled_loader.dart';
 import '../navbar/navbar.dart';
-import 'widgets/blocs/explore_user_cubit.dart';
+import 'bloc.dart';
 import 'widgets/widgets.dart';
 
 class ExplorePage extends StatelessWidget {
@@ -19,15 +19,19 @@ class ExplorePage extends StatelessWidget {
   static Widget create(
       {required PageController pageController,
       required List<ExploreUser> users,
+      required String userId,
+      required Set<String> friendUserIds,
+      required Set<String> sentRequestUserIds,
       required NavBarState navBarState}) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
             create: (context) => ExploreBloc(
                 sessionLoader: context.sessionLoader,
-                load: (_, session) => getExploreData(session),
-                initialData: AuthRes(
-                    HttpResponseOk(ExploreDataModel.manual(users), null))))
+                load: (_, session) => getExploreData(
+                    session, userId, friendUserIds, sentRequestUserIds),
+                initialData: AuthRes(HttpResponseOk(
+                    ExploreDataLoaded(exploreUsers: users), null))))
       ],
       child:
           ExplorePage(pageController: pageController, navBarState: navBarState),
@@ -58,7 +62,7 @@ class ExplorePage extends StatelessWidget {
       );
 
   Widget _authCheck(BuildContext context,
-      AuthResOrLost<HttpResponse<ExploreDataModel>> data) {
+      AuthResOrLost<HttpResponse<ExploreDataLoaded>> data) {
     switch (data) {
       case AuthRes(data: final response):
         return _responseCheck(context, response);
@@ -68,7 +72,7 @@ class ExplorePage extends StatelessWidget {
   }
 
   Widget _responseCheck(
-      BuildContext context, HttpResponse<ExploreDataModel> data) {
+      BuildContext context, HttpResponse<ExploreDataLoaded> data) {
     switch (data) {
       case HttpResponseFailure():
         return const ExploreEmptyPageRefresher();
@@ -79,8 +83,8 @@ class ExplorePage extends StatelessWidget {
     }
   }
 
-  Widget _exploreContent(BuildContext context, ExploreDataModel data) {
-    if (data.users.isEmpty) {
+  Widget _exploreContent(BuildContext context, ExploreDataLoaded data) {
+    if (data.exploreUsers.isEmpty) {
       return const ExploreEmptyPageRefresher();
     } else {
       return PageView.builder(
@@ -91,7 +95,7 @@ class ExplorePage extends StatelessWidget {
             NavBarHoldingLogoState(countdown: final countdown) => countdown,
             _ => null,
           },
-          user: data.users.toList()[page % data.users.length],
+          user: data.exploreUsers.toList()[page % data.exploreUsers.length],
           pageController: pageController,
         ),
       );
@@ -104,10 +108,17 @@ class ExploreEmptyPageRefresher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-        child: const EmptyPage(),
-        onTap: () => BlocProvider.of<ExploreBloc>(context).add(
+    return RefreshIndicator(
+        child: Stack(
+          children: [
+            /// this is a trick to make the refresh indicator work for a single
+            /// not scrollable widget child
+            ListView(),
+            const EmptyPage(),
+          ],
+        ),
+        onRefresh: () => Future(() => BlocProvider.of<ExploreBloc>(context).add(
               const LoaderLoadEvent(null),
-            ));
+            )));
   }
 }

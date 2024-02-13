@@ -1,15 +1,22 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_types/json.dart';
 import 'user.dart';
 
-class ExploreDataModel extends Json {
-  Iterable<ExploreUser> get users => [];
+final class ExploreDataModel extends Json {
+  final exploreJson = Json.objectList('exploreUsers', User.parser);
+
+  List<User> get explore => exploreJson.value;
   ExploreDataModel.parse(super.json) : super.parse();
+  ExploreDataModel.parser() : super();
+  @override
+  List<JsonKey<dynamic, dynamic>> get keys => [exploreJson];
+}
 
-  const ExploreDataModel.parser() : super();
+final class ExploreDataLoaded extends Equatable {
+  final List<ExploreUser> exploreUsers;
 
-  factory ExploreDataModel.manual(Iterable<ExploreUser> newUsers) =>
-      const ExploreDataModel.parser();
+  const ExploreDataLoaded({required this.exploreUsers}) : super();
 
   @override
-  List<JsonKey<dynamic, dynamic>> get keys => [];
+  List<Object?> get props => [exploreUsers];
 }
