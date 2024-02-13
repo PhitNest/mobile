@@ -30,7 +30,7 @@ final class LoginPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 40),
               child: LoginProvider(
                 createControllers: (_) => LoginControllers(),
-                createLoader: (_) => LoaderBloc(load: Cognito.instance.login),
+                createLoader: (_) => LoaderBloc(load: login),
                 createConsumer: (context, controllers, submit) =>
                     LoaderConsumer(
                   listener: (context, loaderState) =>

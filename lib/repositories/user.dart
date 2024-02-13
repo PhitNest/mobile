@@ -1,4 +1,4 @@
-import '../entities/session.dart';
+import '../entities/session/session.dart';
 import '../util/http/http.dart';
 
 Future<HttpResponse<void>> deleteUser(Session session) => request(

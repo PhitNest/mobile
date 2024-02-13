@@ -87,7 +87,7 @@ Future<AuthResOrLost<ResType>> _handleRequest<ReqType, ResType>(
     default:
   }
   // Try to restore the session from local storage.
-  final response = await Cognito.instance.getPreviousSession();
+  final response = await getPreviousSession();
   sessionLoader.add(LoaderSetEvent(response));
   switch (response) {
     case RefreshSessionSuccess(session: final session):
