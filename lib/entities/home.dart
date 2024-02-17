@@ -7,12 +7,14 @@ import 'user.dart';
 
 final class HomeData extends Equatable {
   final UserWithEmail user;
-  final List<ExploreUser> explore;
-  final List<FriendRequest> friendRequests;
+  final List<FriendRequest> sentRequests;
+  final List<FriendRequest> receivedRequests;
+  final List<User> explore;
 
   const HomeData({
     required this.user,
-    required this.friendRequests,
+    required this.sentRequests,
+    required this.receivedRequests,
     required this.explore,
   }) : super();
 
@@ -21,13 +23,14 @@ final class HomeData extends Equatable {
         json,
         {
           'user': UserWithEmail.fromJson.required,
-          'friendRequests': FriendRequest.fromJson.list,
+          'sentRequests': FriendRequest.fromJson.list,
+          'receivedRequests': FriendRequest.fromJson.list,
           'explore': User.fromJson.list,
         },
       );
 
   @override
-  List<Object?> get props => [user, friendRequests, explore];
+  List<Object?> get props => [user, sentRequests, receivedRequests, explore];
 }
 
 sealed class HomeDataPicturesLoaded extends Equatable {

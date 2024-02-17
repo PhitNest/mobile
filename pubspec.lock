@@ -596,10 +596,10 @@ packages:
     dependency: "direct main"
     description:
       name: parse_json
-      sha256: "2e59924065965c330caa8378b0a37f680acd5d9bdbc8ed4b9d2223e9b5bb9924"
+      sha256: "37e89891d286abf76d676b5f7c7caf5c871f507e02d377ee010741d0271becc1"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.2"
+    version: "2.2.3"
   path:
     dependency: transitive
     description:

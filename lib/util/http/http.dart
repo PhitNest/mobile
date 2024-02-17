@@ -130,9 +130,10 @@ Future<HttpResponse<ResType>> request<ResType>({
             return HttpResponseOk(parsed, response.headers);
           } else {
             // Handle unsuccessful responses
-            final parsed = Failure.fromJson(jsonData as Map<String, dynamic>);
             await logError('Request failure:',
-                details: responseDetails(parsed), userId: session?.userId);
+                details: responseDetails([jsonData.toString()]),
+                userId: session?.userId);
+            final parsed = Failure.fromJson(jsonData as Map<String, dynamic>);
             return HttpResponseFailure(parsed, response.headers);
           }
         } else {

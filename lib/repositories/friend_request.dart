@@ -17,7 +17,8 @@ Future<HttpResponse<FriendRequest>> sendFriendRequest(
     );
 
 Future<HttpResponse<void>> deleteFriendRequest(
-  String receiverId,
+  String friendRequestSenderId,
+  String friendRequestReceiverId,
   Session session,
 ) =>
     request(
@@ -25,7 +26,8 @@ Future<HttpResponse<void>> deleteFriendRequest(
       method: HttpMethod.delete,
       session: session,
       data: {
-        'friendId': receiverId,
+        'friendRequestSenderId': friendRequestSenderId,
+        'friendRequestReceiverId': friendRequestReceiverId,
       },
       parse: (_) {},
     );

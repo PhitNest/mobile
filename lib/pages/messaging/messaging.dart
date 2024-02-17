@@ -19,12 +19,14 @@ part 'bloc.dart';
 
 final class MessagingPage extends StatelessWidget {
   final String userId;
-  final User friend;
+  final FriendRequest friendship;
+
+  User get friend => friendship.other(userId);
 
   const MessagingPage({
     super.key,
     required this.userId,
-    required this.friend,
+    required this.friendship,
   }) : super();
 
   @override
@@ -33,9 +35,10 @@ final class MessagingPage extends StatelessWidget {
           sessionLoader: context.sessionLoader,
           loadOnStart: const LoadOnStart(null),
           load: (_, session) async {
-            final connection = WebSocketChannel.connect(
-                Uri.parse('$kWebsocketUrl?authorization='
-                    '${session.accessToken}'));
+            final connection = WebSocketChannel.connect(Uri.parse(
+                '$kWebsocketUrl?friendRequestSenderId=${friendship.sender.id}'
+                '&friendRequestReceiverId=${friendship.receiver.id}'
+                '&authorization=${session.accessToken}'));
             await connection.ready;
             return connection;
           },
@@ -91,8 +94,11 @@ final class MessagingPage extends StatelessWidget {
                             create: (context) => ConversationLoaderBloc(
                               sessionLoader: context.sessionLoader,
                               loadOnStart: const LoadOnStart(null),
-                              load: (_, session) =>
-                                  conversation(friend.id, session),
+                              load: (_, session) => conversation(
+                                friendship.sender.id,
+                                friendship.receiver.id,
+                                session,
+                              ),
                             ),
                             child: ConversationLoaderConsumer(
                               listener:

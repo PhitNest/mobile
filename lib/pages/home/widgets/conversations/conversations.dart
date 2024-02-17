@@ -28,20 +28,21 @@ final class ConversationsPage extends StatelessWidget {
                 itemCount: friends.length,
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, i) => Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: GestureDetector(
-                    child: Text(
-                      friends[i].other(userId).fullName,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    onTap: () => Navigator.push(
+                    padding: const EdgeInsets.all(8),
+                    child: GestureDetector(
+                      child: Text(
+                        friends[i].other(userId).fullName,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      onTap: () => Navigator.push(
                         context,
                         CupertinoPageRoute<void>(
                             builder: (context) => MessagingPage(
-                                userId: userId,
-                                friend: friends[i].other(userId)))),
-                  ),
-                ),
+                                  userId: userId,
+                                  friendship: friends[i],
+                                )),
+                      ),
+                    )),
               ),
             ),
           ],

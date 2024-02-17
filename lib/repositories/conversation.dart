@@ -2,7 +2,8 @@ import '../entities/entities.dart';
 import '../util/http/http.dart';
 
 Future<HttpResponse<Conversation>> conversation(
-  String friendId,
+  String friendRequestSenderId,
+  String friendRequestReceiverId,
   Session session,
 ) =>
     request(
@@ -10,7 +11,8 @@ Future<HttpResponse<Conversation>> conversation(
       method: HttpMethod.get,
       session: session,
       data: {
-        'friendId': friendId,
+        'friendRequestSenderId': friendRequestSenderId,
+        'friendRequestReceiverId': friendRequestReceiverId,
       },
       parse: Conversation.fromJson,
     );

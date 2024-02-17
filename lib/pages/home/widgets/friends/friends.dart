@@ -25,7 +25,7 @@ class FriendsPage extends StatelessWidget {
         create: (context) => DeleteFriendRequestBloc(
           sessionLoader: context.sessionLoader,
           load: (friendship, session) => deleteFriendRequest(
-              friendship.other(homeData.user.id).id, session),
+              friendship.sender.id, friendship.receiver.id, session),
         ),
         child: DeleteFriendRequestConsumer(
           listener: (context, deleteFriendshipLoaderState) =>

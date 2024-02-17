@@ -11,15 +11,20 @@ Future<HttpResponse<HomeDataPicturesLoaded>> getHomeData(
       final sentRequestUserIds = <String, FriendRequest>{};
       final friendUserIds = <String, FriendRequest>{};
 
-      for (final friendRequest in data.friendRequests) {
+      for (final friendRequest in data.sentRequests) {
+        sentRequestUserIds.putIfAbsent(
+            friendRequest.receiver.id, () => friendRequest);
         if (friendRequest.accepted) {
           friendUserIds.putIfAbsent(
-              friendRequest.other(data.user.id).id, () => friendRequest);
-        } else if (friendRequest.sender.id == data.user.id) {
-          sentRequestUserIds.putIfAbsent(
               friendRequest.receiver.id, () => friendRequest);
-        } else {
-          receivedRequestUserIds.putIfAbsent(
+        }
+      }
+
+      for (final friendRequest in data.receivedRequests) {
+        receivedRequestUserIds.putIfAbsent(
+            friendRequest.receiver.id, () => friendRequest);
+        if (friendRequest.accepted) {
+          friendUserIds.putIfAbsent(
               friendRequest.sender.id, () => friendRequest);
         }
       }
