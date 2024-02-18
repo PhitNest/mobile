@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import 'session/session.dart';
+import '../../session/session.dart';
 
 sealed class RefreshSessionResponse extends Equatable {
   const RefreshSessionResponse();

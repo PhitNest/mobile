@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../entities/entities.dart';
-import '../../repositories/cognito/cognito.dart';
 import '../../repositories/repositories.dart';
+import '../../use_cases/profile_pictures.dart';
 import '../../use_cases/use_cases.dart';
 import '../../util/bloc/bloc.dart';
 import '../../util/http/http.dart';
@@ -33,9 +33,9 @@ class _HomePageState extends State<HomePage> {
           child: MultiBlocProvider(
             providers: [
               BlocProvider(
-                create: (context) => UserBloc(
+                create: (context) => HomeBloc(
                     sessionLoader: context.sessionLoader,
-                    load: (_, session) => getHomeData(session),
+                    load: (_, session) => homeDataWithProfilePictures(session),
                     loadOnStart: const LoadOnStart(null)),
               ),
               BlocProvider(
@@ -62,11 +62,11 @@ class _HomePageState extends State<HomePage> {
                 listener: _handleLogoutStateChanged,
                 builder: (context, logoutState) => NavBarConsumer(
                   pageController: pageController,
-                  builder: (context, navBarState) => UserConsumer(
-                    listener: (context, userState) =>
+                  builder: (context, navBarState) => HomeConsumer(
+                    listener: (context, homeState) =>
                         _handleHomeDataStateChanged(
-                            context, userState, navBarState),
-                    builder: (context, userState) {
+                            context, homeState, navBarState),
+                    builder: (context, homeState) {
                       final loader = Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -82,7 +82,7 @@ class _HomePageState extends State<HomePage> {
                       );
                       homeBuilder() => _homeBuilder(
                             logoutState,
-                            userState,
+                            homeState,
                             navBarState,
                             loader,
                           );
@@ -109,50 +109,50 @@ class _HomePageState extends State<HomePage> {
       );
 
   Widget _homeBuilder(
-          LoaderState<AuthResOrLost<void>> logoutState,
-          LoaderState<AuthResOrLost<HttpResponse<HomeDataPicturesLoaded>>>
-              userState,
-          NavBarState navBarState,
-          Column loader) =>
+    LoaderState<AuthResOrLost<void>> logoutState,
+    LoaderState<AuthResOrLost<HttpResponse<HomeResponseWithProfilePictures>>>
+        homeState,
+    NavBarState navBarState,
+    Column loader,
+  ) =>
       switch (logoutState) {
-        LoaderInitialState() => switch (userState) {
+        LoaderInitialState() => switch (homeState) {
             LoaderLoadedState(data: final response) => switch (response) {
                 AuthRes(data: final response) => switch (response) {
-                    HttpResponseSuccess(data: final homeData) => switch (
-                          homeData) {
-                        HomeDataLoaded() => SendFriendRequestConsumer(
-                            listener: (context, sendFriendRequestState) =>
-                                _handleSendFriendRequestStateChanged(
-                              context,
-                              sendFriendRequestState,
-                              homeData,
-                            ),
-                            builder: (context, sendFriendRequestState) =>
-                                switch (navBarState) {
-                              NavBarReversedState() =>
-                                const Center(child: Text('You have matched!')),
-                              _ => switch (navBarState.page) {
-                                  NavBarPage.explore => ExplorePage(
-                                      pageController: pageController,
-                                      users: homeData.exploreUsers,
-                                      navBarState: navBarState,
-                                    ),
-                                  NavBarPage.chat => ConversationsPage(
-                                      userId: homeData.user.id,
-                                      friends: homeData.friends,
-                                    ),
-                                  NavBarPage.friends =>
-                                    FriendsPage(homeData: homeData),
-                                  NavBarPage.options => OptionsPage(
-                                      user: homeData.user,
-                                      profilePicture: homeData.profilePicture,
-                                    ),
-                                },
+                    HttpResponseSuccess(data: final homeData) =>
+                      SendFriendRequestConsumer(
+                        listener: (context, sendFriendRequestState) =>
+                            _handleSendFriendRequestStateChanged(
+                          context,
+                          sendFriendRequestState,
+                          homeData,
+                        ),
+                        builder: (context, sendFriendRequestState) =>
+                            switch (navBarState) {
+                          NavBarReversedState() =>
+                            const Center(child: Text('You have matched!')),
+                          _ => switch (navBarState.page) {
+                              NavBarPage.explore => ExplorePage(
+                                  pageController: pageController,
+                                  homeResponse: homeData,
+                                  navBarState: navBarState,
+                                ),
+                              NavBarPage.chat => ConversationsPage(
+                                  userId: homeData.user.id,
+                                  friends: homeData.friends,
+                                ),
+                              NavBarPage.friends =>
+                                FriendsPage(homeData: homeData),
+                              NavBarPage.options => OptionsPage(
+                                  user: homeData.user,
+                                  profilePicture: homeData.profilePicture ??
+                                      const CircularProgressIndicator
+                                          .adaptive(),
+                                ),
                             },
-                          ),
-                        _ => loader,
-                      },
-                    _ => loader,
+                        },
+                      ),
+                    HttpResponseFailure() => loader,
                   },
                 _ => loader,
               },

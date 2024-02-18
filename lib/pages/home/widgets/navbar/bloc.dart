@@ -369,23 +369,22 @@ void _handleNavBarStateChanged(
           switch (response) {
             case HttpResponseSuccess(data: final response):
               switch (response) {
-                case HomeDataLoaded(exploreUsers: final exploreUsers):
+                case HomeResponseWithProfilePictures(explore: final explore):
                   switch (state) {
                     case NavBarInactiveState(page: final page):
                       if (page == NavBarPage.explore) {
-                        if (exploreUsers.isNotEmpty) {
+                        if (explore.isNotEmpty) {
                           context.navBarBloc.add(const NavBarAnimateEvent());
                         }
                       }
                     case NavBarSendingFriendRequestState():
                       final currentPage =
-                          pageController.page!.round() % exploreUsers.length;
-                      final user = exploreUsers[currentPage];
+                          pageController.page!.round() % explore.length;
+                      final user = explore[currentPage];
                       context.sendFriendRequestBloc
                           .add(ParallelPushEvent(user));
                     default:
                   }
-                default:
               }
             default:
           }

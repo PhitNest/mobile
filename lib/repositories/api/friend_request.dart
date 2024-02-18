@@ -1,6 +1,6 @@
-import '../entities/friend_request.dart';
-import '../entities/session/session.dart';
-import '../util/http/http.dart';
+import '../../entities/api/friend_request.dart';
+import '../../entities/session/session.dart';
+import '../../util/http/http.dart';
 
 Future<HttpResponse<FriendRequest>> sendFriendRequest(
   String receiverId,

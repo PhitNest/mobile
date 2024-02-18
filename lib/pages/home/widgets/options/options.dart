@@ -9,7 +9,7 @@ import '../../home.dart';
 
 class OptionsPage extends StatelessWidget {
   final UserWithEmail user;
-  final Image profilePicture;
+  final Widget profilePicture;
 
   const OptionsPage({
     super.key,

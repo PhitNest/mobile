@@ -1,19 +1,20 @@
 part of 'home.dart';
 
 typedef SendFriendRequestBloc
-    = AuthParallelLoaderBloc<ExploreUser, HttpResponse<FriendRequest>>;
+    = AuthParallelLoaderBloc<User, HttpResponse<FriendRequest>>;
 typedef SendFriendRequestConsumer
-    = AuthParallelLoaderConsumer<ExploreUser, HttpResponse<FriendRequest>>;
+    = AuthParallelLoaderConsumer<User, HttpResponse<FriendRequest>>;
 
 typedef DeleteUserBloc = AuthLoaderBloc<void, HttpResponse<bool>>;
 typedef DeleteUserConsumer = AuthLoaderConsumer<void, HttpResponse<bool>>;
 
-typedef UserBloc = AuthLoaderBloc<void, HttpResponse<HomeDataPicturesLoaded>>;
-typedef UserConsumer
-    = AuthLoaderConsumer<void, HttpResponse<HomeDataPicturesLoaded>>;
+typedef HomeBloc
+    = AuthLoaderBloc<void, HttpResponse<HomeResponseWithProfilePictures>>;
+typedef HomeConsumer
+    = AuthLoaderConsumer<void, HttpResponse<HomeResponseWithProfilePictures>>;
 
 extension HomeBlocGetters on BuildContext {
-  UserBloc get homeBloc => authLoader();
+  HomeBloc get homeBloc => authLoader();
   SendFriendRequestBloc get sendFriendRequestBloc => authParallelBloc();
   DeleteUserBloc get deleteUserBloc => authLoader();
 }
@@ -44,7 +45,8 @@ void _handleLogoutStateChanged(
 
 Future<void> _handleHomeDataStateChanged(
   BuildContext context,
-  LoaderState<AuthResOrLost<HttpResponse<HomeDataPicturesLoaded>>> loaderState,
+  LoaderState<AuthResOrLost<HttpResponse<HomeResponseWithProfilePictures>>>
+      loaderState,
   NavBarState navBarState,
 ) async {
   switch (loaderState) {
@@ -54,53 +56,45 @@ Future<void> _handleHomeDataStateChanged(
           _goToLogin(context, message);
         case AuthRes(data: final response):
           switch (response) {
+            case HttpResponseSuccess(data: final data, headers: final headers):
+              final navbarBloc = context.navBarBloc;
+              if (data.profilePicture == null) {
+                Image? image;
+                final homeBloc = context.homeBloc;
+                while (image == null) {
+                  image = await Navigator.push(
+                    context,
+                    CupertinoPageRoute<Image>(
+                      builder: (_) => const PhotoInstructionsPage(),
+                    ),
+                  );
+                }
+                homeBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
+                    HomeResponseWithProfilePictures(
+                        explore: data.explore,
+                        user: data.user,
+                        profilePicture: image,
+                        sentRequests: data.sentRequests,
+                        receivedRequests: data.receivedRequests),
+                    headers))));
+              }
+              navbarBloc
+                  .add(NavBarSetNumAlertsEvent(data.pendingRequests.length));
+              switch (navBarState) {
+                case NavBarInitialState(page: final page):
+                  if (page == NavBarPage.explore && data.explore.isNotEmpty) {
+                    navbarBloc.add(const NavBarAnimateEvent());
+                  } else {
+                    navbarBloc.add(const NavBarSetLoadingEvent(false));
+                  }
+                default:
+              }
             case HttpResponseFailure(failure: final failure):
               StyledBanner.show(
                 message: failure.message,
                 error: true,
               );
               context.homeBloc.add(const LoaderLoadEvent(null));
-            case HttpResponseSuccess(data: final response):
-              switch (response) {
-                case HomeDataLoaded(
-                    exploreUsers: final exploreUsers,
-                    receivedFriendRequests: final receivedRequests,
-                  ):
-                  context.navBarBloc
-                      .add(NavBarSetNumAlertsEvent(receivedRequests.length));
-                  switch (navBarState) {
-                    case NavBarInitialState(page: final page):
-                      if (page == NavBarPage.explore &&
-                          exploreUsers.isNotEmpty) {
-                        context.navBarBloc.add(const NavBarAnimateEvent());
-                      } else {
-                        context.navBarBloc
-                            .add(const NavBarSetLoadingEvent(false));
-                      }
-                    default:
-                  }
-                case FailedToLoadProfilePicture():
-                  Image? image;
-                  final userBloc = context.homeBloc;
-                  while (image == null) {
-                    image = await Navigator.push(
-                      context,
-                      CupertinoPageRoute<Image>(
-                        builder: (_) => const PhotoInstructionsPage(),
-                      ),
-                    );
-                  }
-                  userBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
-                      HomeDataLoaded(
-                        user: response.user,
-                        exploreUsers: response.exploreUsers,
-                        receivedFriendRequests: response.receivedFriendRequests,
-                        friends: response.friends,
-                        profilePicture: image,
-                      ),
-                      null))));
-                default:
-              }
           }
       }
     default:
@@ -140,37 +134,33 @@ void _handleDeleteUserStateChanged(
 
 void _handleSendFriendRequestStateChanged(
   BuildContext context,
-  ParallelLoaderState<ExploreUser, AuthResOrLost<HttpResponse<FriendRequest>>>
+  ParallelLoaderState<User, AuthResOrLost<HttpResponse<FriendRequest>>>
       loaderState,
-  HomeDataLoaded homeData,
+  HomeResponseWithProfilePictures homeData,
 ) {
   switch (loaderState) {
-    case ParallelLoadedState(data: final response, req: final req):
+    case ParallelLoadedState(data: final response, req: final user):
       switch (response) {
         case AuthRes(data: final data):
           switch (data) {
             case HttpResponseSuccess(data: final data):
+              final request = homeData.sentRequests.firstWhere(
+                  (element) => element.other(homeData.user.id).id == user.id);
               if (data.accepted) {
                 context.homeBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
-                    HomeDataLoaded(
+                    HomeResponseWithProfilePictures(
                       user: homeData.user,
                       profilePicture: homeData.profilePicture,
-                      exploreUsers: homeData.exploreUsers
-                        ..removeWhere((element) =>
-                            element.id == data.other(homeData.user.id).id),
-                      receivedFriendRequests: homeData.receivedFriendRequests
-                        ..removeWhere(
-                          (element) =>
-                              element.other(homeData.user.id).id ==
-                              data.other(homeData.user.id).id,
-                        ),
-                      friends: homeData.friends
+                      explore: homeData.explore..remove(user),
+                      receivedRequests: homeData.receivedRequests
+                        ..remove(request)
                         ..add(FriendRequestWithProfilePicture(
-                            accepted: data.accepted,
-                            createdAt: data.createdAt,
-                            receiver: data.receiver,
-                            sender: data.sender,
-                            profilePicture: req.profilePicture)),
+                            accepted: true,
+                            profilePicture: request.profilePicture,
+                            sender: request.sender,
+                            receiver: request.receiver,
+                            createdAt: request.createdAt)),
+                      sentRequests: homeData.sentRequests,
                     ),
                     null))));
                 context.navBarBloc.add(const NavBarReverseEvent());
@@ -180,19 +170,10 @@ void _handleSendFriendRequestStateChanged(
                   error: false,
                 );
                 context.homeBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
-                    HomeDataLoaded(
-                      exploreUsers: homeData.exploreUsers
-                        ..removeWhere(
-                          (element) =>
-                              element.id == data.other(homeData.user.id).id,
-                        ),
-                      receivedFriendRequests: homeData.receivedFriendRequests
-                        ..removeWhere(
-                          (element) =>
-                              element.other(homeData.user.id).id ==
-                              data.other(homeData.user.id).id,
-                        ),
-                      friends: homeData.friends,
+                    HomeResponseWithProfilePictures(
+                      explore: homeData.explore..remove(user),
+                      receivedRequests: homeData.receivedRequests,
+                      sentRequests: homeData.sentRequests..add(request),
                       user: homeData.user,
                       profilePicture: homeData.profilePicture,
                     ),

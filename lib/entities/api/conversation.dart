@@ -2,16 +2,15 @@ import 'package:equatable/equatable.dart';
 import 'package:parse_json/parse_json.dart';
 
 final class Conversation extends Equatable {
-  late final List<Message> messages;
+  final List<Message> messages;
 
   static final properties = {
     'messages': Message.fromJson.list,
   };
 
-  Conversation({
-    required List<Message> messages,
-  })  : messages = messages..sort((a, b) => a.messageId.compareTo(b.messageId)),
-        super();
+  const Conversation({
+    required this.messages,
+  }) : super();
 
   factory Conversation.fromJson(dynamic json) =>
       parse(Conversation.new, json, properties);
@@ -21,20 +20,20 @@ final class Conversation extends Equatable {
 }
 
 final class Message extends Equatable {
-  final int messageId;
+  final String id;
   final String senderId;
   final String receiverId;
   final String content;
 
   static const properties = {
-    'messageId': integer,
+    'id': string,
     'senderId': string,
     'receiverId': string,
     'content': string,
   };
 
   const Message({
-    required this.messageId,
+    required this.id,
     required this.senderId,
     required this.receiverId,
     required this.content,
@@ -44,5 +43,5 @@ final class Message extends Equatable {
       parse(Message.new, json, properties);
 
   @override
-  List<Object?> get props => [messageId, senderId, receiverId, content];
+  List<Object?> get props => [id, senderId, receiverId, content];
 }

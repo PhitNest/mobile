@@ -11,7 +11,7 @@ extension on BuildContext {
 
 void _handleSendFriendRequestStateChanged(
   BuildContext context,
-  ParallelLoaderState<ExploreUser, AuthResOrLost<HttpResponse<FriendRequest>>>
+  ParallelLoaderState<User, AuthResOrLost<HttpResponse<FriendRequest>>>
       loaderState,
 ) {
   switch (loaderState) {
@@ -51,7 +51,7 @@ void _handleDeleteFriendshipStateChanged(
   ParallelLoaderState<FriendRequestWithProfilePicture,
           AuthResOrLost<HttpResponse<void>>>
       loaderState,
-  HomeDataLoaded homeData,
+  HomeResponseWithProfilePictures homeData,
 ) {
   switch (loaderState) {
     case ParallelLoadedState(data: final response, req: final req):
@@ -66,10 +66,10 @@ void _handleDeleteFriendshipStateChanged(
                 );
                 final otherUser = req.other(homeData.user.id);
                 context.homeBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
-                    HomeDataLoaded(
+                    HomeResponseWithProfilePictures(
                       user: homeData.user,
                       profilePicture: homeData.profilePicture,
-                      exploreUsers: homeData.exploreUsers
+                      explore: homeData.explore
                         ..add(ExploreUser(
                           firstName: otherUser.firstName,
                           lastName: otherUser.lastName,
@@ -77,8 +77,8 @@ void _handleDeleteFriendshipStateChanged(
                           identityId: otherUser.identityId,
                           profilePicture: req.profilePicture,
                         )),
-                      receivedFriendRequests: homeData.receivedFriendRequests,
-                      friends: homeData.friends..remove(req),
+                      receivedRequests: homeData.receivedRequests..remove(req),
+                      sentRequests: homeData.sentRequests..remove(req),
                     ),
                     null))));
               }

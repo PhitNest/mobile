@@ -1,5 +1,5 @@
-import '../entities/entities.dart';
-import '../util/http/http.dart';
+import '../../entities/entities.dart';
+import '../../util/http/http.dart';
 
 Future<HttpResponse<Conversation>> conversation(
   String friendRequestSenderId,

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import 'entities.dart';
+import '../../entities.dart';
 
 sealed class RegisterResponse extends Equatable {
   const RegisterResponse();
