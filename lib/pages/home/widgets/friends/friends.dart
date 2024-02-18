@@ -13,9 +13,13 @@ import '../../../pages.dart';
 part 'bloc.dart';
 
 class FriendsPage extends StatelessWidget {
-  final HomeDataLoaded homeData;
+  final HomeResponseWithProfilePictures homeData;
+  late final List<FriendRequestWithProfilePicture> friends = homeData.friends;
+  late final List<FriendRequestWithProfilePicture> pendingRequests =
+      homeData.pendingRequests;
 
-  const FriendsPage({
+  // ignore: prefer_const_constructors_in_immutables
+  FriendsPage({
     super.key,
     required this.homeData,
   }) : super();
@@ -51,13 +55,11 @@ class FriendsPage extends StatelessWidget {
                     Expanded(
                       child: ListView.builder(
                         padding: EdgeInsets.zero,
-                        itemCount: homeData.receivedFriendRequests.length,
+                        itemCount: pendingRequests.length,
                         itemBuilder: (context, i) => FriendRequestWidget(
-                            loading: loadingIds.contains(homeData
-                                .receivedFriendRequests[i]
-                                .other(homeData.user.id)
-                                .id),
-                            request: homeData.receivedFriendRequests[i]),
+                            loading: loadingIds.contains(
+                                pendingRequests[i].other(homeData.user.id).id),
+                            request: pendingRequests[i]),
                       ),
                     ),
                     Text(
@@ -66,18 +68,17 @@ class FriendsPage extends StatelessWidget {
                     ),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: homeData.friends.length,
+                        itemCount: friends.length,
                         padding: EdgeInsets.zero,
                         itemBuilder: (context, i) => Padding(
                           padding: const EdgeInsets.all(8),
-                          child: loadingIds.contains(homeData.friends[i]
-                                  .other(homeData.user.id)
-                                  .id)
+                          child: loadingIds.contains(
+                                  friends[i].other(homeData.user.id).id)
                               ? const Center(child: CircularProgressIndicator())
                               : Row(
                                   children: [
                                     Text(
-                                      homeData.friends[i]
+                                      friends[i]
                                           .other(homeData.user.id)
                                           .fullName,
                                       style: theme.textTheme.bodyMedium,
@@ -87,8 +88,7 @@ class FriendsPage extends StatelessWidget {
                                       vPadding: 9,
                                       onPress: () => context
                                           .deleteFriendshipBloc
-                                          .add(ParallelPushEvent(
-                                              homeData.friends[i])),
+                                          .add(ParallelPushEvent(friends[i])),
                                       text: 'REMOVE',
                                     )
                                   ],

@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:logger/logger.dart' hide LogEvent;
 
 import '../entities/log_event.dart';
-import '../repositories/log_event.dart';
+import '../repositories/api/log_event.dart';
 
 const kDetailLinePrefix = '\n\t';
 

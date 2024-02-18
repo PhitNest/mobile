@@ -64,7 +64,7 @@ class MessagingCubit extends Cubit<Iterable<Message>> {
 
         addMessage(Message(
           receiverId: friend.id,
-          messageId: state.length,
+          id: state.length.toString(),
           senderId: userId,
           content: message,
         ));
