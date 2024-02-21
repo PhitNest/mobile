@@ -18,25 +18,26 @@ extension on BuildContext {
 typedef LoginProvider
     = FormProvider<LoginControllers, LoginParams, LoginResponse>;
 
-void _handleStateChanged(BuildContext context, LoginControllers controllers,
-    LoaderState<LoginResponse> loaderState) {
-  switch (loaderState) {
-    case LoaderLoadedState(data: final response):
-      switch (response) {
-        case LoginSuccess():
-          Navigator.pushAndRemoveUntil(
+void _handleState(
+  BuildContext context,
+  LoginControllers controllers,
+  LoaderState<LoginResponse> loaderState,
+) =>
+    loaderState.handle(
+      loaded: (response) => switch (response) {
+        LoginSuccess() => Navigator.pushAndRemoveUntil(
             context,
             CupertinoPageRoute<void>(
               builder: (_) => const HomePage(),
             ),
             (_) => false,
-          );
-        case LoginConfirmationRequired(session: final session):
+          ),
+        LoginConfirmationRequired(session: final session) =>
           Navigator.pushReplacement(
             context,
             CupertinoPageRoute<void>(
               builder: (context) => VerificationPage(
-                unauthenticatedSession: session,
+                session: session,
                 resend: (session) => resendConfirmationEmail(session),
                 confirm: (session, code) => confirmEmail(
                   session: session,
@@ -45,15 +46,14 @@ void _handleStateChanged(BuildContext context, LoginControllers controllers,
                 loginParams: _params(controllers),
               ),
             ),
-          );
-        case LoginFailureResponse(message: final message) ||
-              LoginUnknownResponse(message: final message) ||
-              LoginChangePasswordRequired(message: final message):
+          ),
+        LoginFailureResponse(message: final message) ||
+        LoginUnknownResponse(message: final message) ||
+        LoginChangePasswordRequired(message: final message) =>
           StyledBanner.show(
             message: message,
             error: true,
-          );
-      }
-    default:
-  }
-}
+          ),
+      },
+      fallback: () {},
+    );

@@ -38,14 +38,18 @@ final class _FormProvider<
     ResType> extends StatelessWidget {
   final Controllers Function(BuildContext context) createControllers;
   final BlocType Function(BuildContext) createLoader;
-  final ConsumerType Function(BuildContext context, Controllers controllers,
-          void Function(ReqType req, LoaderState<ResType> loaderState) submit)
-      createConsumer;
+  final ConsumerType Function(
+    BuildContext context,
+    Controllers controllers,
+    void Function(ReqType req, LoaderState<ResType> loaderState) submit,
+  ) createConsumer;
 
   void _submit(BuildContext context, ReqType request) =>
       context.formBloc<Controllers>().submit(
-          onAccept: () =>
-              BlocProvider.of<BlocType>(context).add(LoaderLoadEvent(request)));
+            onAccept: () => BlocProvider.of<BlocType>(context).add(
+              LoaderLoadEvent(request),
+            ),
+          );
 
   const _FormProvider({
     required this.createLoader,

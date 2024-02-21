@@ -32,6 +32,7 @@ final class PhitNestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BlocProvider(
         create: (_) => SessionBloc(load: refreshSession),
+        // Unfocuses the keyboard when the user taps outside of a text field
         child: GestureDetector(
           onTap: () {
             final currentFocus = FocusScope.of(context);
@@ -46,6 +47,8 @@ final class PhitNestApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             scaffoldMessengerKey: StyledBanner.scaffoldMessengerKey,
             home: Scaffold(
+              // Checks cache for previous session, tries to refresh it if
+              // needed, and navigates to the appropriate page
               body: RestorePreviousSessionProvider(
                 onSessionRestoreFailed: (context) =>
                     Navigator.pushAndRemoveUntil(

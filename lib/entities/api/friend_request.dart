@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:parse_json/parse_json.dart';
 
 import 'user.dart';
@@ -31,19 +30,4 @@ final class FriendRequest extends Equatable {
 
   @override
   List<Object?> get props => [accepted, sender, receiver, createdAt];
-}
-
-final class FriendRequestWithProfilePicture extends FriendRequest {
-  final Image profilePicture;
-
-  const FriendRequestWithProfilePicture({
-    required super.accepted,
-    required super.sender,
-    required super.receiver,
-    required super.createdAt,
-    required this.profilePicture,
-  }) : super();
-
-  @override
-  List<Object?> get props => [...super.props, profilePicture];
 }

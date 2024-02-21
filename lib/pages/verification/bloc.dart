@@ -1,6 +1,6 @@
 part of 'verification.dart';
 
-class VerificationControllers extends FormControllers {
+class _VerificationControllers extends FormControllers {
   final focusNode = FocusNode();
   final codeController = TextEditingController();
 
@@ -11,43 +11,35 @@ class VerificationControllers extends FormControllers {
   }
 }
 
-typedef ResendLoaderBloc = LoaderBloc<UnauthenticatedSession, String?>;
-typedef ResendLoaderConsumer = LoaderConsumer<UnauthenticatedSession, String?>;
+typedef _ResendLoaderBloc = LoaderBloc<UnauthenticatedSession, String?>;
+typedef _ResendLoaderConsumer = LoaderConsumer<UnauthenticatedSession, String?>;
 
 extension on BuildContext {
-  ResendLoaderBloc get resendEmailLoaderBloc => loader();
+  _ResendLoaderBloc get resendEmailLoaderBloc => loader();
 }
 
-typedef VerificationProvider
-    = FormProvider<VerificationControllers, String, LoginResponse?>;
+typedef _VerificationProvider
+    = FormProvider<_VerificationControllers, String, LoginResponse>;
 
-void _handleResendStateChanged(
-    BuildContext context, LoaderState<String?> loaderState) {
-  switch (loaderState) {
-    case LoaderLoadedState(data: final error):
-      if (error == null) {
-        StyledBanner.show(
-          message: 'Email resent',
-          error: false,
-        );
-      } else {
-        StyledBanner.show(
-          message: error,
-          error: true,
-        );
-      }
-    default:
-  }
-}
-
-void _handleConfirmStateChanged(
+void _handleResendState(
   BuildContext context,
-  VerificationControllers controllers,
-  LoaderState<LoginResponse?> loaderState,
-) {
-  switch (loaderState) {
-    case LoaderLoadedState(data: final response):
-      if (response != null) {
+  LoaderState<String?> loaderState,
+) =>
+    loaderState.handle(
+      loaded: (error) => StyledBanner.show(
+        message: error ?? 'Email resent',
+        error: error != null,
+      ),
+      fallback: () {},
+    );
+
+void _handleConfirmState(
+  BuildContext context,
+  _VerificationControllers controllers,
+  LoaderState<LoginResponse> loaderState,
+) =>
+    loaderState.handle(
+      loaded: (response) {
         switch (response) {
           case LoginSuccess():
             Navigator.pushAndRemoveUntil(
@@ -61,10 +53,6 @@ void _handleConfirmStateChanged(
             StyledBanner.show(message: message, error: true);
             controllers.codeController.clear();
         }
-      } else {
-        StyledBanner.show(message: 'Invalid code', error: true);
-        controllers.codeController.clear();
-      }
-    default:
-  }
-}
+      },
+      fallback: () {},
+    );

@@ -1,19 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:pin_code_fields/pin_code_fields.dart';
+part of 'verification.dart';
 
-import '../../../theme.dart';
+final class _VerificationField extends StatelessWidget {
+  final _VerificationControllers controllers;
+  final VoidCallback onCompleted;
 
-final class VerificationField extends StatelessWidget {
-  final TextEditingController controller;
-  final FocusNode focusNode;
-  final ValueChanged<String> onChanged;
-  final ValueChanged<String> onCompleted;
-
-  const VerificationField({
-    super.key,
-    required this.controller,
-    required this.focusNode,
-    required this.onChanged,
+  const _VerificationField({
+    required this.controllers,
     required this.onCompleted,
   }) : super();
 
@@ -24,11 +16,11 @@ final class VerificationField extends StatelessWidget {
           appContext: context,
           length: 6,
           validator: (code) => code!.length == 6 ? null : '',
-          onChanged: onChanged,
-          onCompleted: onCompleted,
+          onChanged: (_) {},
+          onCompleted: (_) => onCompleted(),
           textStyle: theme.textTheme.bodyLarge,
-          controller: controller,
-          focusNode: focusNode,
+          controller: controllers.codeController,
+          focusNode: controllers.focusNode,
           autoDisposeControllers: false,
           keyboardType: TextInputType.number,
           pinTheme: PinTheme(

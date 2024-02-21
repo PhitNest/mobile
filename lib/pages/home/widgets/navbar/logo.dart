@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../navbar.dart';
+import 'navbar.dart';
 
 const kLogoAnimationWidth = 8;
 const kLogoWidth = 36.62;
@@ -66,18 +66,18 @@ final class NavBarLogo extends StatelessWidget {
     }
 
     return GestureDetector(
-        onTapCancel: () =>
-            context.navBarBloc.add(const NavBarReleaseLogoEvent()),
-        onTapDown: (_) => context.navBarBloc.add(const NavBarPressLogoEvent()),
-        onTapUp: (_) => context.navBarBloc.add(const NavBarReleaseLogoEvent()),
-        child: switch (state) {
-          NavBarHoldingLogoState() => _logoImage(1, state),
-          NavBarInactiveState() ||
-          NavBarReversedState() ||
-          NavBarSendingFriendRequestState() ||
-          NavBarInitialState() =>
-            _logoImage(0, state),
-          NavBarLogoReadyState() => NavBarAnimation(state: state),
-        });
+      onTapCancel: () => context.navBarBloc.add(const NavBarReleaseLogoEvent()),
+      onTapDown: (_) => context.navBarBloc.add(const NavBarPressLogoEvent()),
+      onTapUp: (_) => context.navBarBloc.add(const NavBarReleaseLogoEvent()),
+      child: switch (state) {
+        NavBarHoldingLogoState() => _logoImage(1, state),
+        NavBarInactiveState() ||
+        NavBarReversedState() ||
+        NavBarSendingFriendRequestState() ||
+        NavBarInitialState() =>
+          _logoImage(0, state),
+        NavBarLogoReadyState() => NavBarAnimation(state: state),
+      },
+    );
   }
 }

@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../constants/constants.dart';
-import '../../../../entities/entities.dart';
 import '../../../../util/bloc/bloc.dart';
 import '../../../../util/http/http.dart';
 import '../../../../util/logger.dart';
 import '../../home.dart';
 import '../styled_indicator.dart';
-import 'widgets/widgets.dart';
+import 'logo.dart';
+import 'page_button.dart';
 
 part 'bloc.dart';
 
@@ -28,7 +28,7 @@ class NavBarConsumer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocConsumer<NavBarBloc, NavBarState>(
-        listener: (context, navBarState) => _handleNavBarStateChanged(
+        listener: (context, navBarState) => _handleNavBarState(
           context,
           pageController,
           navBarState,

@@ -6,7 +6,7 @@ import '../../../messaging/messaging.dart';
 
 final class ConversationsPage extends StatelessWidget {
   final String userId;
-  final List<FriendRequestWithProfilePicture> friends;
+  final List<FriendRequest> friends;
 
   const ConversationsPage({
     super.key,

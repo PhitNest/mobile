@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../entities/entities.dart';
-import '../../../../theme.dart';
-import '../../../../util/bloc/bloc.dart';
-import '../../../../widgets/widgets.dart';
-import '../../home.dart';
+import '../../../entities/entities.dart';
+import '../../../theme.dart';
+import '../../../util/bloc/bloc.dart';
+import '../../../widgets/widgets.dart';
+import '../home.dart';
 
 class OptionsPage extends StatelessWidget {
   final UserWithEmail user;

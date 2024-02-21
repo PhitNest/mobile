@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:parse_json/parse_json.dart';
 
 base class User extends Equatable {
@@ -51,19 +50,4 @@ final class UserWithEmail extends User {
 
   @override
   List<Object> get props => [...super.props, email];
-}
-
-final class ExploreUser extends User {
-  final Image profilePicture;
-
-  const ExploreUser({
-    required super.id,
-    required super.firstName,
-    required super.lastName,
-    required super.identityId,
-    required this.profilePicture,
-  }) : super();
-
-  @override
-  List<Object> get props => [...super.props, profilePicture];
 }

@@ -4,9 +4,9 @@ export 'aws_session.dart';
 export 'local_session.dart';
 
 abstract base class Session extends Equatable {
-  String? get accessToken;
-  String? get idToken;
-  String? get userId;
+  String get accessToken;
+  String get idToken;
+  String get userId;
   bool get valid;
 
   const Session();

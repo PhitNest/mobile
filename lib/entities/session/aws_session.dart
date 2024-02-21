@@ -19,16 +19,16 @@ final class AwsSession extends Session {
   final CognitoUserSession cognitoSession;
 
   @override
-  String? get userId => user.username;
+  String get userId => user.username!;
 
   @override
   bool get valid => cognitoSession.isValid();
 
   @override
-  String? get idToken => cognitoSession.idToken.jwtToken;
+  String get idToken => cognitoSession.idToken.jwtToken!;
 
   @override
-  String? get accessToken => cognitoSession.accessToken.jwtToken;
+  String get accessToken => cognitoSession.accessToken.jwtToken!;
 
   const AwsSession({
     required this.user,

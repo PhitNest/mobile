@@ -357,39 +357,30 @@ extension NavBarBlocGetter on BuildContext {
   NavBarBloc get navBarBloc => BlocProvider.of(this);
 }
 
-void _handleNavBarStateChanged(
+void _handleNavBarState(
   BuildContext context,
   PageController pageController,
   NavBarState state,
-) {
-  switch (context.homeBloc.state) {
-    case LoaderLoadedState(data: final response):
-      switch (response) {
-        case AuthRes(data: final response):
-          switch (response) {
-            case HttpResponseSuccess(data: final response):
-              switch (response) {
-                case HomeResponseWithProfilePictures(explore: final explore):
-                  switch (state) {
-                    case NavBarInactiveState(page: final page):
-                      if (page == NavBarPage.explore) {
-                        if (explore.isNotEmpty) {
-                          context.navBarBloc.add(const NavBarAnimateEvent());
-                        }
-                      }
-                    case NavBarSendingFriendRequestState():
-                      final currentPage =
-                          pageController.page!.round() % explore.length;
-                      final user = explore[currentPage];
-                      context.sendFriendRequestBloc
-                          .add(ParallelPushEvent(user));
-                    default:
-                  }
+) =>
+    context.homeBloc.state.handleAuthHttp(
+      success: (response) {
+        final explore = response.data.explore;
+        final currentPage = pageController.page!.round() % explore.length;
+        final user = explore[currentPage];
+        switch (state) {
+          case NavBarInactiveState(page: final page):
+            if (page == NavBarPage.explore) {
+              if (explore.isNotEmpty &&
+                  !context.sendReportBloc.state.operations
+                      .map((op) => op.req.user.id)
+                      .contains(user.id)) {
+                context.navBarBloc.add(const NavBarAnimateEvent());
               }
-            default:
-          }
-        default:
-      }
-    default:
-  }
-}
+            }
+          case NavBarSendingFriendRequestState():
+            context.sendFriendRequestBloc.add(ParallelPushEvent(user));
+          default:
+        }
+      },
+      fallback: () {},
+    );

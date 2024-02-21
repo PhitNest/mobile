@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 import '../../config/aws.dart';
 import '../../entities/session/session.dart';
+import '../bloc/bloc.dart';
 import '../failure.dart';
 import '../logger.dart';
 
@@ -130,9 +132,8 @@ Future<HttpResponse<ResType>> request<ResType>({
             return HttpResponseOk(parsed, response.headers);
           } else {
             // Handle unsuccessful responses
-            await logError('Request failure:',
-                details: responseDetails([jsonData.toString()]),
-                userId: session?.userId);
+            error('Request failure:',
+                details: responseDetails([jsonData.toString()]));
             final parsed = Failure.fromJson(jsonData as Map<String, dynamic>);
             return HttpResponseFailure(parsed, response.headers);
           }
@@ -141,18 +142,15 @@ Future<HttpResponse<ResType>> request<ResType>({
         }
       });
     } on TimeoutException {
-      // Log and return a NetworkConnectionFailure on timeout
-      await logError('Request timeout:',
-          details: responseDetails(data), userId: session?.userId);
+      error('Request timeout:', details: responseDetails(data));
       return HttpResponseFailure(
           const Failure(type: 'Timeout', message: 'Request timeout'),
           Headers());
     } on Failure catch (failure) {
-      await logError('Request failure:',
-          details: responseDetails(failure), userId: session?.userId);
+      error('Request failure:', details: responseDetails(failure));
       return HttpResponseFailure(failure, Headers());
     } catch (e) {
-      // Log and return failure by value
+      // Log and return an unknown failure
       final failure = Failure(type: 'UnknownFailure', message: e.toString());
       await logError('Request failure:',
           details: responseDetails(failure), userId: session?.userId);

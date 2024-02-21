@@ -28,7 +28,7 @@ final class LocalSession extends Session {
   bool get valid => true;
 
   @override
-  String? get idToken => token;
+  String get idToken => token;
 
   @override
   String get accessToken => token;

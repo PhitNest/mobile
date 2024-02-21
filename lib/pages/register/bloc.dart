@@ -1,6 +1,6 @@
 part of 'register.dart';
 
-final class RegisterControllers extends FormControllers {
+final class _RegisterControllers extends FormControllers {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final emailController = TextEditingController();
@@ -18,52 +18,36 @@ final class RegisterControllers extends FormControllers {
 }
 
 extension on BuildContext {
-  FormBloc<RegisterControllers> get registerFormBloc => BlocProvider.of(this);
+  FormBloc<_RegisterControllers> get registerFormBloc => BlocProvider.of(this);
 }
 
-typedef RegisterProvider
-    = FormProvider<RegisterControllers, RegisterParams, RegisterResponse>;
+typedef _RegisterProvider
+    = FormProvider<_RegisterControllers, RegisterParams, RegisterResponse>;
 
-RegisterProvider registerForm(
-  CreateFormConsumer<RegisterControllers, RegisterParams, RegisterResponse>
-      createConsumer,
-) =>
-    RegisterProvider(
-      createControllers: (_) => RegisterControllers(),
-      createLoader: (_) => LoaderBloc(load: register),
-      createConsumer: createConsumer,
-    );
-
-void _handleStateChanged(
+void _handleState(
   BuildContext context,
-  RegisterControllers controllers,
+  _RegisterControllers controllers,
   LoaderState<RegisterResponse> loaderState,
-) {
-  switch (loaderState) {
-    case LoaderLoadedState(data: final response):
-      switch (response) {
-        case RegisterSuccess(session: final session):
-          final LoginParams loginParams = LoginParams(
-            email: controllers.emailController.text,
-            password: controllers.passwordController.text,
-          );
-          Navigator.pushReplacement(
+) =>
+    loaderState.handle(
+      loaded: (response) => switch (response) {
+        RegisterSuccess(session: final session) => Navigator.pushReplacement(
             context,
             CupertinoPageRoute<void>(
               builder: (context) => VerificationPage(
-                loginParams: loginParams,
-                resend: (session) => resendConfirmationEmail(session),
-                confirm: (session, code) => confirmEmail(
-                  session: session,
-                  code: code,
+                loginParams: LoginParams(
+                  email: controllers.emailController.text,
+                  password: controllers.passwordController.text,
                 ),
-                unauthenticatedSession: session,
+                resend: (session) => resendConfirmationEmail(session),
+                confirm: (session, code) =>
+                    confirmEmail(session: session, code: code),
+                session: session,
               ),
             ),
-          );
-        case RegisterFailureResponse(message: final message):
-          StyledBanner.show(message: message, error: true);
-      }
-    default:
-  }
-}
+          ),
+        RegisterFailureResponse(message: final message) =>
+          StyledBanner.show(message: message, error: true),
+      },
+      fallback: () {},
+    );

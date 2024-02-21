@@ -27,18 +27,16 @@ final class RestorePreviousSessionProvider extends StatelessWidget {
           loadOnStart: const LoadOnStart(null),
         ),
         child: RestorePreviousSessionConsumer(
-          listener: (context, restoreSessionState) {
-            switch (restoreSessionState) {
-              case LoaderLoadedState(data: final restoreSessionResponse):
-                switch (restoreSessionResponse) {
-                  case RefreshSessionFailureResponse():
-                    onSessionRestoreFailed(context);
-                  case RefreshSessionSuccess(session: final session):
-                    onSessionRestored(context, session);
-                }
-              default:
-            }
-          },
+          listener: (context, restoreSessionState) =>
+              restoreSessionState.handle(
+            loaded: (response) => switch (response) {
+              RefreshSessionFailureResponse() =>
+                onSessionRestoreFailed(context),
+              RefreshSessionSuccess(session: final session) =>
+                onSessionRestored(context, session),
+            },
+            fallback: () {},
+          ),
           builder: (context, restoreSessionState) => const Loader(),
         ),
       );

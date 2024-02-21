@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../entities/entities.dart';
+import '../../pages/login/login.dart';
 import '../../repositories/cognito/cognito.dart';
 import 'loader/loader.dart';
 import 'parallel_loader/parallel_loader.dart';
@@ -145,4 +148,104 @@ extension AuthLoaders on BuildContext {
       authParallelBloc<ReqType, ResType>() => BlocProvider.of(this);
 
   SessionBloc get sessionLoader => loader();
+}
+
+extension AuthLoaderStateHandler<ResType>
+    on LoaderState<AuthResOrLost<ResType>> {
+  T handleAuth<T>({
+    T? Function(ResType)? success,
+    T? Function(AuthLost<ResType>)? authLost,
+    T? Function(ResType)? refreshingAfterSuccess,
+    T? Function(AuthLost<ResType>)? refreshingAfterAuthLost,
+    T? Function()? refreshing,
+    T? Function()? loaded,
+    T? Function()? initialLoading,
+    T? Function()? initial,
+    T? Function()? loading,
+    required T Function() fallback,
+  }) =>
+      handle(
+        loaded: (response) {
+          switch (response) {
+            case AuthRes(data: final data):
+              if (success != null) {
+                final res = success(data);
+                if (res != null) {
+                  return res;
+                }
+              }
+            case AuthLost():
+              if (authLost != null) {
+                final res = authLost(response);
+                if (res != null) {
+                  return res;
+                }
+              }
+          }
+          return loaded?.call();
+        },
+        refreshing: (response) {
+          switch (response) {
+            case AuthRes(data: final data):
+              if (refreshingAfterSuccess != null) {
+                final res = refreshingAfterSuccess(data);
+                if (res != null) {
+                  return res;
+                }
+              }
+            case AuthLost():
+              if (refreshingAfterAuthLost != null) {
+                final res = refreshingAfterAuthLost(response);
+                if (res != null) {
+                  return res;
+                }
+              }
+          }
+          return refreshing?.call();
+        },
+        initialLoading: initialLoading,
+        initial: initial,
+        loading: loading,
+        fallback: fallback,
+      );
+
+  Future<void> _goToLogin(BuildContext context) =>
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(
+          builder: (context) => const LoginPage(),
+        ),
+        (_) => false,
+      );
+
+  FutureOr<void> goToLoginOr(
+    BuildContext context, {
+    FutureOr<void> Function(ResType)? success,
+    FutureOr<void> Function(ResType)? refreshingAfterSuccess,
+    FutureOr<void> Function(AuthLost<ResType>)? authLost,
+    FutureOr<void> Function(AuthLost<ResType>)? refreshingAfterAuthLost,
+    FutureOr<void> Function()? refreshing,
+    FutureOr<void> Function()? loaded,
+    FutureOr<void> Function()? initialLoading,
+    FutureOr<void> Function()? initial,
+    FutureOr<void> Function()? loading,
+    required FutureOr<void> Function() fallback,
+  }) =>
+      handleAuth(
+        success: success,
+        authLost: (_) {
+          _goToLogin(context);
+          return authLost?.call(_);
+        },
+        refreshingAfterSuccess: refreshingAfterSuccess,
+        refreshingAfterAuthLost: (_) {
+          _goToLogin(context);
+          return refreshingAfterAuthLost?.call(_);
+        },
+        loaded: loaded,
+        refreshing: refreshing,
+        initialLoading: initialLoading,
+        initial: initial,
+        loading: loading,
+        fallback: fallback,
+      );
 }

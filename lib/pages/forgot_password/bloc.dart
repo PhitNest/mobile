@@ -35,7 +35,7 @@ void _handleStateChanged(
                   email: controllers.emailController.text,
                   password: controllers.newPasswordController.text,
                 ),
-                unauthenticatedSession: session,
+                session: session,
                 resend: (session) => sendForgotPasswordRequest(
                   controllers.emailController.text,
                 ).then(

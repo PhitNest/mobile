@@ -1,15 +1,15 @@
 part of 'friends.dart';
 
-typedef DeleteFriendRequestBloc = AuthParallelLoaderBloc<
-    FriendRequestWithProfilePicture, HttpResponse<void>>;
-typedef DeleteFriendRequestConsumer = AuthParallelLoaderConsumer<
-    FriendRequestWithProfilePicture, HttpResponse<void>>;
+typedef DeleteFriendRequestBloc
+    = AuthParallelLoaderBloc<FriendRequest, HttpResponse<void>>;
+typedef DeleteFriendRequestConsumer
+    = AuthParallelLoaderConsumer<FriendRequest, HttpResponse<void>>;
 
 extension on BuildContext {
-  DeleteFriendRequestBloc get deleteFriendshipBloc => authParallelBloc();
+  DeleteFriendRequestBloc get deleteFriendRequestBloc => authParallelBloc();
 }
 
-void _handleSendFriendRequestStateChanged(
+void _handleSendFriendRequestState(
   BuildContext context,
   ParallelLoaderState<User, AuthResOrLost<HttpResponse<FriendRequest>>>
       loaderState,
@@ -48,10 +48,9 @@ void _handleSendFriendRequestStateChanged(
 
 void _handleDeleteFriendshipStateChanged(
   BuildContext context,
-  ParallelLoaderState<FriendRequestWithProfilePicture,
-          AuthResOrLost<HttpResponse<void>>>
+  ParallelLoaderState<FriendRequest, AuthResOrLost<HttpResponse<void>>>
       loaderState,
-  HomeResponseWithProfilePictures homeData,
+  HomeResponse homeData,
 ) {
   switch (loaderState) {
     case ParallelLoadedState(data: final response, req: final req):
@@ -65,22 +64,29 @@ void _handleDeleteFriendshipStateChanged(
                   error: false,
                 );
                 final otherUser = req.other(homeData.user.id);
-                context.homeBloc.add(LoaderSetEvent(AuthRes(HttpResponseOk(
-                    HomeResponseWithProfilePictures(
-                      user: homeData.user,
-                      profilePicture: homeData.profilePicture,
-                      explore: homeData.explore
-                        ..add(ExploreUser(
-                          firstName: otherUser.firstName,
-                          lastName: otherUser.lastName,
-                          id: otherUser.id,
-                          identityId: otherUser.identityId,
-                          profilePicture: req.profilePicture,
-                        )),
-                      receivedRequests: homeData.receivedRequests..remove(req),
-                      sentRequests: homeData.sentRequests..remove(req),
+                context.homeBloc.add(
+                  LoaderSetEvent(
+                    AuthRes(
+                      HttpResponseOk(
+                        HomeResponse(
+                          user: homeData.user,
+                          explore: [
+                            ...homeData.explore,
+                            User(
+                              firstName: otherUser.firstName,
+                              lastName: otherUser.lastName,
+                              id: otherUser.id,
+                              identityId: otherUser.identityId,
+                            ),
+                          ],
+                          pendingRequests: homeData.pendingRequests,
+                          friends: [...homeData.friends]..remove(req),
+                        ),
+                        null,
+                      ),
                     ),
-                    null))));
+                  ),
+                );
               }
             case HttpResponseFailure(failure: final failure):
               StyledBanner.show(
