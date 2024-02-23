@@ -21,7 +21,8 @@ void _handleSendFriendRequestState(
           switch (response) {
             case HttpResponseSuccess():
               StyledBanner.show(
-                message: 'Friend added',
+                message:
+                    response.data.accepted ? 'Friend added' : 'Request sent',
                 error: false,
               );
             case HttpResponseFailure(failure: final failure):
@@ -58,36 +59,37 @@ void _handleDeleteFriendshipStateChanged(
         case AuthRes(data: final response):
           switch (response) {
             case HttpResponseSuccess():
-              if (req.accepted) {
-                StyledBanner.show(
-                  message: 'Friend removed',
-                  error: false,
-                );
-                final otherUser = req.other(homeData.user.id);
-                context.homeBloc.add(
-                  LoaderSetEvent(
-                    AuthRes(
-                      HttpResponseOk(
-                        HomeResponse(
-                          user: homeData.user,
-                          explore: [
-                            ...homeData.explore,
-                            User(
-                              firstName: otherUser.firstName,
-                              lastName: otherUser.lastName,
-                              id: otherUser.id,
-                              identityId: otherUser.identityId,
-                            ),
-                          ],
-                          pendingRequests: homeData.pendingRequests,
-                          friends: [...homeData.friends]..remove(req),
-                        ),
-                        null,
+              StyledBanner.show(
+                message:
+                    req.accepted ? 'Friend removed' : 'Friend request denied',
+                error: false,
+              );
+              final otherUser = req.other(homeData.user.id);
+              context.homeBloc.add(
+                LoaderSetEvent(
+                  AuthRes(
+                    HttpResponseOk(
+                      HomeResponse(
+                        user: homeData.user,
+                        explore: [
+                          ...homeData.explore,
+                          User(
+                            firstName: otherUser.firstName,
+                            lastName: otherUser.lastName,
+                            id: otherUser.id,
+                            identityId: otherUser.identityId,
+                          ),
+                        ],
+                        pendingRequests: [
+                          ...homeData.pendingRequests..remove(req)
+                        ],
+                        friends: [...homeData.friends]..remove(req),
                       ),
+                      null,
                     ),
                   ),
-                );
-              }
+                ),
+              );
             case HttpResponseFailure(failure: final failure):
               StyledBanner.show(
                 message: failure.message,

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,12 +8,56 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../entities/entities.dart';
 import '../../pages/login/login.dart';
 import '../../repositories/cognito/cognito.dart';
+import '../../widgets/styled_banner.dart';
+import '../failure.dart';
+import '../http/http.dart';
 import 'loader/loader.dart';
 import 'parallel_loader/parallel_loader.dart';
 
 /// Base class for session bloc data.
 sealed class AuthResOrLost<ResType> extends Equatable {
   const AuthResOrLost() : super();
+
+  T handle<T>({
+    T? Function(ResType)? success,
+    T? Function(String)? authLost,
+    required T Function() fallback,
+  }) {
+    final state = this;
+    switch (state) {
+      case AuthRes(data: final data):
+        if (success != null) {
+          final res = success(data);
+          if (res != null) {
+            return res;
+          }
+        }
+      case AuthLost(message: final message):
+        if (authLost != null) {
+          final res = authLost(message);
+          if (res != null) {
+            return res;
+          }
+        }
+    }
+    return fallback();
+  }
+
+  FutureOr<void> handleAuthLost(
+    BuildContext context, {
+    FutureOr<void> Function(ResType)? success,
+    FutureOr<void> Function(String)? authLost,
+    required FutureOr<void> Function() fallback,
+  }) =>
+      handle(
+        success: success,
+        authLost: (message) {
+          StyledBanner.show(message: message, error: true);
+          goToLogin(context);
+          return authLost?.call(message);
+        },
+        fallback: fallback,
+      );
 }
 
 /// Use this class to indicate the session is valid and carries a data payload.
@@ -150,102 +195,49 @@ extension AuthLoaders on BuildContext {
   SessionBloc get sessionLoader => loader();
 }
 
-extension AuthLoaderStateHandler<ResType>
-    on LoaderState<AuthResOrLost<ResType>> {
-  T handleAuth<T>({
-    T? Function(ResType)? success,
-    T? Function(AuthLost<ResType>)? authLost,
-    T? Function(ResType)? refreshingAfterSuccess,
-    T? Function(AuthLost<ResType>)? refreshingAfterAuthLost,
-    T? Function()? refreshing,
-    T? Function()? loaded,
-    T? Function()? initialLoading,
-    T? Function()? initial,
-    T? Function()? loading,
+extension HandleHttp<ResType> on AuthResOrLost<HttpResponse<ResType>> {
+  T handleHttp<T>({
+    T? Function(ResType, Headers? headers)? success,
+    T? Function(ResType, Headers? headers)? cache,
+    T? Function(ResType, Headers? headers)? ok,
+    T? Function(Failure, Headers? headers)? failure,
+    T? Function(Headers? headers)? authRes,
+    T? Function(String)? authLost,
     required T Function() fallback,
   }) =>
       handle(
-        loaded: (response) {
-          switch (response) {
-            case AuthRes(data: final data):
-              if (success != null) {
-                final res = success(data);
-                if (res != null) {
-                  return res;
-                }
-              }
-            case AuthLost():
-              if (authLost != null) {
-                final res = authLost(response);
-                if (res != null) {
-                  return res;
-                }
-              }
-          }
-          return loaded?.call();
-        },
-        refreshing: (response) {
-          switch (response) {
-            case AuthRes(data: final data):
-              if (refreshingAfterSuccess != null) {
-                final res = refreshingAfterSuccess(data);
-                if (res != null) {
-                  return res;
-                }
-              }
-            case AuthLost():
-              if (refreshingAfterAuthLost != null) {
-                final res = refreshingAfterAuthLost(response);
-                if (res != null) {
-                  return res;
-                }
-              }
-          }
-          return refreshing?.call();
-        },
-        initialLoading: initialLoading,
-        initial: initial,
-        loading: loading,
+        success: (res) => res.handle(
+          success: success,
+          cache: cache,
+          ok: ok,
+          failure: failure,
+          fallback: () => authRes?.call(res.headers),
+        ),
+        authLost: authLost,
         fallback: fallback,
       );
 
-  Future<void> _goToLogin(BuildContext context) =>
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute<void>(
-          builder: (context) => const LoginPage(),
-        ),
-        (_) => false,
-      );
-
-  FutureOr<void> goToLoginOr(
+  FutureOr<void> handleAuthLostHttp(
     BuildContext context, {
-    FutureOr<void> Function(ResType)? success,
-    FutureOr<void> Function(ResType)? refreshingAfterSuccess,
-    FutureOr<void> Function(AuthLost<ResType>)? authLost,
-    FutureOr<void> Function(AuthLost<ResType>)? refreshingAfterAuthLost,
-    FutureOr<void> Function()? refreshing,
-    FutureOr<void> Function()? loaded,
-    FutureOr<void> Function()? initialLoading,
-    FutureOr<void> Function()? initial,
-    FutureOr<void> Function()? loading,
+    FutureOr<void> Function(ResType, Headers? headers)? success,
+    FutureOr<void> Function(ResType, Headers? headers)? cache,
+    FutureOr<void> Function(ResType, Headers? headers)? ok,
+    FutureOr<void> Function(Failure, Headers? headers)? failure,
+    FutureOr<void> Function(Headers? headers)? authRes,
+    FutureOr<void> Function(String)? authLost,
     required FutureOr<void> Function() fallback,
   }) =>
-      handleAuth(
+      handleHttp(
         success: success,
-        authLost: (_) {
-          _goToLogin(context);
-          return authLost?.call(_);
+        cache: cache,
+        ok: ok,
+        failure: failure,
+        authRes: authRes,
+        authLost: (message) {
+          StyledBanner.show(message: message, error: true);
+          goToLogin(context);
+          return authLost?.call(message);
         },
-        refreshingAfterSuccess: refreshingAfterSuccess,
-        refreshingAfterAuthLost: (_) {
-          _goToLogin(context);
-          return refreshingAfterAuthLost?.call(_);
-        },
-        loaded: loaded,
-        refreshing: refreshing,
-        initialLoading: initialLoading,
-        initial: initial,
-        loading: loading,
         fallback: fallback,
       );
 }

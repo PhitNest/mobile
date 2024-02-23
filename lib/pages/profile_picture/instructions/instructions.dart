@@ -1,23 +1,15 @@
-import 'dart:typed_data';
-
-import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../constants/constants.dart';
 import '../../../theme.dart';
 import '../../../util/bloc/bloc.dart';
-import '../../../util/logger.dart';
 import '../../../widgets/widgets.dart';
 import '../confirm/confirm.dart';
+import 'chosen_photo.dart';
 
 part 'bloc.dart';
-part 'chosen_photo.dart';
 
 final class PhotoInstructionsPage extends StatelessWidget {
   static final _imagePicker = ImagePicker();
@@ -31,7 +23,21 @@ final class PhotoInstructionsPage extends StatelessWidget {
             create: (_) =>
                 _ChoosePhotoBloc(load: (photoChooser) => photoChooser()),
             child: _ChoosePhotoConsumer(
-              listener: _handleState,
+              listener: (context, choosePhotoState) => choosePhotoState.handle(
+                loaded: (photo) {
+                  if (photo != null) {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute<void>(
+                        builder: (_) => ConfirmPhotoPage(
+                          photo: photo.file,
+                          photoBytes: photo.bytes,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                fallback: () {},
+              ),
               builder: (context, choosePhotoState) => ListView(
                 children: [
                   Text(
@@ -51,7 +57,7 @@ final class PhotoInstructionsPage extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () => context.choosePhotoBloc.add(
                       LoaderLoadEvent(
-                        () => _photoChosen(
+                        () => choosePhoto(
                           context,
                           () => _imagePicker.pickImage(
                             source: ImageSource.camera,
@@ -68,7 +74,7 @@ final class PhotoInstructionsPage extends StatelessWidget {
                   StyledOutlineButton(
                     onPress: () => context.choosePhotoBloc.add(
                       LoaderLoadEvent(
-                        () => _photoChosen(
+                        () => choosePhoto(
                           context,
                           () => _imagePicker.pickImage(
                             source: ImageSource.gallery,

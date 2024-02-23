@@ -1,6 +1,11 @@
-part of 'verification.dart';
+import 'package:flutter/material.dart';
 
-class _VerificationControllers extends FormControllers {
+import '../../entities/cognito/cognito.dart';
+import '../../entities/session/session.dart';
+import '../../util/bloc/bloc.dart';
+import '../../widgets/providers/providers.dart';
+
+class VerificationControllers extends FormControllers {
   final focusNode = FocusNode();
   final codeController = TextEditingController();
 
@@ -11,48 +16,12 @@ class _VerificationControllers extends FormControllers {
   }
 }
 
-typedef _ResendLoaderBloc = LoaderBloc<UnauthenticatedSession, String?>;
-typedef _ResendLoaderConsumer = LoaderConsumer<UnauthenticatedSession, String?>;
+typedef ResendLoaderBloc = LoaderBloc<UnauthenticatedSession, String?>;
+typedef ResendLoaderConsumer = LoaderConsumer<UnauthenticatedSession, String?>;
 
-extension on BuildContext {
-  _ResendLoaderBloc get resendEmailLoaderBloc => loader();
+extension ResendEmailBloc on BuildContext {
+  ResendLoaderBloc get resendEmailLoaderBloc => loader();
 }
 
-typedef _VerificationProvider
-    = FormProvider<_VerificationControllers, String, LoginResponse>;
-
-void _handleResendState(
-  BuildContext context,
-  LoaderState<String?> loaderState,
-) =>
-    loaderState.handle(
-      loaded: (error) => StyledBanner.show(
-        message: error ?? 'Email resent',
-        error: error != null,
-      ),
-      fallback: () {},
-    );
-
-void _handleConfirmState(
-  BuildContext context,
-  _VerificationControllers controllers,
-  LoaderState<LoginResponse> loaderState,
-) =>
-    loaderState.handle(
-      loaded: (response) {
-        switch (response) {
-          case LoginSuccess():
-            Navigator.pushAndRemoveUntil(
-              context,
-              CupertinoPageRoute<void>(
-                builder: (_) => const HomePage(),
-              ),
-              (_) => false,
-            );
-          case LoginFailureResponse(message: final message):
-            StyledBanner.show(message: message, error: true);
-            controllers.codeController.clear();
-        }
-      },
-      fallback: () {},
-    );
+typedef VerificationProvider
+    = FormProvider<VerificationControllers, String, LoginResponse>;

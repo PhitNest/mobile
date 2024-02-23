@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -76,13 +77,14 @@ class _HomePageState extends State<HomePage> {
                       listener: _handleHomeDataState,
                       builder: (context, homeLoaderState) =>
                           homeLoaderState.handleAuthHttp(
-                        success: (homeLoaderResponse) => BlocProvider(
+                        success: (homeLoaderResponse, homeResponseHeaders) =>
+                            BlocProvider(
                           create: (context) => ProfilePictureBloc(
                             sessionLoader: context.sessionLoader,
                             // TODO: FIX
                             load: (_, session) => getProfilePicture(
                               session as AwsSession,
-                              homeLoaderResponse.data.user.identityId,
+                              homeLoaderResponse.user.identityId,
                             ),
                           ),
                           child: ProfilePictureConsumer(
@@ -96,7 +98,7 @@ class _HomePageState extends State<HomePage> {
                                           _handleSendReportState(
                                         context,
                                         sendReportState,
-                                        homeLoaderResponse.data,
+                                        homeLoaderResponse,
                                       ),
                                       builder: (context, sendReportState) =>
                                           SendFriendRequestConsumer(
@@ -105,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                                                 _handleSendFriendRequestState(
                                           context,
                                           sendFriendRequestState,
-                                          homeLoaderResponse.data,
+                                          homeLoaderResponse,
                                         ),
                                         builder:
                                             (context, sendFriendRequestState) =>
@@ -114,30 +116,40 @@ class _HomePageState extends State<HomePage> {
                                               child: Text('You have matched!')),
                                           _ => switch (navBarState.page) {
                                               NavBarPage.explore => ExplorePage(
+                                                  loadingUserIds: [
+                                                    ...sendReportState
+                                                        .operations
+                                                        .map((op) =>
+                                                            op.req.user.id),
+                                                    ...sendFriendRequestState
+                                                        .operations
+                                                        .map((op) => op.req.id),
+                                                  ],
                                                   pageController:
                                                       pageController,
                                                   homeResponse:
                                                       homeLoaderResponse,
+                                                  homeResponseHeaders:
+                                                      homeResponseHeaders ??
+                                                          Headers(),
                                                   navBarState: navBarState,
                                                 ),
                                               NavBarPage.chat =>
                                                 ConversationsPage(
                                                   userId: homeLoaderResponse
-                                                      .data.user.id,
+                                                      .user.id,
                                                   friends: homeLoaderResponse
-                                                      .data.friends,
+                                                      .friends,
                                                 ),
                                               NavBarPage.friends => FriendsPage(
                                                   reports: sendReportState
                                                       .operations
                                                       .map((op) => op.req)
                                                       .toList(),
-                                                  homeData:
-                                                      homeLoaderResponse.data,
+                                                  homeData: homeLoaderResponse,
                                                 ),
                                               NavBarPage.options => OptionsPage(
-                                                  user: homeLoaderResponse
-                                                      .data.user,
+                                                  user: homeLoaderResponse.user,
                                                   profilePicture:
                                                       profilePicture,
                                                 ),

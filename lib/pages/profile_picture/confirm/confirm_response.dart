@@ -1,20 +1,20 @@
 part of 'confirm.dart';
 
-sealed class _ConfirmPhotoResponse extends Equatable {
-  const _ConfirmPhotoResponse() : super();
+sealed class ConfirmPhotoResponse extends Equatable {
+  const ConfirmPhotoResponse() : super();
 }
 
-final class _ConfirmPhotoSuccess extends _ConfirmPhotoResponse {
-  const _ConfirmPhotoSuccess() : super();
+final class ConfirmPhotoSuccess extends ConfirmPhotoResponse {
+  const ConfirmPhotoSuccess() : super();
 
   @override
   List<Object?> get props => [];
 }
 
-final class _ConfirmPhotoFailure extends _ConfirmPhotoResponse {
+final class ConfirmPhotoFailure extends ConfirmPhotoResponse {
   final String message;
 
-  const _ConfirmPhotoFailure({
+  const ConfirmPhotoFailure({
     required this.message,
   }) : super();
 

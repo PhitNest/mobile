@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../constants/constants.dart';
 import '../../../../util/bloc/bloc.dart';
-import '../../../../util/http/http.dart';
 import '../../../../util/logger.dart';
 import '../../home.dart';
 import '../styled_indicator.dart';

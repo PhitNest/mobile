@@ -363,8 +363,8 @@ void _handleNavBarState(
   NavBarState state,
 ) =>
     context.homeBloc.state.handleAuthHttp(
-      success: (response) {
-        final explore = response.data.explore;
+      success: (response, _) {
+        final explore = response.explore;
         final currentPage = pageController.page!.round() % explore.length;
         final user = explore[currentPage];
         switch (state) {

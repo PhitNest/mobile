@@ -5,6 +5,49 @@ sealed class HttpResponse<DataType> extends Equatable {
 
   const HttpResponse(this.headers) : super();
 
+  T handle<T>({
+    T? Function(DataType, Headers? headers)? success,
+    T? Function(DataType, Headers? headers)? cache,
+    T? Function(DataType, Headers? headers)? ok,
+    T? Function(Failure, Headers? headers)? failure,
+    required T Function() fallback,
+  }) {
+    final res = this;
+    switch (res) {
+      case HttpResponseSuccess(data: final data, headers: final headers):
+        switch (res) {
+          case HttpResponseOk(data: final data, headers: final headers):
+            if (ok != null) {
+              final res = ok(data, headers);
+              if (res != null) {
+                return res;
+              }
+            }
+          case HttpResponseCache(data: final data):
+            if (cache != null) {
+              final res = cache(data, headers);
+              if (res != null) {
+                return res;
+              }
+            }
+        }
+        if (success != null) {
+          final res = success(data, headers);
+          if (res != null) {
+            return res;
+          }
+        }
+      case HttpResponseFailure(failure: final data, headers: final headers):
+        if (failure != null) {
+          final res = failure(data, headers);
+          if (res != null) {
+            return res;
+          }
+        }
+    }
+    return fallback();
+  }
+
   @override
   List<Object?> get props => [headers];
 }
@@ -92,111 +135,4 @@ extension HttpLoaderStateHandler<ResType>
     }
     return fallback();
   }
-}
-
-extension HttpAuthLoaderStateHandler<ResType>
-    on LoaderState<AuthResOrLost<HttpResponse<ResType>>> {
-  T handleAuthHttp<T>({
-    T Function(HttpResponseSuccess<ResType>)? success,
-    T Function(HttpResponseSuccess<ResType>)? refreshingAfterSuccess,
-    T Function(HttpResponseFailure<ResType>)? failure,
-    T Function(HttpResponseFailure<ResType>)? refreshingAfterFailure,
-    T Function(AuthLost<HttpResponse<ResType>>)? authLost,
-    T Function(AuthLost<HttpResponse<ResType>>)? refreshingAfterAuthLost,
-    T Function()? refreshingAfterAuthRes,
-    T Function()? authRes,
-    T Function()? loaded,
-    T Function()? refreshing,
-    T Function()? initialLoading,
-    T Function()? initial,
-    T Function()? loading,
-    required T Function() fallback,
-  }) =>
-      handleAuth(
-        success: (res) {
-          switch (res) {
-            case HttpResponseSuccess():
-              if (success != null) {
-                final result = success(res);
-                if (result != null) {
-                  return result;
-                }
-              }
-            case HttpResponseFailure():
-              if (failure != null) {
-                final result = failure(res);
-                if (result != null) {
-                  return result;
-                }
-              }
-          }
-          return authRes?.call();
-        },
-        authLost: authLost,
-        refreshingAfterSuccess: (response) {
-          switch (response) {
-            case HttpResponseSuccess():
-              if (refreshingAfterSuccess != null) {
-                final result = refreshingAfterSuccess(response);
-                if (result != null) {
-                  return result;
-                }
-              }
-            case HttpResponseFailure():
-              if (refreshingAfterFailure != null) {
-                final result = refreshingAfterFailure(response);
-                if (result != null) {
-                  return result;
-                }
-              }
-          }
-          return refreshingAfterAuthRes?.call();
-        },
-        refreshingAfterAuthLost: refreshingAfterAuthLost,
-        refreshing: refreshing,
-        loaded: loaded,
-        initialLoading: initialLoading,
-        initial: initial,
-        loading: loading,
-        fallback: fallback,
-      );
-
-  FutureOr<void> httpGoToLoginOr(
-    BuildContext context, {
-    FutureOr<void> Function(HttpResponseSuccess<ResType>)? success,
-    FutureOr<void> Function(HttpResponseSuccess<ResType>)?
-        refreshingAfterSuccess,
-    FutureOr<void> Function(HttpResponseFailure<ResType>)? failure,
-    FutureOr<void> Function(HttpResponseFailure<ResType>)?
-        refreshingAfterFailure,
-    FutureOr<void> Function(AuthLost<HttpResponse<ResType>>)? authLost,
-    FutureOr<void> Function(AuthLost<HttpResponse<ResType>>)?
-        refreshingAfterAuthLost,
-    FutureOr<void> Function()? refreshingAfterAuthRes,
-    FutureOr<void> Function()? authRes,
-    FutureOr<void> Function()? loaded,
-    FutureOr<void> Function()? refreshing,
-    FutureOr<void> Function()? initialLoading,
-    FutureOr<void> Function()? initial,
-    FutureOr<void> Function()? loading,
-    required FutureOr<void> Function() fallback,
-  }) =>
-      handleAuthHttp(
-        success: success,
-        authLost: (_) {
-          _goToLogin(context);
-          return authLost?.call(_);
-        },
-        refreshingAfterSuccess: refreshingAfterSuccess,
-        refreshingAfterAuthLost: (_) {
-          _goToLogin(context);
-          return refreshingAfterAuthLost?.call(_);
-        },
-        loaded: loaded,
-        refreshing: refreshing,
-        initialLoading: initialLoading,
-        initial: initial,
-        loading: loading,
-        fallback: fallback,
-      );
 }

@@ -1,6 +1,10 @@
-part of 'register.dart';
+import 'package:flutter/material.dart';
 
-final class _RegisterControllers extends FormControllers {
+import '../../entities/entities.dart';
+import '../../util/bloc/bloc.dart';
+import '../../widgets/widgets.dart';
+
+final class RegisterControllers extends FormControllers {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final emailController = TextEditingController();
@@ -17,37 +21,9 @@ final class _RegisterControllers extends FormControllers {
   }
 }
 
-extension on BuildContext {
-  FormBloc<_RegisterControllers> get registerFormBloc => BlocProvider.of(this);
+extension RegisterFormBloc on BuildContext {
+  FormBloc<RegisterControllers> get registerFormBloc => formBloc();
 }
 
-typedef _RegisterProvider
-    = FormProvider<_RegisterControllers, RegisterParams, RegisterResponse>;
-
-void _handleState(
-  BuildContext context,
-  _RegisterControllers controllers,
-  LoaderState<RegisterResponse> loaderState,
-) =>
-    loaderState.handle(
-      loaded: (response) => switch (response) {
-        RegisterSuccess(session: final session) => Navigator.pushReplacement(
-            context,
-            CupertinoPageRoute<void>(
-              builder: (context) => VerificationPage(
-                loginParams: LoginParams(
-                  email: controllers.emailController.text,
-                  password: controllers.passwordController.text,
-                ),
-                resend: (session) => resendConfirmationEmail(session),
-                confirm: (session, code) =>
-                    confirmEmail(session: session, code: code),
-                session: session,
-              ),
-            ),
-          ),
-        RegisterFailureResponse(message: final message) =>
-          StyledBanner.show(message: message, error: true),
-      },
-      fallback: () {},
-    );
+typedef RegisterProvider
+    = FormProvider<RegisterControllers, RegisterParams, RegisterResponse>;

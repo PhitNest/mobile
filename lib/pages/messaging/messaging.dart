@@ -13,6 +13,7 @@ import '../../util/bloc/bloc.dart';
 import '../../util/http/http.dart';
 import '../../util/logger.dart';
 import '../../widgets/widgets.dart';
+import 'message_item.dart';
 
 part 'bloc.dart';
 
@@ -67,7 +68,7 @@ final class MessagingPage extends StatelessWidget {
             loadOnStart: const LoadOnStart(null),
             load: (_, session) =>
                 connectToWebsocket(userId, friend.id, session.accessToken),
-            onDispose: (state) => state.goToLoginOr(
+            onDispose: (state) => state.handleAuthLost(
               context,
               success: (connection) => connection.sink.close(),
               fallback: () {},
@@ -75,7 +76,7 @@ final class MessagingPage extends StatelessWidget {
           ),
           child: WebsocketLoaderConsumer(
             listener: (context, websocketLoaderState) =>
-                websocketLoaderState.goToLoginOr(
+                websocketLoaderState.handleAuthLost(
               context,
               fallback: () {},
             ),
@@ -93,13 +94,10 @@ final class MessagingPage extends StatelessWidget {
                 ),
                 child: ConversationLoaderConsumer(
                   listener: (context, conversationLoaderState) =>
-                      conversationLoaderState.httpGoToLoginOr(
+                      conversationLoaderState.handleAuthLostHttp(
                     context,
-                    failure: (response) {
-                      StyledBanner.show(
-                        message: response.failure.message,
-                        error: true,
-                      );
+                    failure: (failure, _) {
+                      StyledBanner.show(message: failure.message, error: true);
                       context.conversationLoaderBloc
                           .add(const LoaderLoadEvent(null));
                     },
@@ -107,11 +105,11 @@ final class MessagingPage extends StatelessWidget {
                   ),
                   builder: (context, conversationLoaderState) =>
                       conversationLoaderState.handleAuthHttp(
-                    success: (response) => _MessagingWidget(
+                    success: (conversation, _) => _MessagingWidget(
                       userId: userId,
                       friend: friend,
                       connection: connection,
-                      initialMessages: response.data.messages,
+                      initialMessages: conversation.messages,
                     ),
                     fallback: () => const Loader(),
                   ),
@@ -155,7 +153,8 @@ class _MessagingWidget extends StatelessWidget {
                   controller: cubit.scrollController,
                   reverse: true,
                   children: state
-                      .map((message) => MessageItemWidget(message, userId))
+                      .map((message) =>
+                          MessageItemWidget(message: message, userId: userId))
                       .toList(),
                 ),
                 Row(
@@ -181,32 +180,6 @@ class _MessagingWidget extends StatelessWidget {
               ],
             );
           },
-        ),
-      );
-}
-
-class MessageItemWidget extends StatelessWidget {
-  final String userId;
-
-  const MessageItemWidget(
-    this.message,
-    this.userId, {
-    super.key,
-  }) : super();
-
-  final Message message;
-
-  @override
-  Widget build(BuildContext context) => Container(
-        alignment: message.senderId == userId
-            ? Alignment.centerRight
-            : Alignment.centerLeft,
-        padding: const EdgeInsets.all(8),
-        width: MediaQuery.of(context).size.width * 0.7,
-        child: Text(
-          message.content,
-          textAlign:
-              message.senderId == userId ? TextAlign.right : TextAlign.left,
         ),
       );
 }

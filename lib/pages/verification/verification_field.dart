@@ -1,10 +1,15 @@
-part of 'verification.dart';
+import 'package:flutter/material.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 
-final class _VerificationField extends StatelessWidget {
-  final _VerificationControllers controllers;
+import '../../theme.dart';
+import 'bloc.dart';
+
+final class VerificationField extends StatelessWidget {
+  final VerificationControllers controllers;
   final VoidCallback onCompleted;
 
-  const _VerificationField({
+  const VerificationField({
+    super.key,
     required this.controllers,
     required this.onCompleted,
   }) : super();

@@ -12,6 +12,14 @@ import '../pages.dart';
 
 part 'bloc.dart';
 
+Future<void> goToLogin(BuildContext context) =>
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute<void>(
+        builder: (context) => const LoginPage(),
+      ),
+      (_) => false,
+    );
+
 LoginParams _params(LoginControllers controllers) => LoginParams(
       email: controllers.emailController.text,
       password: controllers.passwordController.text,

@@ -49,16 +49,15 @@ void _handleHomeDataState(
   BuildContext context,
   LoaderState<AuthResOrLost<HttpResponse<HomeResponse>>> loaderState,
 ) =>
-    loaderState.httpGoToLoginOr(
+    loaderState.handleAuthLostHttp(
       context,
-      success: (response) {
+      success: (response, _) {
         final navbarBloc = context.navBarBloc;
         navbarBloc
-            .add(NavBarSetNumAlertsEvent(response.data.pendingRequests.length));
+            .add(NavBarSetNumAlertsEvent(response.pendingRequests.length));
         switch (navbarBloc.state) {
           case NavBarInitialState(page: final page):
-            if (page == NavBarPage.explore &&
-                response.data.explore.isNotEmpty) {
+            if (page == NavBarPage.explore && response.explore.isNotEmpty) {
               navbarBloc.add(const NavBarAnimateEvent());
             } else {
               navbarBloc.add(const NavBarSetLoadingEvent(false));
@@ -66,9 +65,9 @@ void _handleHomeDataState(
           default:
         }
       },
-      failure: (response) {
+      failure: (failure, _) {
         StyledBanner.show(
-          message: response.failure.message,
+          message: failure.message,
           error: true,
         );
         context.homeBloc.add(const LoaderLoadEvent(null));
@@ -80,7 +79,7 @@ void _handleProfilePictureState(
   BuildContext context,
   LoaderState<AuthResOrLost<Image?>> loaderState,
 ) =>
-    loaderState.goToLoginOr(
+    loaderState.handleAuthLost(
       context,
       success: (photo) async {
         if (photo == null) {
@@ -104,10 +103,10 @@ void _handleDeleteUserState(
   BuildContext context,
   LoaderState<AuthResOrLost<HttpResponse<bool>>> loaderState,
 ) =>
-    loaderState.httpGoToLoginOr(
+    loaderState.handleAuthLostHttp(
       context,
-      success: (response) {
-        if (response.data) {
+      success: (deleted, _) {
+        if (deleted) {
           Navigator.pushAndRemoveUntil(
             context,
             CupertinoPageRoute<void>(
@@ -122,10 +121,8 @@ void _handleDeleteUserState(
           );
         }
       },
-      failure: (response) => StyledBanner.show(
-        message: response.failure.message,
-        error: true,
-      ),
+      failure: (failure, _) =>
+          StyledBanner.show(message: failure.message, error: true),
       fallback: () {},
     );
 

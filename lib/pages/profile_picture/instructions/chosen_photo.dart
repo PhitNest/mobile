@@ -1,10 +1,19 @@
-part of 'instructions.dart';
+import 'dart:typed_data';
 
-final class _ChosenPhoto extends Equatable {
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../../constants/constants.dart';
+import '../../../util/logger.dart';
+import '../../../widgets/widgets.dart';
+
+final class ChosenPhoto extends Equatable {
   final CroppedFile file;
   final Uint8List bytes;
 
-  const _ChosenPhoto({
+  const ChosenPhoto({
     required this.file,
     required this.bytes,
   }) : super();
@@ -13,7 +22,7 @@ final class _ChosenPhoto extends Equatable {
   List<Object?> get props => [file, bytes];
 }
 
-Future<_ChosenPhoto?> _photoChosen(
+Future<ChosenPhoto?> choosePhoto(
   BuildContext context,
   Future<XFile?> Function() getImage,
 ) async {
@@ -34,7 +43,7 @@ Future<_ChosenPhoto?> _photoChosen(
           ),
           uiSettings: [webUiSettings]);
       if (cropped != null) {
-        return _ChosenPhoto(
+        return ChosenPhoto(
           file: cropped,
           bytes: await cropped.readAsBytes(),
         );

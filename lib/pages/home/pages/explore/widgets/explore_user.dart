@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,11 +19,15 @@ final class ExploreUserPage extends StatelessWidget {
   final User user;
   final int? countdown;
   final PageController pageController;
-  final HttpResponseSuccess<HomeResponse> homeResponse;
+  final HomeResponse homeResponse;
+  final Headers homeResponseHeaders;
+  final bool loading;
 
   const ExploreUserPage({
     super.key,
     required this.user,
+    required this.loading,
+    required this.homeResponseHeaders,
     required this.countdown,
     required this.pageController,
     required this.homeResponse,
@@ -58,30 +63,28 @@ final class ExploreUserPage extends StatelessWidget {
                               AuthRes(
                                 HttpResponseOk(
                                   HomeResponse(
-                                    user: homeResponse.data.user,
-                                    explore: [...homeResponse.data.explore]
+                                    user: homeResponse.user,
+                                    explore: [...homeResponse.explore]
                                       ..remove(user),
                                     pendingRequests: [
-                                      ...homeResponse.data.pendingRequests
+                                      ...homeResponse.pendingRequests
                                     ]..removeWhere(
                                         (element) =>
                                             element
-                                                .other(
-                                                    homeResponse.data.user.id)
+                                                .other(homeResponse.user.id)
                                                 .id ==
                                             user.id,
                                       ),
-                                    friends: [...homeResponse.data.friends]
+                                    friends: [...homeResponse.friends]
                                       ..removeWhere(
                                         (element) =>
                                             element
-                                                .other(
-                                                    homeResponse.data.user.id)
+                                                .other(homeResponse.user.id)
                                                 .id ==
                                             user.id,
                                       ),
                                   ),
-                                  homeResponse.headers,
+                                  homeResponseHeaders,
                                 ),
                               ),
                             ),
@@ -143,20 +146,21 @@ final class ExploreUserPage extends StatelessWidget {
                 ),
               ),
               // report user button
-              Positioned(
-                top: 16,
-                right: 16,
-                child: ReportUserButton(
-                  firstName: user.firstName,
-                  lastName: user.lastName,
-                  onReportSubmitted: () {
-                    StyledBanner.show(
-                      message: 'Report submitted successfully',
-                      error: false,
-                    );
-                  },
+              if (!loading)
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: ReportUserButton(
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    onReportSubmitted: () {
+                      StyledBanner.show(
+                        message: 'Report submitted successfully',
+                        error: false,
+                      );
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
           Padding(

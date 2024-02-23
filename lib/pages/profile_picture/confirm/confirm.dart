@@ -29,7 +29,7 @@ final class ConfirmPhotoPage extends StatelessWidget {
     required this.photoBytes,
   }) : super();
 
-  Future<_ConfirmPhotoResponse> _submitPhoto(Session session) async {
+  Future<ConfirmPhotoResponse> submitPhoto(Session session) async {
     final error = await uploadProfilePicture(
       photo: ByteStream.fromBytes(photoBytes),
       length: photoBytes.length,
@@ -37,9 +37,9 @@ final class ConfirmPhotoPage extends StatelessWidget {
       identityId: session.credentials.userIdentityId!,
     );
     if (error != null) {
-      return _ConfirmPhotoFailure(message: error);
+      return ConfirmPhotoFailure(message: error);
     } else {
-      return const _ConfirmPhotoSuccess();
+      return const ConfirmPhotoSuccess();
     }
   }
 
@@ -49,11 +49,20 @@ final class ConfirmPhotoPage extends StatelessWidget {
           child: BlocProvider(
             create: (context) => _ConfirmPhotoBloc(
               sessionLoader: context.sessionLoader,
-              load: (_, session) => _submitPhoto(session),
+              load: (_, session) => submitPhoto(session),
             ),
             child: _ConfirmPhotoConsumer(
-              listener: (context, confirmState) =>
-                  _handleState(context, confirmState, pfp),
+              listener: (context, confirmState) => confirmState.handleAuthLost(
+                context,
+                success: (response) => switch (response) {
+                  ConfirmPhotoSuccess() => Navigator.of(context)
+                    ..pop()
+                    ..pop(pfp),
+                  ConfirmPhotoFailure(message: final error) =>
+                    StyledBanner.show(message: error, error: true),
+                },
+                fallback: () {},
+              ),
               builder: (context, confirmState) => ListView(
                 children: [
                   pfp,
