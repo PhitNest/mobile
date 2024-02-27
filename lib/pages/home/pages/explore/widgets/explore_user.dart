@@ -49,6 +49,7 @@ final class ExploreUserPage extends StatelessWidget {
                         // TODO: FIX
                         getProfilePictureUri(
                             session as AwsSession, user.identityId),
+                    loadOnStart: const LoadOnStart(null),
                   ),
                   child: ExploreProfilePictureConsumer(
                     listener: (context, profilePictureState) {},

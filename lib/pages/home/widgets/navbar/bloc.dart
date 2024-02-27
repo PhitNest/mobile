@@ -305,15 +305,7 @@ final class NavBarBloc extends Bloc<NavBarEvent, NavBarState> {
 
     on<NavBarAnimateEvent>(
       (event, emit) {
-        switch (state) {
-          case NavBarInactiveState() ||
-                NavBarInitialState() ||
-                NavBarSendingFriendRequestState() ||
-                NavBarReversedState():
-            emit(NavBarLogoReadyState(numAlerts: state.numAlerts));
-          case NavBarLogoReadyState() || NavBarHoldingLogoState():
-            badState(state, event);
-        }
+        emit(NavBarLogoReadyState(numAlerts: state.numAlerts));
       },
     );
 
@@ -364,21 +356,21 @@ void _handleNavBarState(
 ) =>
     context.homeBloc.state.handleAuthHttp(
       success: (response, _) {
-        final explore = response.explore;
-        final currentPage = pageController.page!.round() % explore.length;
-        final user = explore[currentPage];
+        user() => response
+            .explore[pageController.page!.round() % response.explore.length];
         switch (state) {
           case NavBarInactiveState(page: final page):
-            if (page == NavBarPage.explore) {
-              if (explore.isNotEmpty &&
-                  !context.sendReportBloc.state.operations
-                      .map((op) => op.req.user.id)
-                      .contains(user.id)) {
-                context.navBarBloc.add(const NavBarAnimateEvent());
-              }
+            final explore = response.explore;
+            if (pageController.hasClients &&
+                page == NavBarPage.explore &&
+                explore.isNotEmpty &&
+                !context.sendReportBloc.state.operations
+                    .map((op) => op.req.user.id)
+                    .contains(user().id)) {
+              context.navBarBloc.add(const NavBarAnimateEvent());
             }
           case NavBarSendingFriendRequestState():
-            context.sendFriendRequestBloc.add(ParallelPushEvent(user));
+            context.sendFriendRequestBloc.add(ParallelPushEvent(user()));
           default:
         }
       },

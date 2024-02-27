@@ -23,8 +23,49 @@ final class ForgotPasswordScreen extends StatelessWidget {
             createControllers: (_) => ForgotPasswordControllers(),
             createLoader: (_) => LoaderBloc(load: sendForgotPasswordRequest),
             createConsumer: (context, controllers, submit) => LoaderConsumer(
-              listener: (context, loaderState) =>
-                  _handleStateChanged(context, controllers, loaderState),
+              listener: (context, loaderState) => loaderState.handle(
+                loaded: (response) => switch (response) {
+                  SendForgotPasswordSuccess(session: final session) =>
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute<void>(
+                        builder: (context) => VerificationPage(
+                          loginParams: LoginParams(
+                            email: controllers.emailController.text,
+                            password: controllers.newPasswordController.text,
+                          ),
+                          session: session,
+                          resend: (session) => sendForgotPasswordRequest(
+                            controllers.emailController.text,
+                          ).then(
+                            (state) => switch (state) {
+                              SendForgotPasswordSuccess() => null,
+                              SendForgotPasswordFailureResponse(
+                                message: final message
+                              ) =>
+                                message,
+                            },
+                          ),
+                          confirm: (session, code) => submitForgotPassword(
+                            params: SubmitForgotPasswordParams(
+                              email: controllers.emailController.text,
+                              code: code,
+                              newPassword:
+                                  controllers.newPasswordController.text,
+                            ),
+                            session: session,
+                          ).then((state) => state?.message),
+                        ),
+                      ),
+                    ),
+                  SendForgotPasswordFailureResponse(message: final message) =>
+                    StyledBanner.show(
+                      message: message,
+                      error: true,
+                    ),
+                },
+                fallback: () {},
+              ),
               builder: (context, loaderState) {
                 final formBloc = context.formBloc<ForgotPasswordControllers>();
                 return PageView(

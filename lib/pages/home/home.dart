@@ -86,6 +86,7 @@ class _HomePageState extends State<HomePage> {
                               session as AwsSession,
                               homeLoaderResponse.user.identityId,
                             ),
+                            loadOnStart: const LoadOnStart(null),
                           ),
                           child: ProfilePictureConsumer(
                             listener: _handleProfilePictureState,
