@@ -20,7 +20,7 @@ base class User extends Equatable {
     required this.id,
     required this.firstName,
     required this.lastName,
-    required this.identityId,
+    this.identityId,
   }) : super();
 
   factory User.fromJson(dynamic json) => parse(User.new, json, properties);
