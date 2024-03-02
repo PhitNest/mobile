@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ReportUserButton extends StatelessWidget {
   final String firstName;
   final String lastName;
-  final VoidCallback onReportSubmitted;
+  final void Function(String reason) onReportSubmitted;
 
   const ReportUserButton({
     super.key,
@@ -13,42 +13,38 @@ class ReportUserButton extends StatelessWidget {
   });
 
   Future<void> _showReportDialog(BuildContext context) async {
-    final TextEditingController reportReasonController =
-        TextEditingController();
+    String reason = '';
     await showDialog<void>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            'Report $firstName $lastName',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium!
-                .copyWith(color: Colors.white),
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Report $firstName $lastName',
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium!
+              .copyWith(color: Colors.white),
+        ),
+        content: TextField(
+          onChanged: (value) => reason = value,
+          decoration:
+              const InputDecoration(hintText: 'Enter reason for reporting'),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(context).pop(),
           ),
-          content: TextField(
-            controller: reportReasonController,
-            decoration:
-                const InputDecoration(hintText: 'Enter reason for reporting'),
+          TextButton(
+            child: const Text('Report'),
+            onPressed: () {
+              // Placeholder for your report submission logic
+              onReportSubmitted(reason);
+              Navigator.of(context).pop();
+            },
           ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            TextButton(
-              child: const Text('Report'),
-              onPressed: () {
-                // Placeholder for your report submission logic
-                onReportSubmitted();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+        ],
+      ),
     );
-    reportReasonController.dispose();
   }
 
   @override

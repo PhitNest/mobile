@@ -174,14 +174,19 @@ final class NavBarBloc extends Bloc<NavBarEvent, NavBarState> {
             const NavBarInitialState(numAlerts: 0, page: NavBarPage.explore)) {
     on<NavBarSetLoadingEvent>(
       (event, emit) {
-        if (event.loading) {
-          emit(
-              NavBarInitialState(numAlerts: state.numAlerts, page: state.page));
-        } else {
-          emit(NavBarInactiveState(
-            numAlerts: state.numAlerts,
-            page: state.page,
-          ));
+        switch (state) {
+          case NavBarReversedState():
+            break;
+          default:
+            if (event.loading) {
+              emit(NavBarInitialState(
+                  numAlerts: state.numAlerts, page: state.page));
+            } else {
+              emit(NavBarInactiveState(
+                numAlerts: state.numAlerts,
+                page: state.page,
+              ));
+            }
         }
       },
     );
@@ -296,9 +301,10 @@ final class NavBarBloc extends Bloc<NavBarEvent, NavBarState> {
                 NavBarReversedState() ||
                 NavBarHoldingLogoState():
             badState(state, event);
-          case NavBarInitialState() || NavBarSendingFriendRequestState():
+          case NavBarInactiveState() ||
+                NavBarInitialState() ||
+                NavBarSendingFriendRequestState():
             emit(NavBarReversedState(numAlerts: state.numAlerts));
-          case NavBarInactiveState():
         }
       },
     );

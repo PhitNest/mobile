@@ -1,37 +1,42 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../entities/entities.dart';
-import '../../../../../repositories/repositories.dart';
 import '../../../../../util/bloc/bloc.dart';
-import '../../../../../util/http/http.dart';
-import '../../../../../widgets/widgets.dart';
-import '../../../home.dart';
+import '../../../../pages.dart';
+import '../../../widgets/navbar/navbar.dart';
+import '../../../widgets/widgets.dart';
 import 'report_user.dart';
 
-typedef ExploreProfilePictureBloc
-    = AuthLoaderBloc<void, ({Uri uri, Map<String, String> headers})>;
-typedef ExploreProfilePictureConsumer
-    = AuthLoaderConsumer<void, ({Uri uri, Map<String, String> headers})>;
-
-final class ExploreUserPage extends StatelessWidget {
+final class ExploreUserPage extends StatefulWidget {
   final User user;
+  final Image profilePicture;
   final int? countdown;
   final PageController pageController;
-  final HomeResponse homeResponse;
-  final Headers homeResponseHeaders;
   final bool loading;
 
   const ExploreUserPage({
     super.key,
     required this.user,
+    required this.profilePicture,
     required this.loading,
-    required this.homeResponseHeaders,
     required this.countdown,
     required this.pageController,
-    required this.homeResponse,
   }) : super();
+
+  @override
+  State<StatefulWidget> createState() => _ExploreUserPageState();
+}
+
+final class _ExploreUserPageState extends State<ExploreUserPage> {
+  _ExploreUserPageState() : super();
+
+  @override
+  void initState() {
+    super.initState();
+    context.navBarBloc.add(widget.loading
+        ? const NavBarSetLoadingEvent(true)
+        : const NavBarAnimateEvent());
+  }
 
   @override
   Widget build(BuildContext context) => ListView(
@@ -42,68 +47,14 @@ final class ExploreUserPage extends StatelessWidget {
               SizedBox(
                 height: 444,
                 width: 375,
-                child: BlocProvider(
-                  create: (context) => ExploreProfilePictureBloc(
-                    sessionLoader: context.sessionLoader,
-                    load: (_, session) async =>
-                        // TODO: FIX
-                        getProfilePictureUri(
-                            session as AwsSession, user.identityId),
-                    loadOnStart: const LoadOnStart(null),
-                  ),
-                  child: ExploreProfilePictureConsumer(
-                    listener: (context, profilePictureState) {},
-                    builder: (context, profilePictureState) =>
-                        profilePictureState.handleAuth(
-                      success: (image) => Image.network(
-                        image.uri.toString(),
-                        headers: image.headers,
-                        errorBuilder: (context, _, __) {
-                          context.homeBloc.add(
-                            LoaderSetEvent(
-                              AuthRes(
-                                HttpResponseOk(
-                                  HomeResponse(
-                                    user: homeResponse.user,
-                                    explore: [...homeResponse.explore]
-                                      ..remove(user),
-                                    pendingRequests: [
-                                      ...homeResponse.pendingRequests
-                                    ]..removeWhere(
-                                        (element) =>
-                                            element
-                                                .other(homeResponse.user.id)
-                                                .id ==
-                                            user.id,
-                                      ),
-                                    friends: [...homeResponse.friends]
-                                      ..removeWhere(
-                                        (element) =>
-                                            element
-                                                .other(homeResponse.user.id)
-                                                .id ==
-                                            user.id,
-                                      ),
-                                  ),
-                                  homeResponseHeaders,
-                                ),
-                              ),
-                            ),
-                          );
-                          return const Loader();
-                        },
-                      ),
-                      fallback: () => const Loader(),
-                    ),
-                  ),
-                ),
+                child: widget.profilePicture,
               ),
               Positioned(
                 bottom: 16,
                 left: 16,
                 child: GestureDetector(
                   onTap: () {
-                    pageController.previousPage(
+                    widget.pageController.previousPage(
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeInOut);
                   },
@@ -126,11 +77,9 @@ final class ExploreUserPage extends StatelessWidget {
                 bottom: 16,
                 right: 16,
                 child: GestureDetector(
-                  onTap: () {
-                    pageController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut);
-                  },
+                  onTap: () => widget.pageController.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut),
                   child: Container(
                     height: 48,
                     width: 48,
@@ -147,18 +96,17 @@ final class ExploreUserPage extends StatelessWidget {
                 ),
               ),
               // report user button
-              if (!loading)
+              if (!widget.loading)
                 Positioned(
                   top: 16,
                   right: 16,
                   child: ReportUserButton(
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    onReportSubmitted: () {
-                      StyledBanner.show(
-                        message: 'Report submitted successfully',
-                        error: false,
-                      );
+                    firstName: widget.user.firstName,
+                    lastName: widget.user.lastName,
+                    onReportSubmitted: (reason) {
+                      context.navBarBloc.add(const NavBarSetLoadingEvent(true));
+                      context.sendReportBloc.add(ParallelPushEvent(
+                          (reason: reason, user: widget.user)));
                     },
                   ),
                 ),
@@ -170,12 +118,12 @@ final class ExploreUserPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  user.fullName,
+                  widget.user.fullName,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 Text(
-                  countdown != null
-                      ? '$countdown...'
+                  widget.countdown != null
+                      ? '${widget.countdown}...'
                       : 'Press & hold the logo to send a friend request',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),

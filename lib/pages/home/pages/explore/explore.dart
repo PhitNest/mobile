@@ -1,55 +1,80 @@
-import 'package:dio/dio.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../entities/entities.dart';
 import '../../widgets/navbar/navbar.dart';
 import 'widgets/widgets.dart';
 
-class ExplorePage extends StatelessWidget {
-  final PageController pageController;
+final class ExploreUser extends Equatable {
+  final User user;
+  final Image profilePicture;
+
+  const ExploreUser({
+    required this.user,
+    required this.profilePicture,
+  }) : super();
+
+  @override
+  List<Object?> get props => [user, profilePicture];
+}
+
+final class ExplorePage extends StatefulWidget {
+  final List<ExploreUser> exploreUsers;
   final NavBarState navBarState;
-  final HomeResponse homeResponse;
-  final Headers homeResponseHeaders;
-  final List<String> loadingUserIds;
-  static const PageStorageKey<String> pageStorageKey =
-      PageStorageKey('explore');
+  final Set<String> loadingUserIds;
+  final PageController pageController;
 
   const ExplorePage({
     super.key,
-    required this.homeResponse,
-    required this.pageController,
-    required this.homeResponseHeaders,
+    required this.exploreUsers,
     required this.navBarState,
     required this.loadingUserIds,
+    required this.pageController,
   }) : super();
 
-  User user(int page) =>
-      homeResponse.explore[page % homeResponse.explore.length];
+  @override
+  State<StatefulWidget> createState() => _ExplorePageLoadedState();
+}
+
+final class _ExplorePageLoadedState extends State<ExplorePage> {
+  static const PageStorageKey<String> pageStorageKey =
+      PageStorageKey('explore');
+
+  _ExplorePageLoadedState() : super();
+
+  ExploreUser user(int page) =>
+      widget.exploreUsers[page % widget.exploreUsers.length];
 
   @override
-  Widget build(BuildContext context) => homeResponse.explore.isEmpty
+  void initState() {
+    super.initState();
+    switch (widget.navBarState) {
+      case NavBarInitialState():
+        if (widget.exploreUsers.isEmpty) {
+          context.navBarBloc.add(const NavBarSetLoadingEvent(false));
+        }
+      default:
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.exploreUsers.isEmpty
       ? const Center(child: Text('There are no users to explore.'))
       : PageView.builder(
           key: pageStorageKey,
-          controller: pageController,
-          onPageChanged: (page) {
+          controller: widget.pageController,
+          itemBuilder: (context, page) {
             final exploreUser = user(page);
-            if (loadingUserIds.contains(exploreUser.id)) {
-              context.navBarBloc.add(const NavBarSetLoadingEvent(true));
-            } else {
-              context.navBarBloc.add(const NavBarAnimateEvent());
-            }
+            return ExploreUserPage(
+              profilePicture: exploreUser.profilePicture,
+              loading: widget.loadingUserIds.contains(exploreUser.user.id),
+              countdown: switch (widget.navBarState) {
+                NavBarHoldingLogoState(countdown: final countdown) => countdown,
+                _ => null,
+              },
+              user: exploreUser.user,
+              pageController: widget.pageController,
+            );
           },
-          itemBuilder: (context, page) => ExploreUserPage(
-            loading: loadingUserIds.contains(user(page).id),
-            homeResponse: homeResponse,
-            homeResponseHeaders: homeResponseHeaders,
-            countdown: switch (navBarState) {
-              NavBarHoldingLogoState(countdown: final countdown) => countdown,
-              _ => null,
-            },
-            user: user(page),
-            pageController: pageController,
-          ),
         );
 }

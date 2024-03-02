@@ -1,5 +1,10 @@
 part of 'home.dart';
 
+typedef ExploreProfilePicturesBloc
+    = AuthLoaderBloc<List<User>, List<ExploreUser>>;
+typedef ExploreProfilePicturesConsumer
+    = AuthLoaderConsumer<List<User>, List<ExploreUser>>;
+
 typedef SendFriendRequestBloc
     = AuthParallelLoaderBloc<User, HttpResponse<FriendRequest>>;
 typedef SendFriendRequestConsumer
@@ -16,8 +21,8 @@ typedef DeleteUserConsumer = AuthLoaderConsumer<void, HttpResponse<bool>>;
 typedef HomeBloc = AuthLoaderBloc<void, HttpResponse<HomeResponse>>;
 typedef HomeConsumer = AuthLoaderConsumer<void, HttpResponse<HomeResponse>>;
 
-typedef ProfilePictureBloc = AuthLoaderBloc<void, Image?>;
-typedef ProfilePictureConsumer = AuthLoaderConsumer<void, Image?>;
+typedef ProfilePictureBloc = AuthLoaderBloc<User, Image?>;
+typedef ProfilePictureConsumer = AuthLoaderConsumer<User, Image?>;
 typedef LogoutBloc = AuthLoaderBloc<void, void>;
 typedef LogoutConsumer = AuthLoaderConsumer<void, void>;
 
@@ -28,6 +33,7 @@ extension HomeBlocGetters on BuildContext {
   SendReportBloc get sendReportBloc => authParallelBloc();
   DeleteUserBloc get deleteUserBloc => authLoader();
   ProfilePictureBloc get profilePictureBloc => authLoader();
+  ExploreProfilePicturesBloc get exploreProfilePicturesBloc => authLoader();
 }
 
 void _handleLogoutState(
@@ -52,18 +58,26 @@ void _handleHomeDataState(
     loaderState.handleAuthLostHttp(
       context,
       success: (response, _) {
-        final navbarBloc = context.navBarBloc;
-        navbarBloc
+        final profilePictureBloc = context.profilePictureBloc;
+        profilePictureBloc.state.handleAuth(
+          initial: () => profilePictureBloc.add(LoaderLoadEvent(response.user)),
+          fallback: () {},
+        );
+
+        final exploreProfilePicturesBloc = context.exploreProfilePicturesBloc;
+        exploreProfilePicturesBloc.state.handleAuth(
+          initial: () =>
+              exploreProfilePicturesBloc.add(LoaderLoadEvent(response.explore)),
+          success: (exploreUsers) => exploreProfilePicturesBloc.add(
+              LoaderSetEvent(AuthRes(response.explore
+                  .map((user) => exploreUsers
+                      .firstWhere((element) => element.user.id == user.id))
+                  .toList()))),
+          fallback: () {},
+        );
+
+        context.navBarBloc
             .add(NavBarSetNumAlertsEvent(response.pendingRequests.length));
-        switch (navbarBloc.state) {
-          case NavBarInitialState(page: final page):
-            if (page == NavBarPage.explore && response.explore.isNotEmpty) {
-              navbarBloc.add(const NavBarAnimateEvent());
-            } else {
-              navbarBloc.add(const NavBarSetLoadingEvent(false));
-            }
-          default:
-        }
       },
       failure: (failure, _) {
         StyledBanner.show(
@@ -134,70 +148,59 @@ void _handleSendFriendRequestState(
 ) {
   switch (loaderState) {
     case ParallelLoadedState(data: final response, req: final req):
-      switch (response) {
-        case AuthRes(data: final data):
-          switch (data) {
-            case HttpResponseSuccess(data: final data, headers: final headers):
-              if (data.accepted) {
-                context.homeBloc.add(
-                  LoaderSetEvent(
-                    AuthRes(
-                      HttpResponseOk(
-                        HomeResponse(
-                          user: homeData.user,
-                          explore: [...homeData.explore]..remove(req),
-                          pendingRequests: [...homeData.pendingRequests]
-                            ..removeWhere((element) =>
-                                element.other(homeData.user.id).id == req.id),
-                          friends: [...homeData.friends, data],
-                        ),
-                        headers,
-                      ),
+      response.handleAuthLostHttp(
+        context,
+        success: (response, headers) {
+          if (response.accepted) {
+            context.homeBloc.add(
+              LoaderSetEvent(
+                AuthRes(
+                  HttpResponseOk(
+                    HomeResponse(
+                      user: homeData.user,
+                      explore: [...homeData.explore]..remove(req),
+                      pendingRequests: [...homeData.pendingRequests]
+                        ..removeWhere((element) =>
+                            element.other(homeData.user.id).id == req.id),
+                      friends: [...homeData.friends, response],
                     ),
+                    headers,
                   ),
-                );
-                context.navBarBloc.add(const NavBarReverseEvent());
-              } else {
-                StyledBanner.show(
-                  message: 'Friend request sent',
-                  error: false,
-                );
-                context.homeBloc.add(
-                  LoaderSetEvent(
-                    AuthRes(
-                      HttpResponseOk(
-                        HomeResponse(
-                          explore: [...homeData.explore]
-                            ..remove(loaderState.req),
-                          user: homeData.user,
-                          pendingRequests: [...homeData.pendingRequests]
-                            ..removeWhere((element) =>
-                                element.other(homeData.user.id).id == req.id),
-                          friends: homeData.friends,
-                        ),
-                        null,
-                      ),
+                ),
+              ),
+            );
+            context.navBarBloc.add(const NavBarReverseEvent());
+          } else {
+            StyledBanner.show(message: 'Friend request sent', error: false);
+            context.homeBloc.add(
+              LoaderSetEvent(
+                AuthRes(
+                  HttpResponseOk(
+                    HomeResponse(
+                      explore: [...homeData.explore]..remove(loaderState.req),
+                      user: homeData.user,
+                      pendingRequests: [...homeData.pendingRequests]
+                        ..removeWhere((element) =>
+                            element.other(homeData.user.id).id == req.id),
+                      friends: homeData.friends,
                     ),
+                    null,
                   ),
-                );
-                context.navBarBloc.add(const NavBarSetLoadingEvent(false));
-              }
-            case HttpResponseFailure(failure: final failure):
-              StyledBanner.show(
-                message: failure.message,
-                error: true,
-              );
-              context.navBarBloc.add(const NavBarSetLoadingEvent(false));
+                ),
+              ),
+            );
+            context.navBarBloc.add(const NavBarSetLoadingEvent(false));
           }
-        case AuthLost():
-          Navigator.pushAndRemoveUntil(
-            context,
-            CupertinoPageRoute<void>(
-              builder: (context) => const LoginPage(),
-            ),
-            (_) => false,
+        },
+        failure: (failure, _) {
+          StyledBanner.show(
+            message: failure.message,
+            error: true,
           );
-      }
+          context.navBarBloc.add(const NavBarSetLoadingEvent(false));
+        },
+        fallback: () {},
+      );
     case ParallelLoaderState():
   }
 }
@@ -210,47 +213,41 @@ void _handleSendReportState(
 ) {
   switch (loaderState) {
     case ParallelLoadedState(data: final response, req: final req):
-      switch (response) {
-        case AuthRes(data: final data):
-          switch (data) {
-            case HttpResponseSuccess(headers: final headers):
-              StyledBanner.show(
-                message: 'Report sent',
-                error: false,
-              );
-              context.homeBloc.add(
-                LoaderSetEvent(
-                  AuthRes(
-                    HttpResponseOk(
-                      HomeResponse(
-                        explore: [...homeData.explore]..remove(req.user),
-                        user: homeData.user,
-                        pendingRequests: [
-                          ...homeData.pendingRequests
-                        ]..removeWhere((element) =>
-                            element.other(homeData.user.id).id == req.user.id),
-                        friends: homeData.friends,
-                      ),
-                      headers,
-                    ),
-                  ),
-                ),
-              );
-            case HttpResponseFailure(failure: final failure):
-              StyledBanner.show(
-                message: failure.message,
-                error: true,
-              );
-          }
-        case AuthLost():
-          Navigator.pushAndRemoveUntil(
-            context,
-            CupertinoPageRoute<void>(
-              builder: (context) => const LoginPage(),
-            ),
-            (_) => false,
+      response.handleAuthLostHttp(
+        context,
+        success: (_, headers) {
+          StyledBanner.show(
+            message: 'Report sent',
+            error: false,
           );
-      }
+          context.homeBloc.add(
+            LoaderSetEvent(
+              AuthRes(
+                HttpResponseOk(
+                  HomeResponse(
+                    explore: [...homeData.explore]..remove(req.user),
+                    user: homeData.user,
+                    pendingRequests: [...homeData.pendingRequests]..removeWhere(
+                        (element) =>
+                            element.other(homeData.user.id).id == req.user.id),
+                    friends: homeData.friends,
+                  ),
+                  headers,
+                ),
+              ),
+            ),
+          );
+          context.navBarBloc.add(const NavBarSetLoadingEvent(false));
+        },
+        failure: (failure, _) {
+          StyledBanner.show(
+            message: failure.message,
+            error: true,
+          );
+          context.navBarBloc.add(const NavBarSetLoadingEvent(false));
+        },
+        fallback: () {},
+      );
     case ParallelLoaderState():
   }
 }

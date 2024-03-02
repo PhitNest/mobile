@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,6 +62,38 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             BlocProvider(create: (_) => NavBarBloc()),
+            BlocProvider(
+              create: (context) => ExploreProfilePicturesBloc(
+                sessionLoader: context.sessionLoader,
+                load: (explore, session) async => (await Future.wait(
+                  explore.map(
+                    (user) async {
+                      final pfp = await getProfilePicture(
+                          session as AwsSession, user.identityId);
+                      if (pfp != null) {
+                        return ExploreUser(
+                          user: user,
+                          profilePicture: pfp,
+                        );
+                      }
+                      return null;
+                    },
+                  ),
+                ))
+                    .nonNulls
+                    .toList(),
+              ),
+            ),
+            BlocProvider(
+              create: (context) => ProfilePictureBloc(
+                sessionLoader: context.sessionLoader,
+                // TODO: FIX
+                load: (user, session) => getProfilePicture(
+                  session as AwsSession,
+                  user.identityId,
+                ),
+              ),
+            ),
           ],
           child: DeleteUserConsumer(
             listener: _handleDeleteUserState,
@@ -78,105 +109,113 @@ class _HomePageState extends State<HomePage> {
                       builder: (context, homeLoaderState) =>
                           homeLoaderState.handleAuthHttp(
                         success: (homeLoaderResponse, homeResponseHeaders) =>
-                            BlocProvider(
-                          create: (context) => ProfilePictureBloc(
-                            sessionLoader: context.sessionLoader,
-                            // TODO: FIX
-                            load: (_, session) => getProfilePicture(
-                              session as AwsSession,
-                              homeLoaderResponse.user.identityId,
-                            ),
-                            loadOnStart: const LoadOnStart(null),
-                          ),
-                          child: ProfilePictureConsumer(
-                            listener: _handleProfilePictureState,
-                            builder: (context, profilePictureState) =>
-                                profilePictureState.handleAuth(
-                              success: (profilePicture) => profilePicture !=
-                                      null
-                                  ? SendReportConsumer(
-                                      listener: (context, sendReportState) =>
-                                          _handleSendReportState(
-                                        context,
-                                        sendReportState,
-                                        homeLoaderResponse,
-                                      ),
-                                      builder: (context, sendReportState) =>
-                                          SendFriendRequestConsumer(
-                                        listener:
-                                            (context, sendFriendRequestState) =>
-                                                _handleSendFriendRequestState(
+                            ProfilePictureConsumer(
+                          listener: _handleProfilePictureState,
+                          builder: (context, profilePictureState) =>
+                              profilePictureState.handleAuth(
+                            success: (profilePicture) => profilePicture != null
+                                ? ExploreProfilePicturesConsumer(
+                                    listener: (context, exploreUsersState) =>
+                                        exploreUsersState.handleAuthLost(
+                                      context,
+                                      success: (exploreUsers) => context
+                                          .navBarBloc
+                                          .add(const NavBarSetLoadingEvent(
+                                              false)),
+                                      fallback: () {},
+                                    ),
+                                    builder: (context, exploreUsersState) =>
+                                        exploreUsersState.handleAuth(
+                                      success: (exploreUsers) =>
+                                          SendReportConsumer(
+                                        listener: (context, sendReportState) =>
+                                            _handleSendReportState(
                                           context,
-                                          sendFriendRequestState,
+                                          sendReportState,
                                           homeLoaderResponse,
                                         ),
-                                        builder:
-                                            (context, sendFriendRequestState) =>
-                                                switch (navBarState) {
-                                          NavBarReversedState() => const Center(
-                                              child: Text('You have matched!')),
-                                          _ => switch (navBarState.page) {
-                                              NavBarPage.explore => ExplorePage(
-                                                  loadingUserIds: [
-                                                    ...sendReportState
+                                        builder: (context, sendReportState) =>
+                                            SendFriendRequestConsumer(
+                                          listener: (context,
+                                                  sendFriendRequestState) =>
+                                              _handleSendFriendRequestState(
+                                            context,
+                                            sendFriendRequestState,
+                                            homeLoaderResponse,
+                                          ),
+                                          builder: (context,
+                                                  sendFriendRequestState) =>
+                                              switch (navBarState) {
+                                            NavBarReversedState() =>
+                                              const Center(
+                                                  child: Text(
+                                                      'You have matched!')),
+                                            _ => switch (navBarState.page) {
+                                                NavBarPage.explore =>
+                                                  ExplorePage(
+                                                    loadingUserIds: {
+                                                      ...sendReportState
+                                                          .operations
+                                                          .map((op) =>
+                                                              op.req.user.id),
+                                                      ...sendFriendRequestState
+                                                          .operations
+                                                          .map((op) =>
+                                                              op.req.id),
+                                                    },
+                                                    exploreUsers: exploreUsers,
+                                                    navBarState: navBarState,
+                                                    pageController:
+                                                        pageController,
+                                                  ),
+                                                NavBarPage.chat =>
+                                                  ConversationsPage(
+                                                    userId: homeLoaderResponse
+                                                        .user.id,
+                                                    friends: homeLoaderResponse
+                                                        .friends,
+                                                  ),
+                                                NavBarPage.friends =>
+                                                  FriendsPage(
+                                                    reports: sendReportState
                                                         .operations
-                                                        .map((op) =>
-                                                            op.req.user.id),
-                                                    ...sendFriendRequestState
-                                                        .operations
-                                                        .map((op) => op.req.id),
-                                                  ],
-                                                  pageController:
-                                                      pageController,
-                                                  homeResponse:
-                                                      homeLoaderResponse,
-                                                  homeResponseHeaders:
-                                                      homeResponseHeaders ??
-                                                          Headers(),
-                                                  navBarState: navBarState,
-                                                ),
-                                              NavBarPage.chat =>
-                                                ConversationsPage(
-                                                  userId: homeLoaderResponse
-                                                      .user.id,
-                                                  friends: homeLoaderResponse
-                                                      .friends,
-                                                ),
-                                              NavBarPage.friends => FriendsPage(
-                                                  reports: sendReportState
-                                                      .operations
-                                                      .map((op) => op.req)
-                                                      .toList(),
-                                                  homeData: homeLoaderResponse,
-                                                ),
-                                              NavBarPage.options => OptionsPage(
-                                                  user: homeLoaderResponse.user,
-                                                  profilePicture:
-                                                      profilePicture,
-                                                ),
-                                            },
-                                        },
+                                                        .map((op) => op.req)
+                                                        .toList(),
+                                                    homeData:
+                                                        homeLoaderResponse,
+                                                  ),
+                                                NavBarPage.options =>
+                                                  OptionsPage(
+                                                    user:
+                                                        homeLoaderResponse.user,
+                                                    profilePicture:
+                                                        profilePicture,
+                                                  ),
+                                              },
+                                          },
+                                        ),
                                       ),
-                                    )
-                                  : null,
-                              fallback: () => const Loader(),
+                                      fallback: () => const Loader(),
+                                    ),
+                                  )
+                                : null,
+                            fallback: () => Center(
+                              child: ListView(
+                                children: [
+                                  const Loader(),
+                                  StyledOutlineButton(
+                                    onPress: () => context.logoutBloc
+                                        .add(const LoaderLoadEvent(null)),
+                                    text: 'Sign Out',
+                                    hPadding: 16,
+                                    vPadding: 8,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                        fallback: () => Center(
-                          child: ListView(
-                            children: [
-                              const Loader(),
-                              StyledOutlineButton(
-                                onPress: () => context.logoutBloc
-                                    .add(const LoaderLoadEvent(null)),
-                                text: 'Sign Out',
-                                hPadding: 16,
-                                vPadding: 8,
-                              ),
-                            ],
-                          ),
-                        ),
+                        fallback: () => const Loader(),
                       ),
                     ),
                   ),
