@@ -7,11 +7,11 @@ base class User extends Equatable {
   final String lastName;
   final String? identityId;
 
-  static const properties = {
+  static final properties = <String, JsonProperty<dynamic>>{
     'id': string,
     'firstName': string,
     'lastName': string,
-    'identityId': string,
+    'identityId': string.optional,
   };
 
   String get fullName => '$firstName $lastName';
@@ -32,7 +32,7 @@ base class User extends Equatable {
 final class UserWithEmail extends User {
   final String email;
 
-  static const properties = {
+  static final properties = {
     ...User.properties,
     'email': string,
   };
@@ -41,8 +41,8 @@ final class UserWithEmail extends User {
     required super.id,
     required super.firstName,
     required super.lastName,
-    required super.identityId,
     required this.email,
+    super.identityId,
   }) : super();
 
   factory UserWithEmail.fromJson(dynamic json) =>
