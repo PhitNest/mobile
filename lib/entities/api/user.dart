@@ -5,7 +5,7 @@ base class User extends Equatable {
   final String id;
   final String firstName;
   final String lastName;
-  final String identityId;
+  final String? identityId;
 
   static const properties = {
     'id': string,
@@ -26,7 +26,7 @@ base class User extends Equatable {
   factory User.fromJson(dynamic json) => parse(User.new, json, properties);
 
   @override
-  List<Object> get props => [id, firstName, lastName, identityId];
+  List<Object?> get props => [id, firstName, lastName, identityId];
 }
 
 final class UserWithEmail extends User {
@@ -49,5 +49,5 @@ final class UserWithEmail extends User {
       parse(UserWithEmail.new, json, properties);
 
   @override
-  List<Object> get props => [...super.props, email];
+  List<Object?> get props => [...super.props, email];
 }

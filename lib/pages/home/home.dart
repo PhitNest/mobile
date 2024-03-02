@@ -68,13 +68,15 @@ class _HomePageState extends State<HomePage> {
                 load: (explore, session) async => (await Future.wait(
                   explore.map(
                     (user) async {
-                      final pfp = await getProfilePicture(
-                          session as AwsSession, user.identityId);
-                      if (pfp != null) {
-                        return ExploreUser(
-                          user: user,
-                          profilePicture: pfp,
-                        );
+                      if (user.identityId != null) {
+                        final pfp = await getProfilePicture(
+                            session as AwsSession, user.identityId!);
+                        if (pfp != null) {
+                          return ExploreUser(
+                            user: user,
+                            profilePicture: pfp,
+                          );
+                        }
                       }
                       return null;
                     },
@@ -88,10 +90,12 @@ class _HomePageState extends State<HomePage> {
               create: (context) => ProfilePictureBloc(
                 sessionLoader: context.sessionLoader,
                 // TODO: FIX
-                load: (user, session) => getProfilePicture(
-                  session as AwsSession,
-                  user.identityId,
-                ),
+                load: (user, session) async => user.identityId != null
+                    ? await getProfilePicture(
+                        session as AwsSession,
+                        user.identityId!,
+                      )
+                    : null,
               ),
             ),
           ],
