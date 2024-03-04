@@ -58,7 +58,7 @@ void _handleDeleteFriendshipStateChanged(
       switch (response) {
         case AuthRes(data: final response):
           switch (response) {
-            case HttpResponseSuccess():
+            case HttpResponseSuccess(headers: final headers):
               StyledBanner.show(
                 message:
                     req.accepted ? 'Friend removed' : 'Friend request denied',
@@ -68,7 +68,7 @@ void _handleDeleteFriendshipStateChanged(
               context.homeBloc.add(
                 LoaderSetEvent(
                   AuthRes(
-                    HttpResponseOk(
+                    HttpResponseSuccess(
                       HomeResponse(
                         user: homeData.user,
                         explore: [
@@ -85,7 +85,7 @@ void _handleDeleteFriendshipStateChanged(
                         ],
                         friends: [...homeData.friends]..remove(req),
                       ),
-                      null,
+                      headers,
                     ),
                   ),
                 ),

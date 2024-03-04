@@ -3,28 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../util/bloc/bloc.dart';
 
-typedef CreateFormConsumer<Controllers extends FormControllers, ReqType,
-        ResType>
-    = LoaderConsumer<ReqType, ResType> Function(
-  BuildContext context,
-  Controllers controllers,
-  void Function(ReqType req, LoaderState<ResType> loaderState) submit,
-);
-
 typedef FormProvider<Controllers extends FormControllers, ReqType, ResType>
     = _FormProvider<Controllers, LoaderBloc<ReqType, ResType>,
         LoaderConsumer<ReqType, ResType>, ReqType, ResType>;
-
-typedef CreateAuthFormConsumer<Controllers extends FormControllers, ReqType,
-        ResType>
-    = AuthLoaderConsumer<ReqType, ResType> Function(
-  BuildContext context,
-  Controllers controllers,
-  void Function(
-    ReqType req,
-    LoaderState<AuthResOrLost<ResType>> loaderState,
-  ) submit,
-);
 
 typedef AuthFormProvider<Controllers extends FormControllers, ReqType, ResType>
     = _FormProvider<Controllers, AuthLoaderBloc<ReqType, ResType>,
@@ -70,14 +51,20 @@ final class _FormProvider<
           builder: (context, formState) {
             final FormBloc<Controllers> formBloc = context.formBloc();
             return Form(
-              key: formBloc.formKey,
+              key: formBloc.controllers.formKey,
               child: createConsumer(
-                  context,
-                  formBloc.controllers,
-                  (req, loaderState) => switch (loaderState) {
-                        LoaderLoadingState() => null,
-                        _ => _submit(context, req),
-                      }),
+                context,
+                formBloc.controllers,
+                (req, loaderState) {
+                  // only submit if the form is not loading already
+                  switch (loaderState) {
+                    case LoaderLoadingState():
+                      break;
+                    default:
+                      _submit(context, req);
+                  }
+                },
+              ),
             );
           },
         ),

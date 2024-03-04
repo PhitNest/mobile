@@ -34,7 +34,7 @@ final class VerificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         body: Center(
-          child: VerificationStateProvider(
+          child: VerificationProviderWidget(
             confirm: confirm,
             resend: resend,
             loginParams: loginParams,

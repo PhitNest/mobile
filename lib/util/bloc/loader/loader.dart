@@ -6,9 +6,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../pages/login/login.dart';
-import '../../../widgets/styled_banner.dart';
-import '../../../widgets/styled_loader.dart';
+import '../../../pages/pages.dart';
+import '../../../widgets/widgets.dart';
 import '../../failure.dart';
 import '../../http/http.dart';
 import '../../logger.dart';
@@ -42,6 +41,25 @@ base class LoaderBloc<ReqType, ResType>
 
   /// [load] is the function that is used to load data from an async source.
   ///
+  /// [initialRequest] is used to make a request immediately when the bloc is
+  /// created.
+  ///
+  /// [initialData] is an optional parameter that can be used to set the initial
+  /// state of the bloc.
+  LoaderBloc.loadOnStart({
+    required Future<ResType> Function(ReqType) load,
+    required ReqType initialRequest,
+    ResType? initialData,
+    FutureOr<void> Function(LoaderState<ResType> state)? onDispose,
+  }) : this(
+          load: load,
+          initialData: initialData,
+          loadOnStart: LoadOnStart(initialRequest),
+          onDispose: onDispose,
+        );
+
+  /// [load] is the function that is used to load data from an async source.
+  ///
   /// [loadOnStart] is an optional parameter that can be used to load data
   /// immediately after the bloc is created.
   ///
@@ -69,21 +87,29 @@ base class LoaderBloc<ReqType, ResType>
     // If the initial state is a loading state, upon completion of the
     // operation, the bloc should emit a loaded state.
     switch (state) {
-      case LoaderLoadingState(operation: final operation) ||
-            LoaderRefreshingState(operation: final operation):
+      case LoaderLoadingState(operation: final operation):
         operation.then((response) => add(_LoaderLoadedEvent(response)));
       case LoaderLoadedState() || LoaderInitialState():
     }
 
     on<LoaderLoadEvent<ReqType, ResType>>(
-      (event, emit) {
+      (event, emit) async {
         CancelableOperation<ResType> operation() =>
             CancelableOperation.fromFuture(load(event.requestData))
-              ..then((response) => add(_LoaderLoadedEvent(response)));
+              ..then((response) {
+                add(_LoaderLoadedEvent(response));
+              });
 
+        final state = this.state;
         switch (state) {
-          case LoaderLoadingState():
-            badState(state, event);
+          case LoaderLoadingState(operation: final currentOperation):
+            await currentOperation.cancel();
+            switch (state) {
+              case LoaderInitialLoadingState():
+                emit(LoaderInitialLoadingState(operation()));
+              case LoaderRefreshingState():
+                emit(LoaderRefreshingState(state.data, operation()));
+            }
           case LoaderInitialState():
             emit(LoaderInitialLoadingState(operation()));
           case LoaderLoadedState(data: final data):
@@ -115,23 +141,39 @@ base class LoaderBloc<ReqType, ResType>
       },
     );
 
-    on<LoaderCancelEvent<ReqType, ResType>>(
+    on<LoaderResetEvent<ReqType, ResType>>(
       (event, emit) async {
         switch (state) {
-          case LoaderRefreshingState(
-              operation: final operation,
-              data: final data
-            ):
+          case LoaderLoadingState(operation: final operation) ||
+                LoaderRefreshingState(operation: final operation):
             await operation.cancel();
-            emit(LoaderLoadedState(data));
+          case LoaderLoadedState() || LoaderInitialState():
+        }
+        emit(const LoaderInitialState());
+      },
+    );
+
+    on<LoaderCancelEvent<ReqType, ResType>>(
+      (event, emit) async {
+        final state = this.state;
+        switch (state) {
           case LoaderLoadingState(operation: final operation):
             await operation.cancel();
-            emit(const LoaderInitialState());
+            switch (state) {
+              case LoaderRefreshingState(data: final data):
+                emit(LoaderLoadedState(data));
+              case LoaderInitialLoadingState():
+                emit(const LoaderInitialState());
+            }
           case LoaderLoadedState() || LoaderInitialState():
         }
       },
     );
   }
+
+  void set(ResType data) => add(LoaderSetEvent(data));
+  void reset() => add(const LoaderResetEvent());
+  void cancel() => add(const LoaderCancelEvent());
 
   @override
   Future<void> close() async {
@@ -151,4 +193,13 @@ typedef LoaderConsumer<ReqType, ResType>
 extension LoaderGetter on BuildContext {
   LoaderBloc<ReqType, ResType> loader<ReqType, ResType>() =>
       BlocProvider.of(this);
+}
+
+extension VoidReq<ResType> on LoaderBloc<void, ResType> {
+  void load() => add(const LoaderLoadEvent(null));
+}
+
+extension NonVoidReq<ReqType extends Object, ResType>
+    on LoaderBloc<ReqType, ResType> {
+  void load(ReqType requestData) => add(LoaderLoadEvent(requestData));
 }

@@ -1,7 +1,7 @@
-export 'forgot_password/forgot_password.dart';
+export 'forgot_password/page.dart';
 export 'home/home.dart';
 export 'home/pages/friends/friends.dart';
-export 'login/login.dart';
-export 'profile_picture/profile_picture.dart';
-export 'register/register.dart';
+export 'login/page.dart';
+export 'profile_picture/pages.dart';
+export 'register/page.dart';
 export 'verification/page.dart';

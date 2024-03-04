@@ -16,7 +16,7 @@ final class FriendRequest extends Equatable {
     'createdAt': string,
   };
 
-  User other(String id) => sender.id == id ? receiver : sender;
+  User other(String myId) => sender.id == myId ? receiver : sender;
 
   const FriendRequest({
     required this.accepted,

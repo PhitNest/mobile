@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../../session/session.dart';
+import 'constants.dart';
 
 sealed class RefreshSessionResponse extends Equatable {
   const RefreshSessionResponse();
@@ -37,8 +38,8 @@ enum RefreshSessionFailureType {
   invalidToken;
 
   String get message => switch (this) {
-        RefreshSessionFailureType.invalidUserPool => 'Please update your app.',
-        RefreshSessionFailureType.noSuchUser => 'No such user.',
+        RefreshSessionFailureType.invalidUserPool => kInvalidUserPool,
+        RefreshSessionFailureType.noSuchUser => kNoSuchUser,
         RefreshSessionFailureType.invalidToken => 'Invalid token.'
       };
 }
@@ -61,7 +62,7 @@ final class RefreshSessionUnknownFailure extends RefreshSessionFailureResponse {
 
   const RefreshSessionUnknownFailure({
     required String? message,
-  })  : message = message ?? 'An unknown error occurred.',
+  })  : message = message ?? kUnknownError,
         super();
 
   @override

@@ -38,6 +38,15 @@ final class LoaderSetEvent<ReqType, ResType>
   List<Object?> get props => [data];
 }
 
+/// Use this event to reset the loader to its initial state.
+final class LoaderResetEvent<ReqType, ResType>
+    extends LoaderEvent<ReqType, ResType> {
+  const LoaderResetEvent() : super();
+
+  @override
+  List<Object?> get props => [];
+}
+
 /// Use this event to cancel the current loading operation.
 final class LoaderCancelEvent<ReqType, ResType>
     extends LoaderEvent<ReqType, ResType> {

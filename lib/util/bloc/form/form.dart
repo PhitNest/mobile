@@ -6,6 +6,8 @@ part 'event.dart';
 part 'state.dart';
 
 abstract class FormControllers {
+  final formKey = GlobalKey<FormState>();
+
   void dispose();
 }
 
@@ -19,13 +21,12 @@ typedef FormConsumer<Controllers extends FormControllers>
 final class FormBloc<Controllers extends FormControllers>
     extends Bloc<FormSetValidationEvent, FormBlocState> {
   final Controllers controllers;
-  final formKey = GlobalKey<FormState>();
 
   void submit({
     required void Function() onAccept,
     void Function()? onReject,
   }) {
-    if (formKey.currentState!.validate()) {
+    if (controllers.formKey.currentState!.validate()) {
       onAccept();
     } else {
       onReject?.call();

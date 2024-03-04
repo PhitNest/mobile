@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../../session/session.dart';
+import 'constants.dart';
 
 sealed class ChangePasswordResponse extends Equatable {
   const ChangePasswordResponse() : super();
@@ -27,9 +28,9 @@ enum ChangePasswordFailureType {
   noSuchUser;
 
   String get message => switch (this) {
-        ChangePasswordFailureType.invalidUserPool => 'Please update your app.',
-        ChangePasswordFailureType.invalidPassword => 'Invalid password',
-        ChangePasswordFailureType.noSuchUser => 'No such user',
+        ChangePasswordFailureType.invalidUserPool => kInvalidUserPool,
+        ChangePasswordFailureType.invalidPassword => kInvalidPassword,
+        ChangePasswordFailureType.noSuchUser => kNoSuchUser,
       };
 }
 
@@ -51,7 +52,7 @@ final class ChangePasswordUnknownFailure extends ChangePasswordFailureResponse {
 
   const ChangePasswordUnknownFailure({
     required String? message,
-  })  : message = message ?? 'An unknown error occurred.',
+  })  : message = message ?? kUnknownError,
         super();
 
   @override

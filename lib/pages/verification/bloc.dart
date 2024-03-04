@@ -19,7 +19,7 @@ class VerificationControllers extends FormControllers {
 typedef ResendLoaderBloc = LoaderBloc<UnauthenticatedSession, String?>;
 typedef ResendLoaderConsumer = LoaderConsumer<UnauthenticatedSession, String?>;
 
-extension ResendEmailBloc on BuildContext {
+extension ResendEmailBlocGetter on BuildContext {
   ResendLoaderBloc get resendEmailLoaderBloc => loader();
 }
 

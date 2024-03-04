@@ -6,19 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'pages/pages.dart';
-import 'repositories/cognito/cognito.dart';
 import 'theme.dart';
 import 'util/bloc/bloc.dart';
 import 'util/cache/cache.dart';
 import 'widgets/widgets.dart';
-
-class AppScrollBehavior extends MaterialScrollBehavior {
-  @override
-  Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-      };
-}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,12 +17,22 @@ Future<void> main() async {
   runApp(const PhitNestApp());
 }
 
+class _ScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
+}
+
 final class PhitNestApp extends StatelessWidget {
   const PhitNestApp({super.key}) : super();
 
   @override
-  Widget build(BuildContext context) => BlocProvider(
-        create: (_) => SessionBloc(load: refreshSession),
+  Widget build(BuildContext context) =>
+      // Provides the session bloc to the entire app
+      BlocProvider(
+        create: sessionBloc,
         // Unfocuses the keyboard when the user taps outside of a text field
         child: GestureDetector(
           onTap: () {
@@ -43,7 +44,7 @@ final class PhitNestApp extends StatelessWidget {
           child: MaterialApp(
             title: 'PhitNest',
             theme: theme,
-            scrollBehavior: AppScrollBehavior(),
+            scrollBehavior: _ScrollBehavior(),
             debugShowCheckedModeBanner: false,
             scaffoldMessengerKey: StyledBanner.scaffoldMessengerKey,
             home: Scaffold(

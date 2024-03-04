@@ -11,7 +11,7 @@ import '../../util/logger.dart';
 const _s3host = 's3.$kRegion.amazonaws.com';
 const _s3Endpoint = 'https://$kUserBucketName.$_s3host';
 
-({Uri uri, Map<String, String> headers}) getProfilePictureUri(
+({Uri uri, Map<String, String> headers}) _getProfilePictureUri(
     AwsSession session, String identityId) {
   final key = '$kUserBucketName/profilePictures/$identityId';
   final payload = SigV4.hashCanonicalRequest('');
@@ -52,7 +52,7 @@ $payload''';
 }
 
 Future<Image?> getProfilePicture(AwsSession session, String identityId) async {
-  final uri = getProfilePictureUri(session, identityId);
+  final uri = _getProfilePictureUri(session, identityId);
   try {
     final res = await http.get(uri.uri, headers: uri.headers);
     if (res.statusCode == 200) {

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../../session/session.dart';
+import 'constants.dart';
 
 sealed class SendForgotPasswordResponse extends Equatable {
   const SendForgotPasswordResponse() : super();
@@ -20,10 +21,9 @@ enum SendForgotPasswordFailureType {
   noSuchUser;
 
   String get message => switch (this) {
-        SendForgotPasswordFailureType.invalidUserPool =>
-          'Please update your app.',
-        SendForgotPasswordFailureType.invalidEmail => 'Invalid email',
-        SendForgotPasswordFailureType.noSuchUser => 'No such user',
+        SendForgotPasswordFailureType.invalidUserPool => kInvalidUserPool,
+        SendForgotPasswordFailureType.invalidEmail => kInvalidEmail,
+        SendForgotPasswordFailureType.noSuchUser => kNoSuchUser,
       };
 }
 
@@ -54,7 +54,7 @@ final class SendForgotPasswordUnknownFailure
 
   const SendForgotPasswordUnknownFailure({
     required String? message,
-  })  : message = message ?? 'An unknown error occurred.',
+  })  : message = message ?? kUnknownError,
         super();
 
   @override
@@ -72,12 +72,11 @@ enum SubmitForgotPasswordFailure {
   unknown;
 
   String get message => switch (this) {
-        SubmitForgotPasswordFailure.invalidUserPool =>
-          ' Please update your app.',
-        SubmitForgotPasswordFailure.invalidEmail => 'Invalid email.',
-        SubmitForgotPasswordFailure.invalidPassword => 'Invalid password.',
-        SubmitForgotPasswordFailure.noSuchUser => 'No such user.',
-        SubmitForgotPasswordFailure.unknown => 'An unknown error occurred.',
+        SubmitForgotPasswordFailure.invalidUserPool => kInvalidUserPool,
+        SubmitForgotPasswordFailure.invalidEmail => kInvalidEmail,
+        SubmitForgotPasswordFailure.invalidPassword => kInvalidPassword,
+        SubmitForgotPasswordFailure.noSuchUser => kNoSuchUser,
+        SubmitForgotPasswordFailure.unknown => kUnknownError,
         SubmitForgotPasswordFailure.invalidCodeOrPassword =>
           'Invalid code or password.',
         SubmitForgotPasswordFailure.invalidCode => 'Invalid code.',

@@ -1,4 +1,9 @@
-part of 'forgot_password.dart';
+import 'package:flutter/cupertino.dart';
+
+import '../../entities/entities.dart';
+import '../../repositories/repositories.dart';
+import '../../util/util.dart';
+import '../../widgets/widgets.dart';
 
 final class ForgotPasswordControllers extends FormControllers {
   final emailController = TextEditingController();
@@ -17,3 +22,8 @@ final class ForgotPasswordControllers extends FormControllers {
 
 typedef ForgotPasswordProvider = FormProvider<ForgotPasswordControllers, String,
     SendForgotPasswordResponse>;
+
+LoaderBloc<String, SendForgotPasswordResponse> sendForgotPasswordBloc(
+  BuildContext context,
+) =>
+    LoaderBloc(load: sendForgotPasswordRequest);

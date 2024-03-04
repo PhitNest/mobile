@@ -8,7 +8,7 @@ import '../../widgets/widgets.dart';
 import '../home/home.dart';
 import 'bloc.dart';
 
-final class VerificationStateProvider extends StatelessWidget {
+final class VerificationProviderWidget extends StatelessWidget {
   final LoginParams loginParams;
   final UnauthenticatedSession session;
 
@@ -43,7 +43,7 @@ final class VerificationStateProvider extends StatelessWidget {
   /// The [resend] function is used to resend the verification code.
   ///
   /// The [builder] is used to build the UI from the state.
-  const VerificationStateProvider({
+  const VerificationProviderWidget({
     super.key,
     required this.confirm,
     required this.loginParams,
@@ -60,32 +60,28 @@ final class VerificationStateProvider extends StatelessWidget {
           createControllers: (_) => VerificationControllers(),
           createConsumer: (context, controllers, submit) => LoaderConsumer(
             listener: (context, loginState) {
-              loginState.handle(
-                loaded: (response) {
-                  switch (response) {
-                    case LoginSuccess():
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        CupertinoPageRoute<void>(
-                          builder: (_) => const HomePage(),
-                        ),
-                        (_) => false,
-                      );
-                    case LoginFailureResponse(message: final message):
-                      StyledBanner.show(message: message, error: true);
-                      controllers.codeController.clear();
-                  }
-                },
-                fallback: () {},
-              );
+              loginState.loaded((response) {
+                switch (response) {
+                  case LoginSuccess():
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      CupertinoPageRoute<void>(
+                        builder: (_) => const HomePage(),
+                      ),
+                      (_) => false,
+                    );
+                  case LoginFailureResponse(message: final message):
+                    StyledBanner.show(message: message, error: true);
+                    controllers.codeController.clear();
+                }
+              });
             },
             builder: (context, loginState) => ResendLoaderConsumer(
-              listener: (context, resendEmailState) => resendEmailState.handle(
-                loaded: (error) => StyledBanner.show(
+              listener: (context, resendEmailState) => resendEmailState.loaded(
+                (error) => StyledBanner.show(
                   message: error ?? 'Email resent',
                   error: error != null,
                 ),
-                fallback: () {},
               ),
               builder: (context, resendState) => builder(
                 context,

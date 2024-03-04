@@ -1,8 +1,26 @@
-part of 'confirm.dart';
+import 'dart:typed_data';
 
-typedef _ConfirmPhotoBloc = AuthLoaderBloc<void, ConfirmPhotoResponse>;
-typedef _ConfirmPhotoConsumer = AuthLoaderConsumer<void, ConfirmPhotoResponse>;
+import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
-extension on BuildContext {
-  _ConfirmPhotoBloc get confirmPhotoBloc => authLoader();
+import '../../../entities/entities.dart';
+import '../../../repositories/repositories.dart';
+import '../../../util/util.dart';
+
+typedef ConfirmPhotoBloc = AuthLoaderBloc<void, String?>;
+typedef ConfirmPhotoConsumer = AuthLoaderConsumer<void, String?>;
+
+extension ConfirmPhotoBlocGetter on BuildContext {
+  ConfirmPhotoBloc get confirmPhotoBloc => authLoader();
 }
+
+ConfirmPhotoBloc confirmPhotoBloc(BuildContext context, Uint8List photoBytes) =>
+    ConfirmPhotoBloc(
+      sessionLoader: context.sessionLoader,
+      load: (_, session) => uploadProfilePicture(
+        photo: ByteStream.fromBytes(photoBytes),
+        length: photoBytes.length,
+        session: session as AwsSession, // TODO: FIX
+        identityId: session.credentials.userIdentityId!,
+      ),
+    );

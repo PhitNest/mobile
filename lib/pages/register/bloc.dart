@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../entities/cognito/cognito.dart';
 import '../../entities/entities.dart';
+import '../../repositories/repositories.dart';
 import '../../util/bloc/bloc.dart';
 import '../../widgets/widgets.dart';
 
@@ -27,3 +29,8 @@ extension RegisterFormBloc on BuildContext {
 
 typedef RegisterProvider
     = FormProvider<RegisterControllers, RegisterParams, RegisterResponse>;
+
+LoaderBloc<RegisterParams, RegisterResponse> registerLoaderBloc(
+  BuildContext context,
+) =>
+    LoaderBloc(load: (params) => register(params));

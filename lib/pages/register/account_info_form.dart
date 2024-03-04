@@ -8,11 +8,13 @@ import 'bloc.dart';
 final class AccountInfoPage extends StatelessWidget {
   final RegisterControllers controllers;
   final void Function() onSubmit;
+  final bool loading;
 
   const AccountInfoPage({
     super.key,
     required this.controllers,
     required this.onSubmit,
+    required this.loading,
   }) : super();
 
   @override
@@ -43,13 +45,16 @@ final class AccountInfoPage extends StatelessWidget {
             textInputAction: TextInputAction.done,
             onFieldSubmitted: (_) => onSubmit(),
           ),
-          ElevatedButton(
-            onPressed: onSubmit,
-            child: Text(
-              'SUBMIT',
-              style: theme.textTheme.bodySmall,
-            ),
-          )
+          if (loading)
+            const Loader()
+          else
+            ElevatedButton(
+              onPressed: onSubmit,
+              child: Text(
+                'SUBMIT',
+                style: theme.textTheme.bodySmall,
+              ),
+            )
         ],
       );
 }

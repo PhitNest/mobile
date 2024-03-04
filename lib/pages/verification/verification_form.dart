@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../entities/entities.dart';
 import '../../theme.dart';
 import '../../util/bloc/bloc.dart';
+import '../../widgets/widgets.dart';
 import 'bloc.dart';
 import 'verification_field.dart';
 
@@ -42,27 +43,24 @@ final class VerificationForm extends StatelessWidget {
             ),
             controllers: controllers,
           ),
-          ...loginState.loaderOrList(
-            resendState.loaderOrList(
-              [
-                ElevatedButton(
-                  onPressed: submit,
-                  child: Text(
-                    'CONFIRM',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () => context.resendEmailLoaderBloc
-                      .add(LoaderLoadEvent(session)),
-                  child: Text(
-                    'RESEND',
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ),
-              ],
+          if (loginState.isLoading || resendState.isLoading)
+            const Loader()
+          else ...[
+            ElevatedButton(
+              onPressed: submit,
+              child: Text(
+                'CONFIRM',
+                style: theme.textTheme.bodySmall,
+              ),
             ),
-          ),
+            ElevatedButton(
+              onPressed: () => context.resendEmailLoaderBloc.load(session),
+              child: Text(
+                'RESEND',
+                style: theme.textTheme.bodySmall,
+              ),
+            ),
+          ],
         ],
       );
 }

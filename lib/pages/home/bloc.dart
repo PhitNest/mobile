@@ -40,15 +40,14 @@ void _handleLogoutState(
   BuildContext context,
   LoaderState<void> loaderState,
 ) =>
-    loaderState.handle(
-      loaded: (_) => Navigator.pushAndRemoveUntil(
+    loaderState.loaded(
+      (_) => Navigator.pushAndRemoveUntil(
         context,
         CupertinoPageRoute<void>(
           builder: (context) => const LoginPage(),
         ),
         (_) => false,
       ),
-      fallback: () {},
     );
 
 void _handleHomeDataState(
@@ -155,7 +154,7 @@ void _handleSendFriendRequestState(
             context.homeBloc.add(
               LoaderSetEvent(
                 AuthRes(
-                  HttpResponseOk(
+                  HttpResponseSuccess(
                     HomeResponse(
                       user: homeData.user,
                       explore: [...homeData.explore]..remove(req),
@@ -175,7 +174,7 @@ void _handleSendFriendRequestState(
             context.homeBloc.add(
               LoaderSetEvent(
                 AuthRes(
-                  HttpResponseOk(
+                  HttpResponseSuccess(
                     HomeResponse(
                       explore: [...homeData.explore]..remove(loaderState.req),
                       user: homeData.user,
@@ -184,7 +183,7 @@ void _handleSendFriendRequestState(
                             element.other(homeData.user.id).id == req.id),
                       friends: homeData.friends,
                     ),
-                    null,
+                    headers,
                   ),
                 ),
               ),
@@ -223,7 +222,7 @@ void _handleSendReportState(
           context.homeBloc.add(
             LoaderSetEvent(
               AuthRes(
-                HttpResponseOk(
+                HttpResponseSuccess(
                   HomeResponse(
                     explore: [...homeData.explore]..remove(req.user),
                     user: homeData.user,

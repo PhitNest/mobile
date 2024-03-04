@@ -1,36 +1,28 @@
 part of 'http.dart';
 
 sealed class HttpResponse<DataType> extends Equatable {
-  final Headers? headers;
+  final Headers headers;
 
   const HttpResponse(this.headers) : super();
 
+  T handleAll<T>({
+    required T Function(DataType, Headers headers) success,
+    required T Function(Failure, Headers headers) failure,
+  }) =>
+      handle(
+        success: success,
+        failure: failure,
+        fallback: () => throw Exception('No fallback provided'),
+      );
+
   T handle<T>({
-    T? Function(DataType, Headers? headers)? success,
-    T? Function(DataType, Headers? headers)? cache,
-    T? Function(DataType, Headers? headers)? ok,
-    T? Function(Failure, Headers? headers)? failure,
+    T? Function(DataType, Headers headers)? success,
+    T? Function(Failure, Headers headers)? failure,
     required T Function() fallback,
   }) {
     final res = this;
     switch (res) {
       case HttpResponseSuccess(data: final data, headers: final headers):
-        switch (res) {
-          case HttpResponseOk(data: final data, headers: final headers):
-            if (ok != null) {
-              final res = ok(data, headers);
-              if (res != null) {
-                return res;
-              }
-            }
-          case HttpResponseCache(data: final data):
-            if (cache != null) {
-              final res = cache(data, headers);
-              if (res != null) {
-                return res;
-              }
-            }
-        }
         if (success != null) {
           final res = success(data, headers);
           if (res != null) {
@@ -52,21 +44,13 @@ sealed class HttpResponse<DataType> extends Equatable {
   List<Object?> get props => [headers];
 }
 
-sealed class HttpResponseSuccess<ResType> extends HttpResponse<ResType> {
+final class HttpResponseSuccess<ResType> extends HttpResponse<ResType> {
   final ResType data;
 
   const HttpResponseSuccess(this.data, super.headers) : super();
 
   @override
   List<Object?> get props => [data, headers];
-}
-
-final class HttpResponseOk<ResType> extends HttpResponseSuccess<ResType> {
-  const HttpResponseOk(super.data, super.headers) : super();
-}
-
-final class HttpResponseCache<ResType> extends HttpResponseSuccess<ResType> {
-  const HttpResponseCache(ResType data) : super(data, null);
 }
 
 final class HttpResponseFailure<ResType> extends HttpResponse<ResType> {
@@ -81,10 +65,11 @@ final class HttpResponseFailure<ResType> extends HttpResponse<ResType> {
 extension HttpLoaderStateHandler<ResType>
     on LoaderState<HttpResponse<ResType>> {
   T handle<T>({
-    T Function(HttpResponseSuccess<ResType>)? success,
-    T Function(HttpResponseFailure<ResType>)? failure,
-    T Function(HttpResponseSuccess<ResType>)? refreshingAfterSuccess,
-    T Function(HttpResponseFailure<ResType>)? refreshingAfterFailure,
+    T Function(ResType, Headers headers)? success,
+    T Function(Failure, Headers headers)? failure,
+    T Function(ResType, Headers headers)? refreshingAfterSuccess,
+    T Function(Failure, Headers headers)? refreshingAfterFailure,
+    T Function()? refreshing,
     T Function()? loading,
     T Function()? initialLoading,
     T Function()? initial,
@@ -94,32 +79,33 @@ extension HttpLoaderStateHandler<ResType>
     switch (state) {
       case LoaderRefreshingState(data: final data):
         switch (data) {
-          case HttpResponseSuccess():
+          case HttpResponseSuccess(data: final data, headers: final headers):
             if (refreshingAfterSuccess != null) {
-              return refreshingAfterSuccess(data);
+              return refreshingAfterSuccess(data, headers);
             } else if (success != null) {
-              return success(data);
-            } else if (loading != null) {
-              return loading();
+              return success(data, headers);
             }
-          case HttpResponseFailure():
+          case HttpResponseFailure(failure: final f, headers: final headers):
             if (refreshingAfterFailure != null) {
-              return refreshingAfterFailure(data);
+              return refreshingAfterFailure(f, headers);
             } else if (failure != null) {
-              return failure(data);
-            } else if (loading != null) {
-              return loading();
+              return failure(f, headers);
             }
+        }
+        if (refreshing != null) {
+          return refreshing();
+        } else if (loading != null) {
+          return loading();
         }
       case LoaderLoadedState(data: final data):
         switch (data) {
-          case HttpResponseSuccess():
+          case HttpResponseSuccess(data: final data, headers: final headers):
             if (success != null) {
-              return success(data);
+              return success(data, headers);
             }
-          case HttpResponseFailure():
+          case HttpResponseFailure(failure: final f, headers: final headers):
             if (failure != null) {
-              return failure(data);
+              return failure(f, headers);
             }
         }
       case LoaderInitialLoadingState():
@@ -135,4 +121,11 @@ extension HttpLoaderStateHandler<ResType>
     }
     return fallback();
   }
+
+  FutureOr<void> success(
+          FutureOr<void> Function(ResType, Headers headers) success) =>
+      handle(
+        success: success,
+        fallback: () {},
+      );
 }

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../entities/entities.dart';
-import '../../pages/login/login.dart';
+import '../../pages/pages.dart';
 import '../../repositories/cognito/cognito.dart';
 import '../../widgets/styled_banner.dart';
 import '../failure.dart';
@@ -43,6 +43,7 @@ sealed class AuthResOrLost<ResType> extends Equatable {
     return fallback();
   }
 
+  /// Handles the state and navigates to the login page if the session is lost.s
   FutureOr<void> handleAuthLost(
     BuildContext context, {
     FutureOr<void> Function(ResType)? success,
@@ -151,6 +152,10 @@ Future<AuthResOrLost<ResType>> _handleRequest<ReqType, ResType>(
 /// A bloc that refreshes the session as needed.
 typedef SessionBloc = LoaderBloc<Session, RefreshSessionResponse>;
 
+/// A BLoC that refreshes the session as needed.
+SessionBloc sessionBloc(BuildContext context) =>
+    SessionBloc(load: refreshSession);
+
 /// A bloc that refreshes the session as needed and processes an async action
 /// with the valid session.
 final class AuthLoaderBloc<ReqType, ResType>
@@ -197,19 +202,15 @@ extension AuthLoaders on BuildContext {
 
 extension HandleHttp<ResType> on AuthResOrLost<HttpResponse<ResType>> {
   T handleHttp<T>({
-    T? Function(ResType, Headers? headers)? success,
-    T? Function(ResType, Headers? headers)? cache,
-    T? Function(ResType, Headers? headers)? ok,
-    T? Function(Failure, Headers? headers)? failure,
-    T? Function(Headers? headers)? authRes,
+    T? Function(ResType, Headers headers)? success,
+    T? Function(Failure, Headers headers)? failure,
+    T? Function(Headers headers)? authRes,
     T? Function(String)? authLost,
     required T Function() fallback,
   }) =>
       handle(
         success: (res) => res.handle(
           success: success,
-          cache: cache,
-          ok: ok,
           failure: failure,
           fallback: () => authRes?.call(res.headers),
         ),
@@ -217,20 +218,30 @@ extension HandleHttp<ResType> on AuthResOrLost<HttpResponse<ResType>> {
         fallback: fallback,
       );
 
+  T handleAllHttp<T>({
+    required T Function(ResType, Headers headers) success,
+    required T Function(Failure, Headers headers) failure,
+    required T Function(String) authLost,
+  }) =>
+      handleHttp(
+        success: success,
+        failure: failure,
+        authLost: authLost,
+        authRes: (headers) => throw Exception('No authRes provided'),
+        fallback: () => throw Exception('No fallback provided'),
+      );
+
+  /// Handles the state and navigates to the login page if the session is lost.s
   FutureOr<void> handleAuthLostHttp(
     BuildContext context, {
-    FutureOr<void> Function(ResType, Headers? headers)? success,
-    FutureOr<void> Function(ResType, Headers? headers)? cache,
-    FutureOr<void> Function(ResType, Headers? headers)? ok,
-    FutureOr<void> Function(Failure, Headers? headers)? failure,
-    FutureOr<void> Function(Headers? headers)? authRes,
+    FutureOr<void> Function(ResType, Headers headers)? success,
+    FutureOr<void> Function(Failure, Headers headers)? failure,
+    FutureOr<void> Function(Headers headers)? authRes,
     FutureOr<void> Function(String)? authLost,
     required FutureOr<void> Function() fallback,
   }) =>
       handleHttp(
         success: success,
-        cache: cache,
-        ok: ok,
         failure: failure,
         authRes: authRes,
         authLost: (message) {
@@ -239,5 +250,21 @@ extension HandleHttp<ResType> on AuthResOrLost<HttpResponse<ResType>> {
           return authLost?.call(message);
         },
         fallback: fallback,
+      );
+
+  /// Handles the state and navigates to the login page if the session is lost.s
+  FutureOr<void> handleAllAuthLostHttp(
+    BuildContext context, {
+    required FutureOr<void> Function(ResType, Headers headers) success,
+    required FutureOr<void> Function(Failure, Headers headers) failure,
+    FutureOr<void> Function(String)? authLost,
+  }) =>
+      handleAuthLostHttp(
+        context,
+        success: success,
+        failure: failure,
+        authLost: authLost,
+        authRes: (headers) => throw Exception('No authRes provided'),
+        fallback: () => throw Exception('No fallback provided'),
       );
 }

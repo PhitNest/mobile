@@ -39,6 +39,11 @@ base class ParallelLoaderBloc<ReqType, ResType> extends Bloc<
     );
   }
 
+  void push(ReqType req) => add(ParallelPushEvent(req));
+  void clear() => add(const ParallelClearEvent());
+  void pop(ParallelOperation<ReqType, ResType> operation, ResType res) =>
+      add(ParallelPopEvent(operation, res));
+
   @override
   Future<void> close() async {
     for (final operation in state.operations) {

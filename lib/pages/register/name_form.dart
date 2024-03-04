@@ -17,7 +17,9 @@ final class NamePage extends StatelessWidget {
   }) : super();
 
   void onSubmit(BuildContext context) {
-    if ((context.registerFormBloc.formKey.currentState?.validate()) ?? false) {
+    if ((context.registerFormBloc.controllers.formKey.currentState
+            ?.validate()) ??
+        false) {
       controllers.pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -64,13 +66,7 @@ final class NamePage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      Navigator.of(context).pushReplacement(
-                        CupertinoPageRoute<void>(
-                          builder: (context) => const LoginPage(),
-                        ),
-                      );
-                    },
+                    ..onTap = () => goToLogin(context),
                 ),
                 TextSpan(
                   text: ' or ',
@@ -86,7 +82,7 @@ final class NamePage extends StatelessWidget {
                     ..onTap = () {
                       Navigator.of(context).push(
                         CupertinoPageRoute<void>(
-                          builder: (context) => const ForgotPasswordScreen(),
+                          builder: (context) => const ForgotPasswordPage(),
                         ),
                       );
                     },

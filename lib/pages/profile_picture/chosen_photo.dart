@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../constants/constants.dart';
-import '../../../util/logger.dart';
-import '../../../widgets/widgets.dart';
+import '../../constants/constants.dart';
+import '../../util/logger.dart';
+import '../../widgets/widgets.dart';
 
 final class ChosenPhoto extends Equatable {
   final CroppedFile file;

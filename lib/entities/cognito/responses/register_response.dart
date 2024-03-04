@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import '../../entities.dart';
+import 'constants.dart';
 
 sealed class RegisterResponse extends Equatable {
   const RegisterResponse();
@@ -32,7 +33,7 @@ enum RegisterFailureType {
   String get message => switch (this) {
         RegisterFailureType.userExists =>
           'A user with that email already exists.',
-        RegisterFailureType.invalidUserPool => 'Please update your app.',
+        RegisterFailureType.invalidUserPool => kInvalidUserPool,
       };
 }
 
@@ -64,7 +65,7 @@ final class RegisterUnknownFailure extends RegisterFailureResponse {
 
   const RegisterUnknownFailure({
     required String? message,
-  })  : message = message ?? 'An unknown error occurred.',
+  })  : message = message ?? kUnknownError,
         super();
 
   @override
