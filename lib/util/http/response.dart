@@ -1,4 +1,10 @@
-part of 'http.dart';
+import 'dart:async';
+
+import 'package:dio/dio.dart';
+import 'package:equatable/equatable.dart';
+
+import '../bloc/bloc.dart';
+import 'failure.dart';
 
 sealed class HttpResponse<DataType> extends Equatable {
   final Headers headers;

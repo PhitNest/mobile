@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:equatable/equatable.dart';
 
 import '../../config/aws.dart';
 import '../../entities/session/session.dart';
-import '../bloc/bloc.dart';
-import '../failure.dart';
 import '../logger.dart';
+import 'failure.dart';
+import 'response.dart';
 
-part 'response.dart';
+export 'failure.dart';
+export 'response.dart';
 
 /// Default HTTP timeout
 const kDefaultTimeout = Duration(seconds: 30);

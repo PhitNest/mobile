@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../pages/pages.dart';
 import '../../../widgets/widgets.dart';
-import '../../failure.dart';
 import '../../http/http.dart';
 import '../../logger.dart';
 import '../session.dart';

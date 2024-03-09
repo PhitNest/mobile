@@ -9,7 +9,6 @@ import '../../entities/entities.dart';
 import '../../pages/pages.dart';
 import '../../repositories/cognito/cognito.dart';
 import '../../widgets/styled_banner.dart';
-import '../failure.dart';
 import '../http/http.dart';
 import 'loader/loader.dart';
 import 'parallel_loader/parallel_loader.dart';
