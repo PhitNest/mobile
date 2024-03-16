@@ -7,7 +7,7 @@ import 'bloc.dart';
 
 final class AccountInfoPage extends StatelessWidget {
   final RegisterControllers controllers;
-  final void Function() onSubmit;
+  final VoidCallback onSubmit;
   final bool loading;
 
   const AccountInfoPage({

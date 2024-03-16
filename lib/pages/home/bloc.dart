@@ -70,7 +70,9 @@ void _handleHomeDataState(
           success: (exploreUsers) => exploreProfilePicturesBloc.add(
               LoaderSetEvent(AuthRes(response.explore
                   .map((user) => exploreUsers
-                      .firstWhere((element) => element.user.id == user.id))
+                      .where((element) => element.user.id == user.id)
+                      .firstOrNull)
+                  .nonNulls
                   .toList()))),
           fallback: () {},
         );

@@ -199,31 +199,18 @@ class _HomePageState extends State<HomePage> {
                                           },
                                         ),
                                       ),
-                                      fallback: () => const Loader(),
+                                      fallback: () => const SignoutLoader(),
                                     ),
                                   )
                                 : null,
-                            fallback: () => Center(
-                              child: ListView(
-                                children: [
-                                  const Loader(),
-                                  StyledOutlineButton(
-                                    onPress: () => context.logoutBloc
-                                        .add(const LoaderLoadEvent(null)),
-                                    text: 'Sign Out',
-                                    hPadding: 16,
-                                    vPadding: 8,
-                                  ),
-                                ],
-                              ),
-                            ),
+                            fallback: () => const SignoutLoader(),
                           ),
                         ),
-                        fallback: () => const Loader(),
+                        fallback: () => const SignoutLoader(),
                       ),
                     ),
                   ),
-                  fallback: () => const Loader(),
+                  fallback: () => const SignoutLoader(),
                 ),
               ),
               fallback: () => const Loader(),
@@ -237,4 +224,24 @@ class _HomePageState extends State<HomePage> {
     pageController.dispose();
     super.dispose();
   }
+}
+
+final class SignoutLoader extends StatelessWidget {
+  const SignoutLoader({super.key}) : super();
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: ListView(
+          children: [
+            const Loader(),
+            StyledOutlineButton(
+              onPress: () =>
+                  context.logoutBloc.add(const LoaderLoadEvent(null)),
+              text: 'Sign Out',
+              hPadding: 16,
+              vPadding: 8,
+            ),
+          ],
+        ),
+      );
 }

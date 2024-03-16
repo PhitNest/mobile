@@ -40,15 +40,26 @@ final class RegisterProviderWidget extends StatelessWidget {
           ),
           builder: (context, loaderState) => RegisterForms(
             controllers: controllers,
-            submit: () => submit(
-              RegisterParams(
-                email: controllers.emailController.text,
-                password: controllers.passwordController.text,
-                firstName: controllers.firstNameController.text,
-                lastName: controllers.lastNameController.text,
-              ),
-              loaderState,
-            ),
+            submit: () {
+              if (controllers.firstNameController.text.isNotEmpty &&
+                  controllers.lastNameController.text.isNotEmpty) {
+                submit(
+                  RegisterParams(
+                    email: controllers.emailController.text,
+                    password: controllers.passwordController.text,
+                    firstName: controllers.firstNameController.text,
+                    lastName: controllers.lastNameController.text,
+                  ),
+                  loaderState,
+                );
+              } else {
+                // Jump to the first page if the user tries to submit without
+                // entering their name
+                controllers.pageController.jumpToPage(0);
+                Future.delayed(const Duration(milliseconds: 100),
+                    () => controllers.formKey.currentState?.validate());
+              }
+            },
             loading: loaderState.isLoading,
           ),
         ),
