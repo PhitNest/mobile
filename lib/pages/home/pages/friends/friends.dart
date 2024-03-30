@@ -45,63 +45,68 @@ class FriendsPage extends StatelessWidget {
                 ...reports.map((report) => report.user.id),
               };
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Column(
-                  children: [
-                    Text(
-                      'Friend requests',
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: homeData.pendingRequests.length,
-                        itemBuilder: (context, i) => FriendRequestWidget(
-                            loading: loadingIds.contains(
-                              homeData.pendingRequests[i]
-                                  .other(homeData.user.id)
-                                  .id,
-                            ),
-                            request: homeData.pendingRequests[i]),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 18),
+                      Text(
+                        'Friend requests',
+                        style: theme.textTheme.bodyLarge,
                       ),
-                    ),
-                    Text(
-                      'Your Friends',
-                      style: theme.textTheme.bodyLarge,
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: homeData.friends.length,
-                        padding: EdgeInsets.zero,
-                        itemBuilder: (context, i) => Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: loadingIds.contains(
-                            homeData.friends[i].other(homeData.user.id).id,
-                          )
-                              ? const Loader()
-                              : Row(
-                                  children: [
-                                    Text(
-                                      homeData.friends[i]
-                                          .other(homeData.user.id)
-                                          .fullName,
-                                      style: theme.textTheme.bodyMedium,
-                                    ),
-                                    StyledOutlineButton(
-                                      hPadding: 17,
-                                      vPadding: 9,
-                                      onPress: () => context
-                                          .deleteFriendRequestBloc
-                                          .add(ParallelPushEvent(
-                                              homeData.friends[i])),
-                                      text: 'REMOVE',
-                                    )
-                                  ],
-                                ),
+                      Expanded(
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: homeData.pendingRequests.length,
+                          itemBuilder: (context, i) => FriendRequestWidget(
+                              loading: loadingIds.contains(
+                                homeData.pendingRequests[i]
+                                    .other(homeData.user.id)
+                                    .id,
+                              ),
+                              request: homeData.pendingRequests[i]),
                         ),
                       ),
-                    ),
-                  ],
+                      Text(
+                        'Your Friends',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: homeData.friends.length,
+                          padding: EdgeInsets.zero,
+                          itemBuilder: (context, i) => Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: loadingIds.contains(
+                              homeData.friends[i].other(homeData.user.id).id,
+                            )
+                                ? const Loader()
+                                : Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        homeData.friends[i]
+                                            .other(homeData.user.id)
+                                            .fullName,
+                                        style: theme.textTheme.bodyMedium,
+                                      ),
+                                      StyledOutlineButton(
+                                        hPadding: 17,
+                                        vPadding: 9,
+                                        onPress: () => context
+                                            .deleteFriendRequestBloc
+                                            .add(ParallelPushEvent(
+                                                homeData.friends[i])),
+                                        text: 'REMOVE',
+                                      )
+                                    ],
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -121,41 +126,45 @@ class FriendRequestWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            request.sender.fullName,
-            style: theme.textTheme.bodyMedium,
-          ),
-          loading
-              ? const Loader()
-              : Row(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => context.sendFriendRequestBloc
-                          .add(ParallelPushEvent(request.sender)),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              request.sender.fullName,
+              style: theme.textTheme.bodyMedium,
+            ),
+            loading
+                ? const Loader()
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () => context.sendFriendRequestBloc
+                            .add(ParallelPushEvent(request.sender)),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                        ),
+                        child: Text(
+                          'ACCEPT',
+                          style: theme.textTheme.bodySmall,
                         ),
                       ),
-                      child: Text(
-                        'ACCEPT',
-                        style: theme.textTheme.bodySmall,
+                      const SizedBox(width: 9),
+                      StyledOutlineButton(
+                        hPadding: 17,
+                        vPadding: 9,
+                        onPress: () => context.deleteFriendRequestBloc
+                            .add(ParallelPushEvent(request)),
+                        text: 'IGNORE',
                       ),
-                    ),
-                    StyledOutlineButton(
-                      hPadding: 17,
-                      vPadding: 9,
-                      onPress: () => context.deleteFriendRequestBloc
-                          .add(ParallelPushEvent(request)),
-                      text: 'IGNORE',
-                    ),
-                  ],
-                ),
-        ],
+                    ],
+                  ),
+          ],
+        ),
       );
 }
