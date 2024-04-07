@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import '../../theme.dart';
 import '../../util/util.dart';
@@ -22,6 +23,7 @@ final class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListView(
+        padding: const EdgeInsets.all(20.0),
         children: [
           Text(
             'Login',
